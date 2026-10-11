@@ -9,9 +9,10 @@ React + TypeScript web client for LittleSteps. This initial foundation provides 
 ## Local setup
 1. Copy .env.example to .env.local.
 2. Set VITE_API_BASE_URL to the local Firebase Functions emulator API URL, including the project ID and function region path.
-3. Run npm install.
-4. Run npm run typecheck and npm run build.
-5. Run npm run dev.
+3. Run `npm ci` to install dependencies from the lockfile.
+4. Run `npm test` to run the unit test suite.
+5. Run `npm run typecheck` and `npm run build`.
+6. Run `npm run dev`.
 
 Do not put Firebase Admin credentials, AI provider keys, or other server secrets in VITE_* variables. Vite exposes these values to browser code.
 

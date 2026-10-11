@@ -1,8 +1,11 @@
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "");
+function getApiBaseUrl(): string | undefined {
+  return (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "");
+}
 
 export type ApiHealth = { status: "ok" };
 
 export async function getApiHealth(): Promise<ApiHealth> {
+  const apiBaseUrl = getApiBaseUrl();
   if (!apiBaseUrl) throw new Error("Set VITE_API_BASE_URL in .env.local first.");
   const response = await fetch(`${apiBaseUrl}/health`, {
     headers: { Accept: "application/json" },
