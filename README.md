@@ -23,7 +23,7 @@ LittleSteps uses a three-tier documentation structure. System architecture, prod
 
 ## Local Setup & Verification
 1. Copy `.env.example` to `.env.local`.
-2. Set `VITE_API_BASE_URL` to the local Firebase Functions emulator API URL (e.g., `http://127.0.0.1:5001/demo-littlesteps/us-central1/api`).
+2. Set `VITE_API_BASE_URL` to the local Firebase Functions emulator API URL (e.g., `http://127.0.0.1:5001/demo-littlesteps/asia-southeast1/api`).
 3. Run `npm ci` to install dependencies from the lockfile.
 4. Run `npm run lint` to verify code quality with ESLint.
 5. Run `npm test` to run the unit test suite.
