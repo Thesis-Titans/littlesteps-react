@@ -6,7 +6,7 @@ This repository contains the frontend web application for LittleSteps. For the c
 
 ## 1. Supported Versions
 
-Only the latest commit on the `main` branch of `littlesteps-web` is actively maintained and evaluated for security:
+Only the latest commit on the `main` branch of `littlesteps-react` is actively maintained and evaluated for security:
 
 | Branch | Status |
 | :--- | :---: |
