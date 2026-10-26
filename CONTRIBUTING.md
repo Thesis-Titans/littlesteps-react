@@ -45,7 +45,7 @@ npm run dev
 
 - **Branching:** Work on focused topic branches (`feat/`, `fix/`, `docs/`, `chore/`). Never push directly to `main`.
 - **Required CI Check:** The GitHub Actions workflow enforces **`Web CI/verify`**, which executes linting, unit tests, typechecking, and the Vite production build.
-- **Review Governance:** During the initial setup phase, Mark Alvin Cadangin serves as the required human review and approval boundary before any PR may be merged into `main`.
+- **Review Governance:** In the active feature execution phase, every pull request requires review and approval from at least one teammate. Pull requests modifying data contracts, authentication, security rules, or AI prompts/fallbacks require an additional review from Mark.
 
 ---
 
