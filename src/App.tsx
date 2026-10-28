@@ -4,19 +4,21 @@ import { SignInForm, useAuth } from "./features/auth";
 
 type CheckState = "loading" | "success" | "error";
 
-function Dashboard({ onNotice }: { onNotice: (message?: string) => void }) {
+function SessionStatus({ onNotice }: { onNotice: (message?: string) => void }) {
   const { user, signOut } = useAuth();
   const [checkState, setCheckState] = useState<CheckState>("loading");
-  const [message, setMessage] = useState("Confirming your session with the LittleSteps API…");
+  const [uid, setUid] = useState<string>();
+  const [message, setMessage] = useState("Checking your session…");
 
   useEffect(() => {
     let active = true;
     getCurrentUser()
-      .then(() => {
+      .then((currentUser) => {
         if (!active) return;
         onNotice(undefined);
+        setUid(currentUser.uid);
         setCheckState("success");
-        setMessage("Your session is verified by the LittleSteps API.");
+        setMessage("Connected");
       })
       .catch((error: unknown) => {
         if (!active) return;
@@ -34,43 +36,22 @@ function Dashboard({ onNotice }: { onNotice: (message?: string) => void }) {
   }, [onNotice, signOut]);
 
   return (
-    <>
-      <section className="hero" aria-labelledby="page-title">
-        <p className="eyebrow">Small moments. Meaningful growth.</p>
-        <h1 id="page-title">Welcome back.</h1>
-        <p className="hero-copy">
-          LittleSteps is being built to help caregivers plan activities, keep observations,
-          explore learning resources, and reflect on a child’s week.
-        </p>
-        <div className="status-panel">
-          <div>
-            <p className="panel-label">Signed in as</p>
-            <p className="status-message">{user?.email ?? "Caregiver"}</p>
-            <p className="status-message" role="status" aria-live="polite">{message}</p>
-          </div>
-          <button type="button" className="secondary-button" onClick={() => void signOut()}>
-            Sign out
-          </button>
-        </div>
-        <p className={`status-note ${checkState}`}>
-          {checkState === "success" ? "Session verified" : checkState === "error" ? "Not verified" : "Checking…"}
-        </p>
-      </section>
-
-      <section className="feature-section" aria-labelledby="features-title">
-        <p className="eyebrow">Product direction</p>
-        <h2 id="features-title">Six connected features</h2>
-        <div className="feature-grid">
-          <article><span>01</span><h3>Child profile</h3><p>Keep age-aware observations together.</p></article>
-          <article><span>02</span><h3>Daily activities</h3><p>Plan simple activities and track participation.</p></article>
-          <article><span>03</span><h3>Private journal</h3><p>Record caregiver observations with privacy in mind.</p></article>
-          <article><span>04</span><h3>Learning library</h3><p>Explore reviewed stories, rhymes, and activities.</p></article>
-          <article><span>05</span><h3>Weekly summary</h3><p>Reflect on recorded moments without diagnosis.</p></article>
-          <article><span>06</span><h3>Activity helper</h3><p>Suggest catalog activities with caregiver guidance.</p></article>
-        </div>
-        <p className="disclaimer">The six features above are not implemented yet. LittleSteps is not a diagnostic or medical tool.</p>
-      </section>
-    </>
+    <section className="session-card" aria-labelledby="session-title">
+      <h1 id="session-title">Session status</h1>
+      <dl className="session-details">
+        <dt>Email</dt>
+        <dd>{user?.email ?? "—"}</dd>
+        <dt>Verified UID</dt>
+        <dd className="session-uid">{uid ?? "—"}</dd>
+        <dt>Connection</dt>
+        <dd>
+          <span className={`status-note ${checkState}`} role="status" aria-live="polite">{message}</span>
+        </dd>
+      </dl>
+      <button type="button" className="secondary-button" onClick={() => void signOut()}>
+        Sign out
+      </button>
+    </section>
   );
 }
 
@@ -91,11 +72,10 @@ export function App() {
       {loading ? (
         <p className="auth-loading" role="status">Loading your session…</p>
       ) : user ? (
-        <Dashboard onNotice={setNotice} />
+        <SessionStatus onNotice={setNotice} />
       ) : (
         <SignInForm notice={notice} />
       )}
-      <footer>LittleSteps · Early learning and caregiver support</footer>
     </main>
   );
 }

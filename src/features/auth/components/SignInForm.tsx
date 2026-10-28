@@ -35,7 +35,7 @@ export function SignInForm({ notice }: { notice?: string }) {
   return (
     <section className="auth-card" aria-labelledby="sign-in-title">
       <h1 id="sign-in-title">Sign in</h1>
-      <p className="auth-copy">Welcome back. Sign in to continue to your caregiver space.</p>
+      <p className="auth-copy">Welcome back. Sign in with your caregiver account.</p>
       {notice && !error && <p className="auth-notice" role="status">{notice}</p>}
       {error && <p className="auth-error" role="alert">{error}</p>}
       <form onSubmit={handleSubmit}>
@@ -62,9 +62,7 @@ export function SignInForm({ notice }: { notice?: string }) {
           onChange={(event) => setPassword(event.target.value)}
           aria-invalid={error ? true : undefined}
         />
-        <p className="privacy-note">
-          LittleSteps protects your family's privacy. Data is strictly scoped to your caregiver account.
-        </p>
+        <p className="privacy-note">Your information stays private to your caregiver account.</p>
         <button type="submit" className="primary-button" disabled={submitting} aria-busy={submitting}>
           {submitting ? "Signing in…" : "Sign in"}
         </button>
