@@ -1,0 +1,118 @@
+@import "./tokens.css";
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--color-text-primary);
+  background: var(--color-surface-canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-optical-sizing: auto;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, a, input { font: inherit; }
+
+.page-shell { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+.topbar { height: 88px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #dfe7df; }
+.brand { display: inline-flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; font-weight: 750; letter-spacing: -.03em; font-size: 1.2rem; }
+.brand-mark { display: block; }
+.environment-tag { font-size: .78rem; color: #597064; border: 1px solid #d6e0d7; padding: 8px 12px; border-radius: 999px; }
+
+h1 { margin: 0; max-width: 760px; font-size: clamp(2.5rem, 7vw, 5.1rem); line-height: 1.02; letter-spacing: -.065em; font-weight: 760; }
+
+button { min-height: 48px; min-width: 48px; border: 0; border-radius: var(--radius-input); background: var(--color-brand-forest); color: white; padding: 12px 18px; font-size: 14px; line-height: 20px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+button:disabled { cursor: wait; opacity: .65; }
+
+.status-note { display: inline-block; margin: 0; padding: 5px 10px; font-size: .78rem; border-radius: 999px; background: #e7ece5; color: #526258; }
+.status-note.success { background: #e0efe4; color: #28603d; }
+.status-note.error { background: #f8e6df; color: #8a392a; }
+
+.secondary-button { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 18px; border-radius: var(--radius-input); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-input); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
+.auth-loading { padding: 84px 0; color: var(--color-text-secondary); }
+.session-details { display: grid; grid-template-columns: max-content 1fr; gap: 12px 20px; margin: 24px 0; }
+.session-details dt { font-weight: 700; font-size: .9rem; color: var(--color-text-secondary); }
+.session-details dd { margin: 0; overflow-wrap: anywhere; }
+.session-uid { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9rem; }
+.session-card { max-width: 560px; margin: 72px auto; padding: 32px; background: var(--color-surface-card); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.session-card h1 { font-size: 2rem; letter-spacing: -.04em; }
+.primary-button { width: 100%; }
+
+/* Sign in · Figma WEB 00 (93:876) / MOBILE WEB 00 (93:1785) */
+.sign-in-page { display: flex; flex-direction: column; align-items: center; gap: 16px; min-height: 100vh; padding: 32px 16px 96px; background: var(--color-surface-canvas); }
+.sign-in-page p { margin: 0; }
+.brand-panel { position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 400px; padding: 24px 0 20px; overflow: clip; border-radius: 20px; background: var(--color-brand-warm-cream); }
+.leaf { position: absolute; pointer-events: none; }
+.leaf-mobile-1 { top: -17.32px; right: -4.32px; transform: rotate(-60deg); }
+.leaf-mobile-2 { top: 70.69px; right: 52.31px; transform: rotate(140deg); }
+.leaf-mobile-3 { top: -42.1px; left: -15.32px; transform: rotate(-20deg); }
+
+.logo { position: relative; display: flex; align-items: center; color: var(--color-brand-artwork-forest); white-space: nowrap; line-height: normal; }
+.logo-wordmark { display: flex; flex-direction: column; }
+.logo-name { font-family: "Nunito Sans", Nunito, ui-rounded, system-ui, sans-serif; font-weight: 800; }
+.logo-horizontal { gap: 11.819px; margin-left: 16.07px; }
+.logo-horizontal .logo-symbol { width: 66.977px; height: 66.977px; }
+.logo-horizontal .logo-wordmark { gap: 1.458px; }
+.logo-horizontal .logo-name { font-size: 36.44px; }
+.logo-horizontal .logo-tagline { font-family: "Nunito Sans", Nunito, ui-rounded, system-ui, sans-serif; font-size: 11.3px; }
+.logo-stacked, .logo-stacked .logo-wordmark { flex-direction: column; align-items: center; }
+.logo-stacked { gap: 3.729px; }
+.logo-stacked .logo-symbol { width: 67.127px; height: 67.127px; }
+.logo-stacked .logo-name { font-size: 33.56px; }
+.logo-stacked .logo-tagline { margin-top: 3.729px; font-size: 7.46px; }
+
+.form-area { display: contents; }
+.auth-card { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 400px; padding: 28px 24px; background: var(--color-surface-card); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.auth-heading { display: flex; flex-direction: column; gap: 4px; }
+.auth-card h1 { font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: 0; }
+.auth-heading p { font-size: 16px; line-height: 24px; color: var(--color-text-secondary); }
+.auth-card form { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.auth-card label { font-size: 14px; line-height: 20px; font-weight: 600; }
+.auth-card input { height: 48px; padding: 12px 14px; border: 1px solid var(--color-border-input); border-radius: var(--radius-input); background: var(--color-surface-card); color: var(--color-text-primary); font-size: 16px; line-height: 24px; }
+.auth-card input::placeholder { color: var(--color-text-secondary); }
+.auth-card input[aria-invalid="true"] { border-color: var(--error-border); }
+.password-help { display: flex; align-items: center; justify-content: space-between; }
+.text-button { display: inline-flex; align-items: center; min-height: 44px; min-width: 0; padding: 0; border-radius: 0; background: none; color: var(--color-brand-forest); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
+.auth-new { font-size: 14px; line-height: 20px; text-align: center; color: var(--color-text-secondary); }
+.privacy-note { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: var(--color-text-secondary); }
+.privacy-note img { flex-shrink: 0; }
+.auth-error, .auth-notice { padding: 12px 14px; border-radius: var(--radius-input); line-height: 1.5; }
+.auth-error { background: var(--error-bg); color: var(--error-text); border: 1px solid var(--error-border); }
+.auth-notice { background: #e0efe4; color: var(--color-brand-forest); }
+
+@media (min-width: 1024px) {
+  .sign-in-page { flex-direction: row; align-items: stretch; gap: 0; padding: 0; }
+  .brand-panel { flex: 0 0 560px; max-width: none; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 64px; border-radius: 0; }
+  .brand-panel > .leaf { display: none; }
+  .brand-copy { display: flex; flex-direction: column; gap: 24px; font-size: 16px; line-height: 24px; }
+  .brand-headline { font-size: 32px; line-height: 40px; font-weight: 700; }
+  .promises { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .promises li { display: flex; align-items: center; gap: 10px; }
+  .brand-illustration { position: relative; width: 340px; height: 272px; }
+  .illustration { position: relative; display: block; }
+  .leaf-desktop-1 { top: 47.61px; left: 305.46px; transform: rotate(-140deg); }
+  .leaf-desktop-2 { top: 56.98px; left: 36.98px; transform: rotate(-30deg); }
+  .leaf-desktop-3 { top: 67.38px; left: 232.44px; transform: rotate(25deg); }
+  .form-area { display: flex; flex: 1; align-items: center; justify-content: center; padding: 32px; background: var(--color-surface-card); }
+  .auth-card { width: 400px; }
+  .auth-card h1 { font-size: 24px; font-weight: 600; }
+}
+
+@media (max-width: 720px) {
+  .page-shell { padding: 0 18px; }
+  .topbar { height: 72px; }
+  .environment-tag { font-size: .68rem; padding: 7px 9px; }
+}
+
+@media (max-width: 460px) {
+  .session-details { grid-template-columns: 1fr; gap: 4px; }
+  .session-details dd { margin-bottom: 8px; }
+  .session-card { margin: 32px 0; padding: 24px 18px; }
+}
+
+/* Last so breakpoint visibility wins over component display rules */
+@media (max-width: 1023px) { .desktop-only { display: none; } }
+@media (min-width: 1024px) { .mobile-only { display: none; } }

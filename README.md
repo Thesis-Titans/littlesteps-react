@@ -41,8 +41,45 @@ The API repository owns the OpenAPI specification at [`openapi/openapi.yaml`](ht
 
 ---
 
-## Status & Unimplemented Features
-Sign-in UI, child profile, developmental milestones, daily planning, private journal, learning library, weekly summary, AI suggestions, route protection, feature tests, and production deployment configuration remain future work.
+## Architecture & Project Organization
+To support parallel feature development across course tracks while preventing file collisions and maintaining clean boundaries, `littlesteps-react` follows a feature-modular and layered architecture:
+
+```
+src/
+├── services/               # Shared backend / infrastructure integration
+│   ├── firebase.ts         # Client Firebase Auth initialization & emulator hooks
+│   ├── api.ts              # Authenticated fetch client (Bearer token injection, /me)
+│   └── api.test.ts         # Service contract tests
+├── features/               # Domain feature modules (co-locating components, hooks, types, tests)
+│   ├── auth/               # Caregiver authentication & session state (Issue #5)
+│   │   ├── components/     # Feature-scoped UI (e.g., SignInForm)
+│   │   ├── context.ts      # AuthContext instance (decoupled for Fast Refresh)
+│   │   ├── AuthProvider.tsx# Context provider component
+│   │   ├── useAuth.ts      # Custom hook
+│   │   ├── types.ts        # Domain types
+│   │   ├── auth.test.ts    # Unit tests
+│   │   └── index.ts        # Public feature interface
+│   ├── profile/            # Child profile management (Issue #6)
+│   ├── activities/         # Daily activities & learning catalog (Issues #7, #8)
+│   ├── journal/            # Private observation journal (Issue #9)
+│   ├── reflections/        # Weekly summary & reflections (Issue #10)
+│   └── ai-helper/          # AI suggestion experience & safe fallback states (Issue #11)
+├── components/             # Reusable design system UI components
+│   ├── common/             # Buttons, inputs, modals, chips, banners
+│   └── layout/             # Topbar, bottom navigation, sidebar (Issue #18)
+├── styles/                 # Design tokens and styling system
+│   ├── tokens.css          # CSS custom properties matching UI/UX spec §6
+│   └── main.css            # Base typography, layout, and component classes
+├── App.tsx                 # Root application shell & routing
+├── main.tsx                # Client bootstrap
+└── vite-env.d.ts           # Environment type declarations
+```
+
+### Architectural Principles
+1. **Co-location over Layer Spread:** Keep feature-specific components, hooks, tests, and types inside their respective `features/<feature-name>/` directory.
+2. **Explicit Public Interface:** Each feature folder maintains an `index.ts` barrel that exports only what other parts of the app need.
+3. **Decoupled Infrastructure:** Client network and Firebase logic belong in `services/`, never directly in UI components.
+4. **Token-First Styling:** All colors, spacing, and focus rings reference CSS custom properties defined in `styles/tokens.css`, maintaining compliance with the canonical UI/UX specification.
 
 ---
 
