@@ -59,19 +59,22 @@ src/
 │   │   ├── types.ts        # Domain types
 │   │   ├── auth.test.ts    # Unit tests
 │   │   └── index.ts        # Public feature interface
-│   ├── profile/            # Child profile management (Issue #6)
-│   ├── activities/         # Daily activities & learning catalog (Issues #7, #8)
-│   ├── journal/            # Private observation journal (Issue #9)
-│   ├── reflections/        # Weekly summary & reflections (Issue #10)
-│   └── ai-helper/          # AI suggestion experience & safe fallback states (Issue #11)
+│   ├── children/           # Active child context, reset per signed-in user (Issue #6 builds the profile flow)
+│   ├── today/              # Today tab: activity planning (Issue #8)
+│   ├── explore/            # Explore tab: age-aware learning catalog (Issue #7)
+│   ├── milestones/         # Milestones tab: observation prompts (Issue #17)
+│   ├── journal/            # Journal tab: private observation journal (Issue #9)
+│   ├── this-week/          # This week tab: weekly reflection (Issue #10)
+│   ├── account/            # Account, settings, privacy and help (Issue #16)
+│   └── ai-helper/          # AI suggestion experience & safe fallback states (Issue #11, not created yet)
 ├── components/             # Reusable design system UI components
-│   ├── common/             # Buttons, inputs, modals, chips, banners
-│   └── layout/             # Topbar, bottom navigation, sidebar (Issue #18)
+│   ├── common/             # Buttons, fields, chips, alerts, states (see components/README.md)
+│   └── layout/             # App shell: ProtectedRoute, AppShell, SideNav, TopBar, BottomTabBar, ScreenHeader (Issue #18)
 ├── styles/                 # Design tokens and styling system
 │   ├── tokens.css          # CSS custom properties matching UI/UX spec §6
 │   └── main.css            # Base typography, layout, and component classes
-├── App.tsx                 # Root application shell & routing
-├── main.tsx                # Client bootstrap
+├── App.tsx                 # Route table (tabs under ProtectedRoute + AppShell)
+├── main.tsx                # Client bootstrap (router, auth provider, /dev/components showcase)
 └── vite-env.d.ts           # Environment type declarations
 ```
 

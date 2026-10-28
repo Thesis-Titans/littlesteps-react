@@ -61,17 +61,17 @@ npm run dev
 - Always use synthetic test data when testing locally or capturing screenshots.
 
 ### 4.3 Accessibility & Responsive Design
-- Ensure UI components support keyboard navigation and visible focus rings (2px `--focus-ring: #1F634D` with 2px offset).
+- Ensure UI components support keyboard navigation and visible focus rings (2px `--color-focus` ring with 2px offset, from `tokens.css`).
 - Verify layouts across both mobile (375px) and desktop viewports, with minimum 48 × 48px touch targets for interactive controls.
 - Always provide accessible loading, empty, and error fallback states matching the UI/UX spec §7 matrix.
 
 ### 4.4 Feature-Modular Directory Structure
 To avoid merge conflicts across team tracks, code must follow the standard layout documented in [README.md](README.md):
 - `src/services/`: Shared external integrations (Firebase initialization, authenticated `apiFetch`, `/me`).
-- `src/features/<feature-name>/`: Domain modules (e.g., `auth/`, `profile/`, `activities/`, `journal/`).
+- `src/features/<feature-name>/`: Domain modules (e.g., `auth/`, `children/`, `today/`, `journal/`). Each tab screen renders `ScreenHeader` from `components/layout` and never its own `<main>`.
   - Co-locate components, custom hooks, types, and unit tests inside the feature directory.
   - Expose external capabilities solely via an `index.ts` barrel export.
-- `src/components/`: Reusable cross-cutting UI primitives (`common/` buttons, modals, chips; `layout/` topbar, nav).
+- `src/components/`: Reusable cross-cutting UI primitives (`common/` buttons, modals, chips; `layout/` app shell and navigation).
 - `src/styles/`: Central design tokens (`tokens.css`) and global base styling (`main.css`).
 
 ### 4.5 Styling Standards (Vanilla CSS, No Tailwind)
