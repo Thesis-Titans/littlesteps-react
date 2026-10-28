@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser, UnauthorizedError } from "./services/api";
 import { SignInForm, useAuth } from "./features/auth";
+import growthSymbol from "./components/common/growth-symbol.svg";
 
 type CheckState = "loading" | "success" | "error";
 
@@ -59,11 +60,13 @@ export function App() {
   const { user, loading } = useAuth();
   const [notice, setNotice] = useState<string>();
 
+  if (!loading && !user) return <SignInForm notice={notice} />;
+
   return (
     <main className="page-shell">
       <header className="topbar">
         <a className="brand" href="/" aria-label="LittleSteps home">
-          <span className="brand-mark" aria-hidden="true">L</span>
+          <img className="brand-mark" src={growthSymbol} alt="" width={36} height={36} />
           <span>LittleSteps</span>
         </a>
         <span className="environment-tag">Development foundation</span>
@@ -71,10 +74,8 @@ export function App() {
 
       {loading ? (
         <p className="auth-loading" role="status">Loading your session…</p>
-      ) : user ? (
-        <SessionStatus onNotice={setNotice} />
       ) : (
-        <SignInForm notice={notice} />
+        <SessionStatus onNotice={setNotice} />
       )}
     </main>
   );

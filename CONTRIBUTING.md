@@ -76,7 +76,7 @@ To avoid merge conflicts across team tracks, code must follow the standard layou
 
 ### 4.5 Styling Standards (Vanilla CSS, No Tailwind)
 - **Do not install or use TailwindCSS.**
-- All UI styling uses **Vanilla CSS** referencing CSS custom properties defined in `src/styles/tokens.css` (`--forest`, `--canvas`, `--card`, `--input-border`, `--text-primary`).
+- All UI styling uses **Vanilla CSS** referencing CSS custom properties defined in `src/styles/tokens.css` (`--color-brand-forest`, `--color-surface-canvas`, `--color-surface-card`, `--color-border-input`, `--color-text-primary`).
 - Never hard-code hex colors in component styles; always reference design token variables to ensure WCAG 2.2 AA compliance.
 
 ---

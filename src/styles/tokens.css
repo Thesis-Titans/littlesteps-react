@@ -1,24 +1,32 @@
 /**
  * LittleSteps Design Tokens
  * Conforms to ISO 9241, WCAG 2.2 AA, and LittleSteps UI/UX Specification §6
+ * Names and values mirror the Figma variables in the Responsive Caregiver Prototype.
  */
 :root {
   /* Brand / Primary */
-  --forest: #1F634D;
+  --color-brand-forest: #1f634d;
+  --color-brand-artwork-forest: #286b58;
+  --color-brand-warm-cream: #f4f2e8;
   --soft-green: #E0F2E5;
 
   /* Surfaces */
-  --canvas: #F7F7ED;
-  --card: #FFFFFF;
-  --border-subtle: #E0E5DB;
+  --color-surface-canvas: #f7f7ed;
+  --color-surface-card: #ffffff;
+  --color-border-subtle: #e0e5db;
 
   /* Typography Colors */
-  --text-primary: #1A2B29;
-  --text-secondary: #63756E;
+  --color-text-primary: #1a2b29;
+  --color-text-secondary: #63756e;
 
   /* Form Controls & Interactions */
-  --input-border: #7E8C86;
+  --color-border-input: #7e8c86;
   --focus-ring: #1F634D;
+
+  /* Shape & Elevation */
+  --radius-card: 16px;
+  --radius-input: 10px;
+  --shadow-card: 0 1px 2px rgba(26, 43, 41, 0.04), 0 4px 14px rgba(26, 43, 41, 0.06);
 
   /* Status Colors */
   --error-bg: #FFF6F5;
