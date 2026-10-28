@@ -1,53 +1,60 @@
-import { useState } from "react";
-import { getApiHealth } from "./api";
+import { useEffect, useState } from "react";
+import { getCurrentUser, UnauthorizedError } from "./api";
+import { useAuth } from "./auth/useAuth";
+import { SignInForm } from "./components/SignInForm";
 
-type CheckState = "idle" | "loading" | "success" | "error";
+type CheckState = "loading" | "success" | "error";
 
-export function App() {
-  const [checkState, setCheckState] = useState<CheckState>("idle");
-  const [message, setMessage] = useState("Not checked yet.");
+function Dashboard({ onNotice }: { onNotice: (message?: string) => void }) {
+  const { user, signOut } = useAuth();
+  const [checkState, setCheckState] = useState<CheckState>("loading");
+  const [message, setMessage] = useState("Confirming your session with the LittleSteps API…");
 
-  async function checkApi() {
-    setCheckState("loading");
-    setMessage("Checking the local API…");
-    try {
-      await getApiHealth();
-      setCheckState("success");
-      setMessage("The API health endpoint responded successfully.");
-    } catch (error) {
-      setCheckState("error");
-      setMessage(error instanceof Error ? error.message : "The API check failed.");
-    }
-  }
+  useEffect(() => {
+    let active = true;
+    getCurrentUser()
+      .then(() => {
+        if (!active) return;
+        onNotice(undefined);
+        setCheckState("success");
+        setMessage("Your session is verified by the LittleSteps API.");
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        if (error instanceof UnauthorizedError) {
+          onNotice(error.message);
+          void signOut();
+          return;
+        }
+        setCheckState("error");
+        setMessage(error instanceof Error ? error.message : "We couldn't confirm your session.");
+      });
+    return () => {
+      active = false;
+    };
+  }, [onNotice, signOut]);
 
   return (
-    <main className="page-shell">
-      <header className="topbar">
-        <a className="brand" href="/" aria-label="LittleSteps home">
-          <span className="brand-mark" aria-hidden="true">L</span>
-          <span>LittleSteps</span>
-        </a>
-        <span className="environment-tag">Development foundation</span>
-      </header>
-
+    <>
       <section className="hero" aria-labelledby="page-title">
         <p className="eyebrow">Small moments. Meaningful growth.</p>
-        <h1 id="page-title">A thoughtful space for early learning.</h1>
+        <h1 id="page-title">Welcome back.</h1>
         <p className="hero-copy">
           LittleSteps is being built to help caregivers plan activities, keep observations,
           explore learning resources, and reflect on a child’s week.
         </p>
         <div className="status-panel">
           <div>
-            <p className="panel-label">API connection</p>
+            <p className="panel-label">Signed in as</p>
+            <p className="status-message">{user?.email ?? "Caregiver"}</p>
             <p className="status-message" role="status" aria-live="polite">{message}</p>
           </div>
-          <button onClick={checkApi} disabled={checkState === "loading"}>
-            {checkState === "loading" ? "Checking…" : "Check local API"}
+          <button type="button" className="secondary-button" onClick={() => void signOut()}>
+            Sign out
           </button>
         </div>
         <p className={`status-note ${checkState}`}>
-          {checkState === "success" ? "Connected" : checkState === "error" ? "Not connected" : "Local integration only"}
+          {checkState === "success" ? "Session verified" : checkState === "error" ? "Not verified" : "Checking…"}
         </p>
       </section>
 
@@ -62,8 +69,33 @@ export function App() {
           <article><span>05</span><h3>Weekly summary</h3><p>Reflect on recorded moments without diagnosis.</p></article>
           <article><span>06</span><h3>Activity helper</h3><p>Suggest catalog activities with caregiver guidance.</p></article>
         </div>
-        <p className="disclaimer">This screen is a development scaffold. The six features above are not implemented yet. LittleSteps is not a diagnostic or medical tool.</p>
+        <p className="disclaimer">The six features above are not implemented yet. LittleSteps is not a diagnostic or medical tool.</p>
       </section>
+    </>
+  );
+}
+
+export function App() {
+  const { user, loading } = useAuth();
+  const [notice, setNotice] = useState<string>();
+
+  return (
+    <main className="page-shell">
+      <header className="topbar">
+        <a className="brand" href="/" aria-label="LittleSteps home">
+          <span className="brand-mark" aria-hidden="true">L</span>
+          <span>LittleSteps</span>
+        </a>
+        <span className="environment-tag">Development foundation</span>
+      </header>
+
+      {loading ? (
+        <p className="auth-loading" role="status">Loading your session…</p>
+      ) : user ? (
+        <Dashboard onNotice={setNotice} />
+      ) : (
+        <SignInForm notice={notice} />
+      )}
       <footer>LittleSteps · Early learning and caregiver support</footer>
     </main>
   );
