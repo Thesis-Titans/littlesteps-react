@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser, UnauthorizedError } from "./services/api";
 import { SignInForm, useAuth } from "./features/auth";
-import growthSymbol from "./components/common/growth-symbol.svg";
+import growthSymbol from "./assets/brand/brandmark.svg";
 
 type CheckState = "loading" | "success" | "error";
 

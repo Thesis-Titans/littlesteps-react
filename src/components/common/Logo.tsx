@@ -1,4 +1,4 @@
-import growthSymbol from "./growth-symbol.svg";
+import growthSymbol from "../../assets/brand/brandmark.svg";
 
 const TAGLINE = "Small steps. Brighter tomorrows.";
 
