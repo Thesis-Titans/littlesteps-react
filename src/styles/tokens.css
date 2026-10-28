@@ -1,0 +1,31 @@
+/**
+ * LittleSteps Design Tokens
+ * Conforms to ISO 9241, WCAG 2.2 AA, and LittleSteps UI/UX Specification §6
+ */
+:root {
+  /* Brand / Primary */
+  --forest: #1F634D;
+  --soft-green: #E0F2E5;
+
+  /* Surfaces */
+  --canvas: #F7F7ED;
+  --card: #FFFFFF;
+  --border-subtle: #E0E5DB;
+
+  /* Typography Colors */
+  --text-primary: #1A2B29;
+  --text-secondary: #63756E;
+
+  /* Form Controls & Interactions */
+  --input-border: #7E8C86;
+  --focus-ring: #1F634D;
+
+  /* Status Colors */
+  --error-bg: #FFF6F5;
+  --error-text: #853029;
+  --error-border: #B83D33;
+  --caution-bg: #FAE8A8;
+  --info-bg: #D9E8F7;
+  --offline-bg: #F1F5F9;
+  --offline-text: #475569;
+}

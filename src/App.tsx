@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { getCurrentUser, UnauthorizedError } from "./api";
-import { useAuth } from "./auth/useAuth";
-import { SignInForm } from "./components/SignInForm";
+import { getCurrentUser, UnauthorizedError } from "./services/api";
+import { SignInForm, useAuth } from "./features/auth";
 
 type CheckState = "loading" | "success" | "error";
 

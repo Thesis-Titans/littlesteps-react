@@ -1,8 +1,9 @@
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "./AuthContext";
-import { AuthContext, useAuth } from "./useAuth";
+import { AuthProvider } from "./AuthProvider";
+import { AuthContext } from "./context";
+import { useAuth } from "./useAuth";
 import type { AuthState } from "./types";
 
 const firebaseAuth = vi.hoisted(() => ({
@@ -11,7 +12,7 @@ const firebaseAuth = vi.hoisted(() => ({
   onIdTokenChanged: vi.fn(() => () => {})
 }));
 vi.mock("firebase/auth", () => firebaseAuth);
-vi.mock("../firebase", () => ({ auth: { name: "test-auth" } }));
+vi.mock("../../services/firebase", () => ({ auth: { name: "test-auth" } }));
 
 function capture(wrap: (child: ReturnType<typeof createElement>) => ReturnType<typeof createElement>) {
   let state: AuthState | undefined;

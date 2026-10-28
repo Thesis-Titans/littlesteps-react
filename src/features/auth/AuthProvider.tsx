@@ -1,8 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { onIdTokenChanged, signInWithEmailAndPassword, signOut, type User } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../../services/firebase";
+import { AuthContext } from "./context";
 import type { AuthState } from "./types";
-import { AuthContext } from "./useAuth";
 
 // Module-level so their identity is stable across token refreshes.
 async function signIn(email: string, password: string) {

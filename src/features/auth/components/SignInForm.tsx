@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { FirebaseError } from "firebase/app";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../useAuth";
 
 function describeSignInError(error: unknown): string {
   if (error instanceof FirebaseError) {
