@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
+import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./features/auth";
 import "./styles/main.css";
 
@@ -14,9 +15,11 @@ if (import.meta.env.DEV && location.pathname === "/dev/components") {
 } else {
   root.render(
     <StrictMode>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
     </StrictMode>
   );
 }

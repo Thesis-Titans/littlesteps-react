@@ -15,30 +15,13 @@
 body { margin: 0; min-width: 320px; }
 button, a, input { font: inherit; }
 
-.page-shell { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
-.topbar { height: 88px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #dfe7df; }
-.brand { display: inline-flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; font-weight: 750; letter-spacing: -.03em; font-size: 1.2rem; }
-.brand-mark { display: block; }
-.environment-tag { font-size: .78rem; color: #597064; border: 1px solid #d6e0d7; padding: 8px 12px; border-radius: 999px; }
-
 h1 { margin: 0; max-width: 760px; font-size: clamp(2.5rem, 7vw, 5.1rem); line-height: 1.02; letter-spacing: -.065em; font-weight: 760; }
 
 button { min-height: 48px; min-width: 48px; border: 0; border-radius: var(--radius-control); background: var(--color-brand-forest); color: var(--color-text-on-brand); padding: 12px 18px; font-size: 14px; line-height: 20px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 button:disabled { cursor: wait; opacity: .65; }
 
-.status-note { display: inline-block; margin: 0; padding: 5px 10px; font-size: .78rem; border-radius: 999px; background: #e7ece5; color: #526258; }
-.status-note.success { background: #e0efe4; color: #28603d; }
-.status-note.error { background: #f8e6df; color: #8a392a; }
-
 .secondary-button { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 18px; border-radius: var(--radius-control); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-input); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
-.auth-loading { padding: 84px 0; color: var(--color-text-secondary); }
-.session-details { display: grid; grid-template-columns: max-content 1fr; gap: 12px 20px; margin: 24px 0; }
-.session-details dt { font-weight: 700; font-size: .9rem; color: var(--color-text-secondary); }
-.session-details dd { margin: 0; overflow-wrap: anywhere; }
-.session-uid { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9rem; }
-.session-card { max-width: 560px; margin: 72px auto; padding: 32px; background: var(--color-surface-card); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-card); box-shadow: var(--elevation-card); }
-.session-card h1 { font-size: 2rem; letter-spacing: -.04em; }
 .primary-button { width: 100%; }
 
 /* Sign in · Figma WEB 00 (93:876) / MOBILE WEB 00 (93:1785) */
@@ -52,6 +35,7 @@ button:disabled { cursor: wait; opacity: .65; }
 
 .logo { position: relative; display: flex; align-items: center; color: var(--color-brand-artwork-forest); white-space: nowrap; line-height: normal; }
 .logo-wordmark { display: flex; flex-direction: column; }
+.logo-name, .logo-tagline { margin: 0; }
 .logo-name { font-family: "Nunito Sans", Nunito, ui-rounded, system-ui, sans-serif; font-weight: 800; }
 .logo-horizontal { gap: 11.819px; margin-left: 16.07px; }
 .logo-horizontal .logo-symbol { width: 66.977px; height: 66.977px; }
@@ -102,16 +86,50 @@ button:disabled { cursor: wait; opacity: .65; }
   .auth-card h1 { font-size: 24px; font-weight: 600; }
 }
 
-@media (max-width: 720px) {
-  .page-shell { padding: 0 18px; }
-  .topbar { height: 72px; }
-  .environment-tag { font-size: .68rem; padding: 7px 9px; }
-}
+/* App shell · UI/UX spec §5.2: mobile sticky top bar + fixed bottom tabs; sidebar from 768px (tablet and desktop) */
+html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: var(--size-bottom-bar); } /* §2.5 focus not hidden under the fixed bars */
+.auth-loading { padding: var(--space-32) var(--space-16); text-align: center; color: var(--color-text-secondary); }
+.auth-loading p { margin: 0; }
 
-@media (max-width: 460px) {
-  .session-details { grid-template-columns: 1fr; gap: 4px; }
-  .session-details dd { margin-bottom: 8px; }
-  .session-card { margin: 32px 0; padding: 24px 18px; }
+.shell-logo.logo-horizontal { gap: var(--space-8); margin-left: 0; }
+.shell-logo.logo-horizontal .logo-symbol { width: 36px; height: 36px; }
+.shell-logo.logo-horizontal .logo-name { font-size: 20px; }
+.shell-logo .logo-tagline { display: none; }
+.account-link { display: inline-flex; align-items: center; min-height: var(--size-touch-target-min); padding: 0 var(--space-12); border-radius: var(--radius-control); color: var(--color-text-brand); font: var(--font-label); text-decoration: none; }
+.account-link[aria-current="page"] { background: var(--color-surface-soft-green); }
+
+.top-bar { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); height: var(--size-top-bar); padding: 0 var(--space-16); background: var(--color-surface-card); border-bottom: 1px solid var(--color-border-subtle); }
+.side-nav { display: none; }
+.app-main { padding: var(--space-24) var(--space-16) calc(var(--size-bottom-bar) + var(--space-24)); }
+
+.tab-links { display: flex; margin: 0; padding: 0; list-style: none; }
+.tab-link { display: flex; align-items: center; gap: var(--space-12); min-height: var(--size-touch-target-min); border-radius: var(--radius-control); color: var(--color-text-secondary); font: var(--font-label); text-decoration: none; }
+.tab-link[aria-current="page"] { color: var(--color-text-brand); }
+
+.bottom-tab-bar { position: fixed; inset: auto 0 0; z-index: 1; padding-bottom: env(safe-area-inset-bottom); background: var(--color-surface-card); border-top: 1px solid var(--color-border-subtle); }
+.bottom-tab-bar .tab-links > li { flex: 1 1 0; min-width: 0; }
+/* Labels may wrap to two lines (§2.5 room for translation); the ring is inset so the screen edge can't clip it */
+.bottom-tab-bar .tab-link { flex-direction: column; justify-content: center; gap: var(--space-4); min-height: var(--size-bottom-bar); padding: var(--space-8) var(--space-4); border-top: var(--space-4) solid transparent; border-radius: 0; font: var(--font-meta); text-align: center; overflow-wrap: anywhere; hyphens: auto; }
+.bottom-tab-bar .tab-link:focus-visible { outline-offset: calc(-1 * var(--focus-ring-width)); }
+.bottom-tab-bar .tab-link[aria-current="page"] { border-top-color: var(--color-brand-forest); }
+
+.screen { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-8); max-width: 70ch; }
+.screen h1 { font: var(--font-display-mobile); letter-spacing: 0; }
+.screen-subtitle { margin: 0 0 var(--space-16); font: var(--font-body); color: var(--color-text-secondary); overflow-wrap: anywhere; }
+/* "For [child]" (§2.1, §5.2): a read-only label styled like a badge until react #6 makes it the switcher */
+.child-chip { max-width: 100%; background: var(--color-surface-soft-green); color: var(--color-brand-forest); overflow-wrap: anywhere; }
+
+@media (min-width: 768px) {
+  html { scroll-padding: 0; }
+  .app-shell { display: grid; grid-template-columns: var(--size-sidebar) minmax(0, 1fr); min-height: 100vh; }
+  .top-bar, .bottom-tab-bar { display: none; }
+  .side-nav { position: sticky; top: 0; display: flex; flex-direction: column; gap: var(--space-24); height: 100vh; overflow-y: auto; padding: var(--space-24) var(--space-16); background: var(--color-surface-card); border-right: 1px solid var(--color-border-subtle); }
+  .side-nav .tab-links { flex-direction: column; gap: var(--space-8); }
+  .side-nav .tab-link { padding: 0 var(--space-12); }
+  .side-nav .tab-link[aria-current="page"] { background: var(--color-surface-soft-green); }
+  .side-nav .account-link { align-self: flex-start; margin-top: auto; }
+  .app-main { padding: var(--space-32); }
+  .screen h1 { font: var(--font-display-desktop); }
 }
 
 /* Last so breakpoint visibility wins over component display rules */
