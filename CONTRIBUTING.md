@@ -49,6 +49,14 @@ npm run dev
 
 ---
 
+## 3a. Testing
+
+Tests run with Vitest (`npm test`) in the node environment by default.
+
+- **Markup and pure logic:** use `renderToStaticMarkup` (or plain function tests) for what a screen renders for a given state: text, roles, attributes, which branch shows. It is fast and needs no browser. It cannot click, focus or run effects.
+- **Behaviour:** when the test needs a click, keyboard key, focus move, timer or effect (menus, dismiss buttons, focus on first error, event listeners), use the DOM environment. Name the file `*.dom.test.tsx`, put `// @vitest-environment jsdom` on its first line, import `cleanup` from `@testing-library/react` and call it in `afterEach`. Prefer `@testing-library/user-event` for real input and plain assertions over extra matcher libraries.
+- Use fake timers only where a test needs time to pass, and restore real timers afterwards. Do not wait on real timers longer than a second.
+
 ## 4. Frontend-Specific Rules & Safeguards
 
 ### 4.1 Strict Environment Variable Safety
