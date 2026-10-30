@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { apiFetch, getCurrentUser, getApiHealth, UnauthorizedError } from "./api";
+import { ApiError, apiFetch, getCurrentUser, getApiHealth, UnauthorizedError } from "./api";
 
 const mockAuth = vi.hoisted(() => ({
   currentUser: null as { getIdToken: (forceRefresh?: boolean) => Promise<string> } | null
@@ -131,5 +131,37 @@ describe("apiFetch & getCurrentUser", () => {
   it("throws when VITE_API_BASE_URL is not set for apiFetch", async () => {
     import.meta.env.VITE_API_BASE_URL = "";
     await expect(apiFetch("/health")).rejects.toThrow("Set VITE_API_BASE_URL in .env.local first.");
+  });
+
+  it("throws ApiError with code, message and details from the error envelope", async () => {
+    const error = {
+      code: "UNPROCESSABLE_ENTITY",
+      message: "Birth month is out of range.",
+      details: [{ field: "birthMonthYear", issue: "too old" }, { nope: 1 }]
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(422, { error })));
+
+    const failure = await apiFetch("/api/v1/children").catch((e: unknown) => e);
+    expect(failure).toBeInstanceOf(ApiError);
+    expect(failure).toMatchObject({
+      status: 422,
+      code: "UNPROCESSABLE_ENTITY",
+      message: "Birth month is out of range.",
+      details: [{ field: "birthMonthYear", issue: "too old" }]
+    });
+  });
+
+  it("throws ApiError for a 404", async () => {
+    const error = { code: "RESOURCE_NOT_FOUND", message: "Not found." };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(404, { error })));
+    await expect(apiFetch("/api/v1/children/x")).rejects.toMatchObject({ status: 404, code: "RESOURCE_NOT_FOUND", details: [] });
+  });
+
+  it("gives a generic ApiError for a non-JSON or envelope-less error body", async () => {
+    const notJson = { ok: false, status: 502, json: async () => { throw new SyntaxError("bad"); } };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(notJson).mockResolvedValueOnce(jsonResponse(500, { oops: true })));
+    for (const _ of [1, 2]) {
+      await expect(apiFetch("/x")).rejects.toMatchObject({ code: undefined, message: expect.stringContaining("HTTP") });
+    }
   });
 });
