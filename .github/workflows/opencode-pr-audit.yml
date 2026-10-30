@@ -36,14 +36,14 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: Run OpenCode React QA Audit (Gemini 2.5 Flash — Free)
+      - name: Run OpenCode React QA Audit (Gemini 3.8 Flash — Free)
         uses: anomalyco/opencode/github@latest
         env:
           GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          model: google/gemini-2.5-flash
+          model: google/gemini-3.8-flash
           agent: react-reviewer
           use_github_token: 'true'
           prompt: |
