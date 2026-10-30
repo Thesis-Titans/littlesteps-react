@@ -11,7 +11,7 @@ export function AboutScreen() {
       </Card>
       <Card as="section" aria-labelledby="about-sources">
         <h2 id="about-sources">Where activities come from</h2>
-        <p>Every activity shows where it comes from. Look for the source on each activity card.</p>
+        <p>Every activity will show where it comes from. Activities are being reviewed before they are shown.</p>
       </Card>
       <Card as="section" aria-labelledby="about-ai">
         <h2 id="about-ai">When AI is used</h2>
