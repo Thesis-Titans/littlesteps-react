@@ -1,0 +1,19 @@
+/* Account pages (react #16) */
+.account-page { width: 100%; }
+.account-page .ls-card { width: 100%; overflow-wrap: anywhere; }
+.account-page h2 { margin: 0; font: var(--font-h2-mobile); }
+.account-page p { margin: 0; font: var(--font-body); }
+.account-page .account-h2 { margin-top: var(--space-8); }
+.account-note { font: var(--font-body-small); color: var(--color-text-primary); }
+.account-email { font-weight: 600; }
+.account-back { display: inline-flex; align-items: center; min-height: var(--size-touch-target-secondary); color: var(--color-text-brand); font: var(--font-label); text-decoration: none; }
+.account-back:focus-visible, .account-menu a:focus-visible, .account-faq summary:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus); outline-offset: var(--focus-ring-offset); }
+.account-menu { width: 100%; }
+.account-menu ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-8); }
+.account-menu a { display: flex; align-items: center; min-height: var(--size-touch-target-min); padding: 0 var(--space-16); background: var(--color-surface-card); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-control); color: var(--color-text-primary); font: var(--font-label); text-decoration: none; }
+.account-action { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-8); }
+.account-action .ls-button { max-width: 100%; height: auto; white-space: normal; text-align: left; }
+.ls-button[aria-disabled="true"] { background: var(--color-surface-card); border-color: var(--color-border-subtle); color: var(--color-text-secondary); cursor: not-allowed; }
+.account-faq { display: flex; flex-direction: column; gap: var(--space-8); width: 100%; }
+.account-faq summary { display: flex; align-items: center; min-height: var(--size-touch-target-min); cursor: pointer; font: var(--font-label); }
+@media (min-width: 768px) { .account-page h2 { font: var(--font-h2-desktop); } }
