@@ -4,6 +4,7 @@ import {
   MONTHS, bandOptions, birthOutOfRange, initialValues, mapApiError, prepareSubmit, yearOptions,
   type AgeMode, type FieldErrors, type FormValues
 } from "../form";
+import { ChildSwitcher } from "./ChildSwitcher";
 import { ageBandLabel, type Child, type CreateChildInput, type UpdateChildInput } from "../types";
 
 type ChildFormProps = {
@@ -56,6 +57,7 @@ export function ChildForm({ child, online, onSubmit, onCancel }: ChildFormProps)
   const years = [{ value: "", label: "Choose a year" }, ...yearOptions().map((y) => ({ value: y, label: y }))];
   return (
     <form ref={form} className="child-form" onSubmit={handleSubmit} noValidate>
+      <ChildSwitcher variant="chip" />
       {errors.form && <InlineAlert ref={formAlert} tabIndex={-1} kind="error" title="We couldn't save this.">{errors.form}</InlineAlert>}
       <TextField
         label="Nickname"

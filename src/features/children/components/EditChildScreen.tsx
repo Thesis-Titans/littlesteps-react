@@ -1,6 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { InlineAlert } from "../../../components/common";
 import { ScreenHeader } from "../../../components/layout";
+import { noticeState, savedMessage } from "../notice";
 import { useOnline } from "../hooks/useOnline";
 import { useChild } from "../useChild";
 import { ChildForm } from "./ChildForm";
@@ -30,8 +31,8 @@ export function EditChildScreen() {
           online={online}
           onCancel={back}
           onSubmit={async (input) => {
-            await editChild(child.id, input);
-            back();
+            const saved = await editChild(child.id, input);
+            navigate("/children", { state: noticeState(savedMessage(saved.nickname)) });
           }}
         />
       )}

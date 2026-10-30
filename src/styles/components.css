@@ -148,3 +148,9 @@ textarea.ls-control { min-height: 120px; resize: vertical; }
 @media (prefers-reduced-motion: reduce) {
   .ls-skeleton-line, .ls-skeleton-avatar { animation: none; }
 }
+
+/* SuccessNotice */
+.ls-alert-success { align-items: center; background: var(--color-surface-soft-green); border-color: var(--color-brand-forest); color: var(--color-brand-forest); width: 100%; max-width: 70ch; }
+.ls-alert-success .ls-alert-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.ls-alert-dismiss { color: var(--color-brand-forest); display: inline-flex; align-items: center; justify-content: center; }
+.ls-alert-dismiss:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus); outline-offset: var(--focus-ring-offset); }

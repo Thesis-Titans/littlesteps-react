@@ -37,7 +37,7 @@ const noopState: ChildState = {
 
 function renderHeader(activeChild: Child | null, childScoped?: boolean) {
   return renderToStaticMarkup(
-    <ChildContext.Provider value={{ ...noopState, activeChild }}>
+    <ChildContext.Provider value={{ ...noopState, activeChild, children: activeChild ? [activeChild] : [] }}>
       <ScreenHeader id="t" title="Today" childScoped={childScoped} />
     </ChildContext.Provider>
   );
@@ -83,7 +83,10 @@ describe("AppShell", () => {
     childCtx.value = loadingState;
     expect(render("/today", caregiver)).not.toContain("child-chip");
     expect(renderHeader(null)).not.toContain("child-chip");
-    expect(renderHeader(maya)).toContain("For Maya · 12–23 months");
+    const chip = renderHeader(maya);
+    expect(chip).toMatch(/<button[^>]*aria-haspopup="menu"[^>]*>For Maya · 12–23 months/);
+    expect(chip).toContain("ls-badge child-chip");
+    expect(chip).toContain('aria-expanded="false"');
     expect(renderHeader(maya, false)).not.toContain("child-chip");
   });
 

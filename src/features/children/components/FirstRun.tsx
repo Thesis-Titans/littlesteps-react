@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button, EmptyState } from "../../../components/common";
+import type { Child } from "../types";
 import { useOnline } from "../hooks/useOnline";
 import { useChild } from "../useChild";
 import { ChildForm } from "./ChildForm";
 import { NonDiagnosticNotice } from "./NonDiagnosticNotice";
 
 /** Empty state for a caregiver with no children; the action opens the add form in place. */
-export function FirstRun({ startOpen = false, onAdded }: { startOpen?: boolean; onAdded?: () => void }) {
+export function FirstRun({ startOpen = false, onAdded }: { startOpen?: boolean; onAdded?: (child: Child) => void }) {
   const { addChild } = useChild();
   const online = useOnline();
   const [open, setOpen] = useState(startOpen);
@@ -24,7 +25,7 @@ export function FirstRun({ startOpen = false, onAdded }: { startOpen?: boolean; 
     <div className="child-first-run">
       <h2>Add your first child</h2>
       <NonDiagnosticNotice />
-      <ChildForm online={online} onSubmit={async (input) => { await addChild(input); onAdded?.(); }} />
+      <ChildForm online={online} onSubmit={async (input) => { const child = await addChild(input); onAdded?.(child); }} />
     </div>
   );
 }

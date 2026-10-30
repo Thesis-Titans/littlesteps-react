@@ -9,7 +9,8 @@ import { ChildrenScreen } from "./components/ChildrenScreen";
 import { ChildSwitcher } from "./components/ChildSwitcher";
 import { EditChildScreen } from "./components/EditChildScreen";
 import { NonDiagnosticNotice } from "./components/NonDiagnosticNotice";
-import { InlineAlert, TextField } from "../../components/common";
+import { addedMessage, noticeFor, noticeState, readNotice, savedMessage } from "./notice";
+import { InlineAlert, SuccessNotice, TextField } from "../../components/common";
 import { keyOpensMenu, initialIndex, menuAction } from "./components/menuKeys";
 import { MSG, ageChanged, bandOptions, birthOutOfRange, initialValues, mapApiError, normalizeNickname, prepareSubmit, toCreateInput, toUpdateInput, validate, validateForm, yearOptions } from "./form";
 import { activeChildOf, failureStatus, gateView, initialState, onOnline, readActiveId, reducer, writeActiveId } from "./state";
@@ -331,6 +332,61 @@ describe("ChildSwitcher and notice", () => {
     expect(html).toContain("Not a diagnostic tool");
     expect(html).toContain("barangay health worker");
     expect(html).not.toMatch(/\b(delayed|behind|on track|normal|at risk)\b/);
+  });
+});
+
+describe("chip switcher", () => {
+  const chip = (ctx: Partial<ChildState>) => page(<ChildSwitcher variant="chip" />, state(ctx));
+  it("is a menu button labelled For [child] with the age", () => {
+    const html = chip({ children: [maya, liam], activeChild: maya });
+    expect(html).toMatch(/<button[^>]*aria-haspopup="menu"/);
+    expect(html).toContain("ls-badge child-chip");
+    expect(html).toContain("For Maya · 12–23 months");
+  });
+  it("shows nothing without a child, while loading, or without a provider", () => {
+    expect(chip({})).toBe("");
+    expect(chip({ status: "loading" })).toBe("");
+    expect(renderToStaticMarkup(<ChildSwitcher variant="chip" />)).toBe("");
+  });
+  it("appears on the edit form and on the add form once a child exists", () => {
+    const ctx = state({ children: [maya], activeChild: maya });
+    expect(page(<ChildForm child={maya} online onSubmit={vi.fn()} />, ctx)).toContain("For Maya");
+    expect(page(<ChildForm online onSubmit={vi.fn()} />, state({}))).not.toContain("child-chip");
+  });
+  it("gives each mounted switcher its own menu id", () => {
+    const ids = [...page(<><ChildSwitcher variant="side" /><ChildSwitcher variant="chip" /></>, state({ children: [maya], activeChild: maya }))
+      .matchAll(/aria-controls="([^"]+)"/g)].map((m) => m[1]);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("success messages", () => {
+  it("words them in plain spec style", () => {
+    expect(addedMessage("Maya")).toBe("Maya added.");
+    expect(savedMessage("Maya")).toBe("Changes to Maya saved.");
+  });
+  it("reads a message only from valid location state", () => {
+    expect(readNotice(noticeState("Maya added."))).toBe("Maya added.");
+    for (const bad of [null, undefined, {}, { notice: 3 }, { notice: "" }, "x"]) expect(readNotice(bad)).toBeUndefined();
+  });
+  it("belongs to the page it was raised on", () => {
+    const notice = { message: "Maya added.", path: "/today" };
+    expect(noticeFor(notice, "/today")).toBe("Maya added.");
+    expect(noticeFor(notice, "/explore")).toBeUndefined();
+    expect(noticeFor(undefined, "/today")).toBeUndefined();
+  });
+  it("announces politely with a labelled dismiss button and an icon, not colour alone", () => {
+    const html = renderToStaticMarkup(<SuccessNotice message="Maya added." onClose={vi.fn()} />);
+    expect(html).toContain('role="status"');
+    expect(html).toContain("Maya added.");
+    expect(html).toContain('aria-label="Dismiss message"');
+    expect(html).toContain("<svg");
+  });
+  it("shows a message passed to the children list after an edit", () => {
+    const html = page(
+      <Routes><Route path="/children" element={<ChildrenScreen />} /></Routes>,
+      state({ children: [maya], activeChild: maya }), "/children");
+    expect(html).not.toContain("ls-alert-success");
   });
 });
 
