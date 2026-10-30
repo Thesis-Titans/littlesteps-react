@@ -16,11 +16,11 @@ vi.mock("../../features/children/ChildProvider", async () => {
   const { ChildContext: Context } = await import("../../features/children/context");
   return { ChildProvider: ({ children }: { children: ReactNode }) => createElement(Context.Provider, { value: childCtx.value }, children) };
 });
-vi.mock("firebase/auth", () => ({ onIdTokenChanged: vi.fn(), signInWithEmailAndPassword: vi.fn(), signOut: vi.fn() }));
+vi.mock("firebase/auth", () => ({ onIdTokenChanged: vi.fn(), signInWithEmailAndPassword: vi.fn(), createUserWithEmailAndPassword: vi.fn(), signOut: vi.fn() }));
 vi.mock("../../services/firebase", () => ({ auth: {} }));
 
 function render(path: string, user: User | null) {
-  const auth: AuthState = { user, loading: false, signIn: vi.fn(), signOut: vi.fn() };
+  const auth: AuthState = { user, loading: false, signIn: vi.fn(), createAccount: vi.fn(), signOut: vi.fn() };
   return renderToStaticMarkup(
     <AuthContext.Provider value={auth}>
       <MemoryRouter initialEntries={[path]}>
@@ -90,6 +90,20 @@ describe("AppShell", () => {
     expect(chip).toContain("ls-badge child-chip");
     expect(chip).toContain('aria-expanded="false"');
     expect(renderHeader(maya, false)).not.toContain("child-chip");
+  });
+
+  it("shows the create-account form at /create-account when signed out, sign-in elsewhere", () => {
+    const html = render("/create-account", null);
+    expect(html).toContain("Create an account</h1>");
+    expect(html).toContain('autoComplete="new-password"');
+    expect(html).toContain('href="/"');
+    expect(html).toContain("I have read the privacy summary above");
+    expect(html.match(/<h1/g)).toHaveLength(1);
+    expect(render("/anything", null)).toContain('href="/create-account"');
+  });
+
+  it("redirects a signed-in user away from /create-account", () => {
+    expect(render("/create-account", { uid: "u1" } as User)).not.toContain("Create an account</h1>");
   });
 
   it("shows sign-in instead of the shell when signed out", () => {

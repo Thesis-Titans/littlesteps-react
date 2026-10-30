@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { FirebaseError } from "firebase/app";
+import { Link } from "react-router-dom";
 import { useAuth } from "../useAuth";
 import { Logo } from "../../../components/common/Logo";
 import iconCheck from "../../../assets/icons/check-forest-20.svg";
@@ -126,7 +127,7 @@ export function SignInForm({ notice }: { notice?: string }) {
                 aria-pressed={showPassword}
                 onClick={() => setShowPassword((shown) => !shown)}
               >
-                {showPassword ? "Hide password" : "Show password"}
+                Show password
               </button>
               {/* shortcut: route not built yet, wire up when password reset lands */}
               <a className="text-button" href="/forgot-password">Forgot password?</a>
@@ -136,8 +137,7 @@ export function SignInForm({ notice }: { notice?: string }) {
             </button>
           </form>
           <p className="auth-new">New to LittleSteps?</p>
-          {/* shortcut: route not built yet, wire up when registration lands */}
-          <a className="secondary-button" href="/create-account">Create an account</a>
+          <Link className="secondary-button" to="/create-account">Create an account</Link>
           <p className="privacy-note">
             <img src={iconLock} alt="" width={16} height={16} />
             You will read the privacy notice before creating an account.
