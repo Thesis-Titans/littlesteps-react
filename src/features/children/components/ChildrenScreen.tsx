@@ -25,6 +25,7 @@ export function ChildrenScreen() {
     if (readNotice(location.state)) navigate({ pathname: location.pathname, search: location.search }, { replace: true, state: null });
   }, [location, navigate]);
   const closeNotice = useCallback(() => setNotice(undefined), []);
+  const full = atChildLimit(children.length);
   const adding = params.has("add");
   const setAdding = (on: boolean) => setParams(on ? { add: "1" } : {}, { replace: true });
 
@@ -33,6 +34,8 @@ export function ChildrenScreen() {
       <ScreenHeader id="children-title" title="Your children" childScoped={false} />
       <ChildStatusNotice status={status} onRetry={refresh} hasChildren={children.length > 0} />
       <SuccessNotice message={notice} onClose={closeNotice} />
+      {/* At the limit the note sits above the list so it is not lost below 20 rows; on ?add=1 it takes the form's place. */}
+      {full && !adding && <ChildLimitNote />}
       {status === "ready" && children.length === 0 && (
         <FirstRun startOpen={adding} onAdded={(child) => { setNotice(addedMessage(child.nickname)); setAdding(false); }} />
       )}
@@ -51,7 +54,7 @@ export function ChildrenScreen() {
               </Card>
             ))}
           </ul>
-          {atChildLimit(children.length) ? <ChildLimitNote /> : adding ? (
+          {full ? (adding ? <ChildLimitNote /> : null) : adding ? (
             <Card className="child-add-card">
               <h2>Add a child</h2>
               <ChildForm

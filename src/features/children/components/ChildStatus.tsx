@@ -1,4 +1,7 @@
+import { useOutletContext } from "react-router-dom";
+import type { ShellContext } from "../../../components/layout/ProtectedRoute";
 import { Button, InlineAlert, Skeleton } from "../../../components/common";
+import { showChildAlert } from "../state";
 import type { ChildStatus } from "../types";
 
 /**
@@ -6,8 +9,11 @@ import type { ChildStatus } from "../types";
  * With `hasChildren` it sits above the list and never replaces it, so loading shows nothing.
  */
 export function ChildStatusNotice({ status, onRetry, hasChildren = false }: { status: ChildStatus; onRetry: () => void; hasChildren?: boolean }) {
+  // Outside the shell (or in tests) there is no context, so no shell alert.
+  const sessionProblem = useOutletContext<ShellContext | undefined>()?.sessionProblem;
   const retry = <Button variant="secondary" onClick={onRetry}>Retry</Button>;
   if (status === "loading") return hasChildren ? null : <Skeleton kind="profile" label="Loading your children…" />;
+  if ((status === "offline" || status === "error") && !showChildAlert(sessionProblem, status)) return null;
   if (status === "offline") {
     return (
       <InlineAlert kind="offline" title="You're offline." action={retry}>

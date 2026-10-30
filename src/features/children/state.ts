@@ -1,4 +1,5 @@
-import { ApiError, UnauthorizedError } from "../../services/api";
+import { failureKind } from "../../services/offline";
+import type { SessionProblem } from "../../components/layout/sessionCheck";
 import type { Child, ChildStatus } from "./types";
 
 export type LoadState = {
@@ -78,10 +79,12 @@ export function reducer(state: LoadState, action: Action): LoadState {
 export const activeChildOf = (state: Pick<LoadState, "children" | "activeId">): Child | null =>
   state.children.find((c) => c.id === state.activeId) ?? state.children[0] ?? null;
 
-/** Offline only when the browser says so. Any other failure to reach the API is a plain error; 401 is its own state. */
-export function failureStatus(error: unknown, online: boolean): "error" | "offline" | "unauthorized" {
-  if (error instanceof UnauthorizedError || (error instanceof ApiError && error.status === 401)) return "unauthorized";
-  return !online ? "offline" : "error";
+export const failureStatus = failureKind;
+
+/** The child alert is skipped when the shell already shows an alert for the same failure. */
+export function showChildAlert(sessionProblem: SessionProblem | undefined, status: ChildStatus): boolean {
+  if (status === "error" || status === "offline") return !sessionProblem;
+  return status === "unauthorized";
 }
 
 /** Calls `fn` when the browser comes back online; returns the cleanup. `target` is injectable for tests. */

@@ -14,7 +14,7 @@ import { addedMessage, keepNoticeOn, noticeFor, noticeState, readNotice, savedMe
 import { InlineAlert, SuccessNotice, TextField } from "../../components/common";
 import { keyOpensMenu, initialIndex, menuAction } from "./components/menuKeys";
 import { MSG, ageChanged, bandOptions, birthOutOfRange, initialValues, isLimitError, mapApiError, normalizeNickname, prepareSubmit, toCreateInput, toUpdateInput, validate, validateForm, yearOptions } from "./form";
-import { activeChildOf, failureStatus, gateView, initialState, onOnline, readActiveId, reducer, writeActiveId } from "./state";
+import { activeChildOf, failureStatus, showChildAlert, gateView, initialState, onOnline, readActiveId, reducer, writeActiveId } from "./state";
 import { MAX_CHILDREN, atChildLimit } from "./types";
 import type { Child, ChildState } from "./types";
 
@@ -153,6 +153,13 @@ describe("provider state", () => {
     expect(failureStatus(apiError(500), true)).toBe("error");
     expect(failureStatus(new UnauthorizedError(), true)).toBe("unauthorized");
     expect(failureStatus(apiError(401), true)).toBe("unauthorized");
+  });
+  it("shows one alert when the shell and the child load fail together", () => {
+    const shown = (problem: "offline" | "error" | undefined) =>
+      (["error", "offline", "unauthorized", "loading", "ready"] as const).filter((s) => showChildAlert(problem, s));
+    expect(shown(undefined)).toEqual(["error", "offline", "unauthorized"]);
+    expect(shown("error")).toEqual(["unauthorized"]);
+    expect(shown("offline")).toEqual(["unauthorized"]);
   });
   it("keeps a child added while the list was loading", () => {
     const loading = reducer(start, { type: "loading" });
@@ -530,6 +537,7 @@ describe("child limit", () => {
     const html = page(<ChildrenScreen />, full, "/children");
     expect(html).toContain(NOTE);
     expect(html).not.toContain("Add a child");
+    expect(html.indexOf(NOTE)).toBeLessThan(html.indexOf('class="child-list"')); // above the list, not below 20 rows
     const open = page(<ChildrenScreen />, state({ children: many(19), activeChild: maya }), "/children");
     expect(open).toContain("Add a child");
     expect(open).not.toContain(NOTE);
@@ -539,6 +547,7 @@ describe("child limit", () => {
     const html = page(<ChildrenScreen />, full, "/children?add=1");
     expect(html).toContain(NOTE);
     expect(html).not.toContain("<form");
+    expect(html.indexOf(NOTE)).toBeGreaterThan(html.indexOf("Kid19")); // where the form would be
   });
 
   it("replaces the add item in the switcher menu", () => {
