@@ -64,10 +64,10 @@ describe("AppShell", () => {
     expect(tabLabels(html)).toEqual(Array(2).fill(["Today", "Explore", "Milestones", "Journal", "This week"]).flat());
     expect(html.match(/<a aria-current="page"[^>]*href="\/explore"/g)).toHaveLength(2);
     expect(html.match(/<main/g)).toHaveLength(1);
-    expect(html).toContain('<h1 id="explore-title">Explore</h1>');
+    expect(html).toContain('<h1 id="explore-title" tabindex="-1">Explore</h1>');
     expect(html).toContain("<title>Explore · LittleSteps</title>");
     const account = render("/account", caregiver);
-    expect(account).toContain('<h1 id="account-title">Account</h1>');
+    expect(account).toContain('<h1 id="account-title" tabindex="-1">Account</h1>');
     expect(account).toContain("<title>Account · LittleSteps</title>");
     expect(account).toContain('href="/children"');
   });

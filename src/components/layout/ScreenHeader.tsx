@@ -13,7 +13,7 @@ export function ScreenHeader({ id, title, subtitle, childScoped = true }: Screen
   return (
     <>
       <title>{`${title} · LittleSteps`}</title>
-      <h1 id={id}>{title}</h1>
+      <h1 id={id} tabIndex={-1}>{title}</h1>
       {childScoped && <ChildSwitcher variant="chip" />}
       {subtitle && <p className="screen-subtitle">{subtitle}</p>}
     </>

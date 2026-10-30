@@ -9,7 +9,7 @@ import { ChildrenScreen } from "./components/ChildrenScreen";
 import { ChildSwitcher } from "./components/ChildSwitcher";
 import { EditChildScreen } from "./components/EditChildScreen";
 import { NonDiagnosticNotice } from "./components/NonDiagnosticNotice";
-import { addedMessage, noticeFor, noticeState, readNotice, savedMessage } from "./notice";
+import { addedMessage, keepNoticeOn, noticeFor, noticeState, readNotice, savedMessage } from "./notice";
 import { InlineAlert, SuccessNotice, TextField } from "../../components/common";
 import { keyOpensMenu, initialIndex, menuAction } from "./components/menuKeys";
 import { MSG, ageChanged, bandOptions, birthOutOfRange, initialValues, mapApiError, normalizeNickname, prepareSubmit, toCreateInput, toUpdateInput, validate, validateForm, yearOptions } from "./form";
@@ -348,9 +348,12 @@ describe("chip switcher", () => {
     expect(chip({ status: "loading" })).toBe("");
     expect(renderToStaticMarkup(<ChildSwitcher variant="chip" />)).toBe("");
   });
-  it("appears on the edit form and on the add form once a child exists", () => {
+  it("is a plain badge on the edit form and absent on the add form", () => {
     const ctx = state({ children: [maya], activeChild: maya });
-    expect(page(<ChildForm child={maya} online onSubmit={vi.fn()} />, ctx)).toContain("For Maya");
+    const edit = page(<ChildForm child={liam} online onSubmit={vi.fn()} />, ctx);
+    expect(edit).toContain("Editing Liam · 48–59 months");
+    expect(edit).not.toContain("For Maya");
+    expect(edit).not.toContain("aria-haspopup");
     expect(page(<ChildForm online onSubmit={vi.fn()} />, state({}))).not.toContain("child-chip");
   });
   it("gives each mounted switcher its own menu id", () => {
@@ -382,11 +385,31 @@ describe("success messages", () => {
     expect(html).toContain('aria-label="Dismiss message"');
     expect(html).toContain("<svg");
   });
-  it("shows a message passed to the children list after an edit", () => {
-    const html = page(
-      <Routes><Route path="/children" element={<ChildrenScreen />} /></Routes>,
-      state({ children: [maya], activeChild: maya }), "/children");
+  it("clears a message when the page changes, and keeps the same object otherwise", () => {
+    const notice = { message: "Maya added.", path: "/today" };
+    expect(keepNoticeOn(notice, "/today")).toBe(notice);
+    expect(keepNoticeOn(notice, "/explore")).toBeUndefined();
+    expect(keepNoticeOn(undefined, "/explore")).toBeUndefined();
+  });
+  it("keeps an empty status region mounted when there is no message", () => {
+    const html = renderToStaticMarkup(<SuccessNotice onClose={vi.fn()} />);
+    expect(html).toBe('<div role="status" aria-live="polite"></div>');
+  });
+  const list = (entry: object | string) => renderToStaticMarkup(
+    <ChildContext.Provider value={state({ children: [maya], activeChild: maya })}>
+      <MemoryRouter initialEntries={[entry]}>
+        <Routes><Route path="/children" element={<ChildrenScreen />} /></Routes>
+      </MemoryRouter>
+    </ChildContext.Provider>);
+  it("shows no message without router state", () => {
+    const html = list("/children");
     expect(html).not.toContain("ls-alert-success");
+    expect(html).toContain('role="status"');
+  });
+  it("shows the message passed in router state inside the status region", () => {
+    const html = list({ pathname: "/children", state: noticeState("Changes to Maya saved.") });
+    expect(html).toMatch(/<div role="status" aria-live="polite"><div class="ls-alert ls-alert-success"[^>]*>.*Changes to Maya saved\./s);
+    expect(html).toContain('aria-label="Dismiss message"');
   });
 });
 

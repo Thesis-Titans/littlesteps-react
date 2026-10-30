@@ -30,7 +30,7 @@ export function ChildrenScreen() {
     <section className="screen" aria-labelledby="children-title">
       <ScreenHeader id="children-title" title="Your children" childScoped={false} />
       <ChildStatusNotice status={status} onRetry={refresh} hasChildren={children.length > 0} />
-      {notice && <SuccessNotice message={notice} onClose={closeNotice} />}
+      <SuccessNotice message={notice} onClose={closeNotice} />
       {status === "ready" && children.length === 0 && (
         <FirstRun startOpen={adding} onAdded={(child) => { setNotice(addedMessage(child.nickname)); setAdding(false); }} />
       )}

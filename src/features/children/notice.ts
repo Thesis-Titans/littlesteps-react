@@ -15,3 +15,6 @@ export type PageNotice = { message: string; path: string };
 
 /** A message belongs to the page it was raised on; moving to another page clears it. */
 export const noticeFor = (notice: PageNotice | undefined, path: string) => (notice?.path === path ? notice.message : undefined);
+
+/** Keeps a message only on the page it was raised on; returns the same object when nothing changes. */
+export const keepNoticeOn = (notice: PageNotice | undefined, path: string) => (notice && notice.path !== path ? undefined : notice);
