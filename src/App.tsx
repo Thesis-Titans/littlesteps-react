@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell, ProtectedRoute } from "./components/layout";
-import { AccountScreen } from "./features/account";
+import { AboutScreen, AccountScreen, HelpScreen, PrivacyScreen, SettingsScreen } from "./features/account";
 import { ChildGate } from "./features/children/components/ChildGate";
 import { ChildrenScreen } from "./features/children/components/ChildrenScreen";
 import { EditChildScreen } from "./features/children/components/EditChildScreen";
@@ -23,6 +23,10 @@ export function App() {
             <Route path="/this-week" element={<ThisWeekScreen />} />
           </Route>
           <Route path="/account" element={<AccountScreen />} />
+          <Route path="/account/settings" element={<SettingsScreen />} />
+          <Route path="/account/privacy" element={<PrivacyScreen />} />
+          <Route path="/account/about" element={<AboutScreen />} />
+          <Route path="/account/help" element={<HelpScreen />} />
           <Route path="/children" element={<ChildrenScreen />} />
           <Route path="/children/:childId/edit" element={<EditChildScreen />} />
           <Route path="*" element={<Navigate to="/today" replace />} />
