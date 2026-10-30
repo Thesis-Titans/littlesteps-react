@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
-import { SignInForm, useAuth } from "../../features/auth";
+import { Outlet, useLocation } from "react-router-dom";
+import { CreateAccountForm, SignInForm, useAuth } from "../../features/auth";
 import { ChildProvider } from "../../features/children";
 import { onOnline } from "../../features/children/state";
 import { checkSession, type SessionProblem } from "./sessionCheck";
@@ -10,6 +10,7 @@ export type ShellContext = { sessionProblem?: SessionProblem; retry: () => void 
 /** Signed-out caregivers see sign-in at the URL they asked for, so they land there after signing in. */
 export function ProtectedRoute() {
   const { user, loading, signOut } = useAuth();
+  const { pathname } = useLocation();
   const [notice, setNotice] = useState<string>();
   const [sessionProblem, setSessionProblem] = useState<SessionProblem>();
   const [retries, setRetries] = useState(0);
@@ -33,7 +34,7 @@ export function ProtectedRoute() {
   useEffect(() => onOnline(() => setRetries((count) => count + 1)), []);
 
   if (loading) return <main className="auth-loading"><p role="status">Loading your session…</p></main>;
-  if (!user) return <SignInForm notice={notice} />;
+  if (!user) return pathname === "/create-account" ? <CreateAccountForm /> : <SignInForm notice={notice} />;
   const context: ShellContext = { sessionProblem, retry: () => setRetries((count) => count + 1) };
   // Keyed by user so a chosen child never carries over to the next person who signs in.
   return (

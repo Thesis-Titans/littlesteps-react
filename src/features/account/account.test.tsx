@@ -15,7 +15,7 @@ vi.mock("../../services/firebase", () => ({ auth: {} }));
 const user = { uid: "u1", email: "parent@example.com" } as User;
 function render(path: string) {
   return renderToStaticMarkup(
-    <AuthContext.Provider value={{ user, loading: false, signIn: vi.fn(), signOut }}>
+    <AuthContext.Provider value={{ user, loading: false, signIn: vi.fn(), createAccount: vi.fn(), signOut }}>
       <MemoryRouter initialEntries={[path]}><App /></MemoryRouter>
     </AuthContext.Provider>
   );
