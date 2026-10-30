@@ -1,3 +1,5 @@
 export { ChildProvider } from "./ChildProvider";
 export { useChild } from "./useChild";
-export type { Child, ChildState } from "./types";
+export { listChildren, createChild, getChild, updateChild } from "./api";
+export { AGE_BANDS, ageBandLabel } from "./types";
+export type { AgeBand, Child, ChildState, CreateChildInput, UpdateChildInput } from "./types";
