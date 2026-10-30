@@ -1,10 +1,11 @@
 import { NavLink } from "react-router-dom";
 import { Icon, type IconName } from "../common";
 
-const TABS: { to: string; label: string; icon: IconName }[] = [
+const TABS: { to: string; label: string; display?: string; icon: IconName }[] = [
   { to: "/today", label: "Today", icon: "today" },
   { to: "/explore", label: "Explore", icon: "explore" },
-  { to: "/milestones", label: "Milestones", icon: "milestones" },
+  // display carries a soft hyphen so the label breaks as "Mile-stones" in the narrow bottom bar; Chrome does not hyphenate it by itself.
+  { to: "/milestones", label: "Milestones", display: "Mile\u00ADstones", icon: "milestones" },
   { to: "/journal", label: "Journal", icon: "journal" },
   { to: "/this-week", label: "This week", icon: "this-week" },
 ];
@@ -17,7 +18,7 @@ export function TabLinks() {
         <li key={tab.to}>
           <NavLink to={tab.to} className="tab-link">
             <Icon name={tab.icon} size={24} />
-            <span>{tab.label}</span>
+            <span>{tab.display ?? tab.label}</span>
           </NavLink>
         </li>
       ))}
