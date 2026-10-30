@@ -1,0 +1,62 @@
+name: OpenCode PR Audit
+
+# Runs a read-only AI quality & accessibility audit on pull requests to littlesteps-react.
+# Uses claude-3-5-haiku for cost efficiency (<$0.01 per run).
+# Teammates can also trigger manually by commenting "/oc review" on any PR.
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  pr_audit:
+    name: OpenCode QA Audit (React)
+    runs-on: ubuntu-latest
+
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request != '' &&
+       (contains(github.event.comment.body, '/oc review') ||
+        contains(github.event.comment.body, '/opencode review')))
+
+    steps:
+      - name: Checkout repository (shallow fetch to limit context tokens)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Run OpenCode React QA Audit
+        uses: anomalyco/opencode/github@latest
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        with:
+          model: anthropic/claude-3-5-haiku
+          agent: react-reviewer
+          prompt: |
+            You are the react-qa-evaluator for LittleSteps Web.
+            Audit ONLY the files changed in this PR against .claude/agents/react-qa-evaluator.md.
+
+            Check the following and output a structured Markdown table:
+            1. 5-State Matrix: Are all interactive components handling loading, empty, error, offline, and success states?
+            2. Design Tokens: Are colors, typography, and spacing sourced from tokens.css? Flag any hard-coded hex values.
+            3. Accessibility: Do inputs have associated labels? Are focus rings visible? Is prefers-reduced-motion respected?
+            4. API Contract: Do API call signatures match openapi/openapi.yaml schemas (correct params, error handling)?
+            5. Tests: Do components have corresponding unit tests covering the main flows and failure states?
+
+            Format your output as:
+            ## 🔍 OpenCode QA Audit Report
+
+            | Check | Status | File:Line | Notes |
+            |-------|--------|-----------|-------|
+            ...
+
+            End with a one-line summary: ✅ Ready for Tech Lead review / ⚠️ Fixes needed before merge.
+
