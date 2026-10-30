@@ -14,6 +14,8 @@ export const MSG = {
   nicknameMissing: "Add a nickname.",
   nicknameLong: `Use ${MAX_NICKNAME} characters or fewer.`,
   monthMissing: "Pick a birth month and year.",
+  nicknameHidden: "Use letters, numbers and spaces only, without hidden characters.",
+  nicknameInvalid: "Check this nickname and try again.",
   bandMissing: "Pick an age range.",
   ageRange: "Pick a birth month within the last six years, or choose an age range.",
   generic: "Add a nickname, then pick a birth month and year or an age range.",
@@ -24,6 +26,11 @@ export const MSG = {
 
 /** Trim and collapse inner whitespace, matching the API. */
 export const normalizeNickname = (value: string) => value.trim().replace(/\s+/g, " ");
+
+/** Control or invisible (format) characters, which the API rejects. */
+const HIDDEN = /[\p{Cc}\p{Cf}]/u;
+/** Length in code points, as the API counts (an emoji is 1, not 2). */
+const nicknameLength = (value: string) => Array.from(value).length;
 
 export function initialValues(child?: Child): FormValues {
   if (child?.birthMonthYear) {
@@ -39,8 +46,9 @@ const monthsOld = (year: number, month: number, now: Date) =>
 export function validate(values: FormValues, now = new Date()): FieldErrors {
   const errors: FieldErrors = {};
   const nickname = normalizeNickname(values.nickname);
-  if (!nickname) errors.nickname = MSG.nicknameMissing;
-  else if (nickname.length > MAX_NICKNAME) errors.nickname = MSG.nicknameLong;
+  if (HIDDEN.test(nickname)) errors.nickname = MSG.nicknameHidden;
+  else if (!nickname) errors.nickname = MSG.nicknameMissing;
+  else if (nicknameLength(nickname) > MAX_NICKNAME) errors.nickname = MSG.nicknameLong;
 
   if (values.mode === "band") {
     if (!isAgeBand(values.band)) errors.age = MSG.bandMissing;
@@ -111,9 +119,10 @@ export function mapApiError(error: unknown): FieldErrors {
   if (error.status !== 400 && error.status !== 422) return { form: MSG.notSaved };
 
   const errors: FieldErrors = {};
-  for (const { field } of error.details) {
-    if (field === "nickname") errors.nickname = MSG.nicknameMissing;
-    else if (field === "birthMonthYear" || field === "ageBand") errors.age = error.status === 422 ? MSG.ageRange : MSG.generic;
+  for (const { field, issue } of error.details) {
+    if (field === "nickname") {
+      errors.nickname = /control|invisible/i.test(issue) ? MSG.nicknameHidden : /length|long|characters or fewer|at most|50/i.test(issue) ? MSG.nicknameLong : MSG.nicknameInvalid;
+    } else if (field === "birthMonthYear" || field === "ageBand") errors.age = error.status === 422 ? MSG.ageRange : MSG.generic;
   }
   // No usable field detail: say it once for the form.
   return errors.nickname || errors.age ? errors : { form: error.status === 422 ? MSG.ageRange : MSG.generic };

@@ -84,9 +84,27 @@ describe("form logic", () => {
   });
 });
 
+describe("nickname rules", () => {
+  const nick = (nickname: string) => validate({ nickname, mode: "band", month: "", year: "", band: "0-5m" }, NOW);
+  it("counts code points", () => {
+    expect(nick("😀".repeat(50))).toEqual({});
+    expect(nick("😀".repeat(26))).toEqual({});
+    expect(nick("😀".repeat(51))).toEqual({ nickname: MSG.nicknameLong });
+  });
+  it("rejects hidden characters, never as missing", () => {
+    for (const bad of ["\u200B", "\u0007x", "a\u200Bb", " \u200B "]) expect(nick(bad)).toEqual({ nickname: MSG.nicknameHidden });
+  });
+  it("accepts accents and Filipino names", () => {
+    for (const ok of ["José", "Zoë", "Ma. Luisa", "Niño", "Ñiño-Ann"]) expect(nick(ok)).toEqual({});
+  });
+});
+
 describe("ApiError to field errors", () => {
   it("maps 400 details to fields", () => {
-    expect(mapApiError(apiError(400, [{ field: "nickname", issue: "x" }]))).toEqual({ nickname: MSG.nicknameMissing });
+    expect(mapApiError(apiError(400, [{ field: "nickname", issue: "x" }]))).toEqual({ nickname: MSG.nicknameInvalid });
+    const issue = (text: string) => mapApiError(apiError(400, [{ field: "nickname", issue: text }]));
+    expect(issue("Nickname must not contain control or invisible characters")).toEqual({ nickname: MSG.nicknameHidden });
+    expect(issue("Nickname must be 50 characters or fewer")).toEqual({ nickname: MSG.nicknameLong });
     expect(mapApiError(apiError(400, [{ field: "ageBand", issue: "x" }]))).toEqual({ age: MSG.generic });
   });
   it("maps 422 age problems to the age field", () => {
