@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { SignInForm, useAuth } from "../../features/auth";
 import { ChildProvider } from "../../features/children";
+import { onOnline } from "../../features/children/state";
 import { checkSession, type SessionProblem } from "./sessionCheck";
 
 export type ShellContext = { sessionProblem?: SessionProblem; retry: () => void };
@@ -27,6 +28,9 @@ export function ProtectedRoute() {
       active = false;
     };
   }, [user, signOut, retries]);
+
+  // Re-run the account check when the connection returns, so its alert clears like the child list's does.
+  useEffect(() => onOnline(() => setRetries((count) => count + 1)), []);
 
   if (loading) return <main className="auth-loading"><p role="status">Loading your session…</p></main>;
   if (!user) return <SignInForm notice={notice} />;
