@@ -37,7 +37,7 @@ const nicknameLength = (value: string) => Array.from(value).length;
 export function initialValues(child?: Child): FormValues {
   if (child?.birthMonthYear) {
     const [year, month] = child.birthMonthYear.split("-");
-    return { nickname: child.nickname, mode: "birth", month, year, band: "" };
+    return { nickname: child.nickname, mode: "birth", month: String(Number(month)), year, band: "" };
   }
   return { nickname: child?.nickname ?? "", mode: child ? "band" : "birth", month: "", year: "", band: child?.ageBand ?? "" };
 }

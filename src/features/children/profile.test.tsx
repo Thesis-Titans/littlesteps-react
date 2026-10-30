@@ -71,7 +71,10 @@ describe("form logic", () => {
 
   it("sends only changed fields on edit, and nothing when nothing changed", () => {
     const same = initialValues(maya);
-    expect(same).toMatchObject({ nickname: "Maya", mode: "birth", month: "08", year: "2025" });
+    expect(same).toMatchObject({ nickname: "Maya", mode: "birth", month: "8", year: "2025" });
+    // The month select offers "1" to "12", so a stored "2025-08" must prefill as "8", not "08".
+    expect(initialValues({ ...maya, birthMonthYear: "2025-01" }).month).toBe("1");
+    expect(initialValues({ ...maya, birthMonthYear: "2025-12" }).month).toBe("12");
     expect(toUpdateInput(same, maya)).toBeNull();
     expect(toUpdateInput({ ...same, nickname: "Mimi" }, maya)).toEqual({ nickname: "Mimi" });
     expect(toUpdateInput({ ...same, month: "7" }, maya)).toEqual({ birthMonthYear: "2025-07" });
