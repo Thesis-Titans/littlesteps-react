@@ -1,4 +1,4 @@
-import { useChild } from "../../features/children";
+import { ageBandLabel, useChild } from "../../features/children";
 
 type ScreenHeaderProps = {
   id: string;
@@ -16,7 +16,7 @@ export function ScreenHeader({ id, title, subtitle, childScoped = true }: Screen
       <title>{`${title} · LittleSteps`}</title>
       <h1 id={id}>{title}</h1>
       {childScoped && activeChild && (
-        <span className="ls-badge child-chip">For {activeChild.nickname} · {activeChild.ageBand}</span>
+        <span className="ls-badge child-chip">For {activeChild.nickname} · {ageBandLabel(activeChild.ageBand)}</span>
       )}
       {subtitle && <p className="screen-subtitle">{subtitle}</p>}
     </>

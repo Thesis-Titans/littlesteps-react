@@ -48,10 +48,16 @@ describe("AppShell", () => {
   });
 
   it("shows the child label in child-scoped page headers once a child is chosen", () => {
-    const maya = { id: "c1", nickname: "Maya", ageBand: "14 months" };
+    const maya: Child = {
+      id: "c1",
+      nickname: "Maya",
+      ageBand: "12-23m",
+      createdAt: "2026-10-29T08:00:00Z",
+      updatedAt: "2026-10-29T08:00:00Z"
+    };
     expect(render("/today", caregiver)).not.toContain("child-chip");
     expect(renderHeader(null)).not.toContain("child-chip");
-    expect(renderHeader(maya)).toContain("For Maya · 14 months");
+    expect(renderHeader(maya)).toContain("For Maya · 12–23 months");
     expect(renderHeader(maya, false)).not.toContain("child-chip");
   });
 
