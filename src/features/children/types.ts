@@ -1,8 +1,11 @@
 export const AGE_BANDS = ["0-5m", "6-11m", "12-23m", "24-35m", "36-47m", "48-59m", "60-71m"] as const;
 export type AgeBand = (typeof AGE_BANDS)[number];
 
+export const isAgeBand = (value: unknown): value is AgeBand => AGE_BANDS.includes(value as AgeBand);
+
 /** Parent-friendly text for an age band, e.g. "12–23 months". */
 export function ageBandLabel(band: AgeBand): string {
+  if (!isAgeBand(band)) return "Age not set";
   return `${band.replace("m", "").replace("-", "–")} months`;
 }
 

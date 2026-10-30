@@ -29,6 +29,10 @@ export class ApiError extends Error {
   }
 }
 
+const MAX_DETAILS = 20;
+const MAX_TEXT = 300;
+const clip = (text: string) => text.slice(0, MAX_TEXT);
+
 async function toApiError(response: Response): Promise<ApiError> {
   const generic = `Something went wrong (HTTP ${response.status}).`;
   try {
@@ -39,14 +43,15 @@ async function toApiError(response: Response): Promise<ApiError> {
       | undefined;
     if (typeof error !== "object" || error === null) return new ApiError(response.status, undefined, generic);
     const details = Array.isArray(error.details)
-      ? error.details.filter(
-          (d): d is ApiErrorDetail => typeof d?.field === "string" && typeof d?.issue === "string"
-        )
+      ? error.details
+          .filter((d): d is ApiErrorDetail => typeof d?.field === "string" && typeof d?.issue === "string")
+          .slice(0, MAX_DETAILS)
+          .map((d) => ({ field: clip(d.field), issue: clip(d.issue) }))
       : [];
     return new ApiError(
       response.status,
       typeof error.code === "string" ? error.code : undefined,
-      typeof error.message === "string" ? error.message : generic,
+      typeof error.message === "string" ? clip(error.message) : generic,
       details
     );
   } catch {

@@ -151,6 +151,17 @@ describe("apiFetch & getCurrentUser", () => {
     });
   });
 
+  it("caps details at 20 and truncates long text to 300 characters", async () => {
+    const long = "x".repeat(500);
+    const details = Array.from({ length: 25 }, () => ({ field: long, issue: long }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(422, { error: { code: "C", message: long, details } })));
+
+    const failure = (await apiFetch("/x").catch((e: unknown) => e)) as ApiError;
+    expect(failure.details).toHaveLength(20);
+    expect(failure.message).toHaveLength(300);
+    expect(failure.details[0]).toEqual({ field: "x".repeat(300), issue: "x".repeat(300) });
+  });
+
   it("throws ApiError for a 404", async () => {
     const error = { code: "RESOURCE_NOT_FOUND", message: "Not found." };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(404, { error })));

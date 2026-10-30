@@ -1,4 +1,5 @@
-import { apiFetch } from "../../services/api";
+import { ApiError, apiFetch } from "../../services/api";
+import { isAgeBand } from "./types";
 import type { Child, CreateChildInput, UpdateChildInput } from "./types";
 
 async function send<T>(path: string, method: string, body?: unknown): Promise<T> {
@@ -6,7 +7,12 @@ async function send<T>(path: string, method: string, body?: unknown): Promise<T>
     method,
     ...(body === undefined ? {} : { headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
   });
-  return (await response.json()) as T;
+  const data: unknown = await response.json();
+  const items = Array.isArray(data) ? data : [data];
+  if (!items.every((c) => typeof c === "object" && c !== null && isAgeBand((c as { ageBand?: unknown }).ageBand))) {
+    throw new ApiError(response.status, "INVALID_RESPONSE", "Unexpected response from the server");
+  }
+  return data as T;
 }
 
 const childPath = (childId: string) => `/api/v1/children/${encodeURIComponent(childId)}`;

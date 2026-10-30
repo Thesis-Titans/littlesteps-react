@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { UnauthorizedError } from "../../services/api";
 import { createChild, getChild, listChildren, updateChild } from "./api";
 import { AGE_BANDS, ageBandLabel } from "./types";
 
@@ -65,9 +66,35 @@ describe("children api", () => {
     await expect(getChild("nope")).rejects.toMatchObject({ name: "ApiError", status: 404 });
   });
 
+  it("URL-encodes the child id", async () => {
+    fetchMock.mockResolvedValue(ok(child));
+    await getChild("a/b ?x");
+    expect(fetchMock.mock.calls[0][0]).toBe("https://api.littlesteps.local/api/v1/children/a%2Fb%20%3Fx");
+  });
+
+  it("throws UnauthorizedError after one refresh retry on 401", async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 401, json: async () => ({}) });
+    await expect(getChild(child.id)).rejects.toBeInstanceOf(UnauthorizedError);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("rejects unexpected response shapes", async () => {
+    const bad = { ...child, ageBand: "99m" };
+    for (const call of [
+      () => (fetchMock.mockResolvedValue(ok([child, bad])), listChildren()),
+      () => (fetchMock.mockResolvedValue(ok(bad, 201)), createChild({ nickname: "M", ageBand: "12-23m" })),
+      () => (fetchMock.mockResolvedValue(ok(bad)), getChild(child.id)),
+      () => (fetchMock.mockResolvedValue(ok(bad)), updateChild(child.id, { nickname: "M" })),
+      () => (fetchMock.mockResolvedValue(ok(null)), getChild(child.id))
+    ]) {
+      await expect(call()).rejects.toMatchObject({ name: "ApiError", code: "INVALID_RESPONSE" });
+    }
+  });
+
   it("labels every age band for parents", () => {
     expect(AGE_BANDS.map(ageBandLabel)).toEqual([
       "0–5 months", "6–11 months", "12–23 months", "24–35 months", "36–47 months", "48–59 months", "60–71 months"
     ]);
+    expect(ageBandLabel("bogus" as never)).toBe("Age not set");
   });
 });
