@@ -127,7 +127,7 @@ export function SignInForm({ notice }: { notice?: string }) {
                 aria-pressed={showPassword}
                 onClick={() => setShowPassword((shown) => !shown)}
               >
-                {showPassword ? "Hide password" : "Show password"}
+                Show password
               </button>
               {/* shortcut: route not built yet, wire up when password reset lands */}
               <a className="text-button" href="/forgot-password">Forgot password?</a>

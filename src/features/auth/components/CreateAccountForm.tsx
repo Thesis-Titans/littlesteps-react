@@ -3,13 +3,17 @@ import { Link } from "react-router-dom";
 import { Button, InlineAlert, TextField } from "../../../components/common";
 import { Logo } from "../../../components/common/Logo";
 import { describeCreateAccountError, validateCreateAccount, type CreateAccountErrors } from "../createAccount";
+import { PRIVACY_CONTACT } from "../../account/content";
 import { useAuth } from "../useAuth";
 
 const PRIVACY_POINTS = [
   ["What we collect", "A child nickname, birth month and year, activity records and your notes."],
   ["Why", "To suggest age-suitable activities and keep your own record."],
   ["Who sees it", "You. Notes never go to AI, analytics or logs."],
-  ["Your rights", "See, correct, delete and get a copy of your data."],
+  ["Your rights", "You can see and change what you entered in the app. Getting a copy and deleting are not available yet; we will add a contact for these requests."],
+  ["How long we keep it", "While your account is active. Deleting on request is coming. Any inactivity period is only a proposal and not approved."],
+  ["If something goes wrong", "We will tell you and the National Privacy Commission as soon as we can. We aim to do so within 72 hours, but that is a goal, not a promise."],
+  ["Contact", PRIVACY_CONTACT],
 ] as const;
 
 /** Signed-out sign-up. Success signs the person in; ProtectedRoute then sends them to /today. */
@@ -82,7 +86,7 @@ export function CreateAccountForm() {
               onChange={(event) => setPassword(event.target.value)}
             />
             <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((shown) => !shown)}>
-              {showPassword ? "Hide password" : "Show password"}
+              Show password
             </button>
             <details className="privacy-disclosure" id="privacy-notice">
               <summary>Read the privacy notice</summary>
@@ -103,7 +107,7 @@ export function CreateAccountForm() {
                   aria-describedby={errors.privacy ? "privacy-error" : undefined}
                   onChange={(event) => setAcceptedPrivacy(event.target.checked)}
                 />
-                I have read the privacy notice
+                I have read the privacy summary above
               </label>
               {errors.privacy && <p id="privacy-error" className="ls-field-message">{errors.privacy}</p>}
             </div>

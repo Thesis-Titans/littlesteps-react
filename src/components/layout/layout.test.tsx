@@ -97,7 +97,7 @@ describe("AppShell", () => {
     expect(html).toContain("Create an account</h1>");
     expect(html).toContain('autoComplete="new-password"');
     expect(html).toContain('href="/"');
-    expect(html).toContain("I have read the privacy notice");
+    expect(html).toContain("I have read the privacy summary above");
     expect(html.match(/<h1/g)).toHaveLength(1);
     expect(render("/anything", null)).toContain('href="/create-account"');
   });

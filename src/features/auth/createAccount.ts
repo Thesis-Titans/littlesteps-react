@@ -11,7 +11,7 @@ export function validateCreateAccount(input: { email: string; password: string; 
   const errors: CreateAccountErrors = {};
   if (!EMAIL_PATTERN.test(input.email.trim())) errors.email = "Enter an email address like you@example.com.";
   if (input.password.length < MIN_PASSWORD_LENGTH) errors.password = `Use at least ${MIN_PASSWORD_LENGTH} characters.`;
-  if (!input.acceptedPrivacy) errors.privacy = "Please confirm you have read the privacy notice.";
+  if (!input.acceptedPrivacy) errors.privacy = "Please confirm you have read the privacy summary.";
   return errors;
 }
 
