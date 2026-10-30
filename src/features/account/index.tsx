@@ -23,7 +23,7 @@ export function AccountScreen() {
     <AccountPage id="account-title" title="Account" subtitle={user?.email ?? undefined} back={false}>
       <nav aria-label="Account" className="account-menu">
         <ul>
-          {/* react #6 adds the "Children" link here. */}
+          <li><Link to="/children">Your children</Link></li>
           {LINKS.map(({ to, label }) => <li key={to}><Link to={to}>{label}</Link></li>)}
         </ul>
       </nav>

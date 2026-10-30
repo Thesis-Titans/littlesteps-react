@@ -1,4 +1,4 @@
-import { ageBandLabel, useChild } from "../../features/children";
+import { ChildSwitcher } from "../../features/children/components/ChildSwitcher";
 
 type ScreenHeaderProps = {
   id: string;
@@ -10,14 +10,11 @@ type ScreenHeaderProps = {
 };
 
 export function ScreenHeader({ id, title, subtitle, childScoped = true }: ScreenHeaderProps) {
-  const { activeChild } = useChild();
   return (
     <>
       <title>{`${title} · LittleSteps`}</title>
-      <h1 id={id}>{title}</h1>
-      {childScoped && activeChild && (
-        <span className="ls-badge child-chip">For {activeChild.nickname} · {ageBandLabel(activeChild.ageBand)}</span>
-      )}
+      <h1 id={id} tabIndex={-1}>{title}</h1>
+      {childScoped && <ChildSwitcher variant="chip" />}
       {subtitle && <p className="screen-subtitle">{subtitle}</p>}
     </>
   );

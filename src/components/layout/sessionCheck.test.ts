@@ -7,7 +7,10 @@ const api = vi.hoisted(() => {
       super("Your session has ended. Please sign in again.");
     }
   }
-  return { getCurrentUser: vi.fn(), UnauthorizedError };
+  class ApiError extends Error {
+    status = 500;
+  }
+  return { getCurrentUser: vi.fn(), UnauthorizedError, ApiError };
 });
 vi.mock("../../services/api", () => api);
 
@@ -19,10 +22,14 @@ describe("checkSession", () => {
     expect(signOut).toHaveBeenCalledOnce();
   });
 
-  it("reports a network failure as offline and other failures as an error, without signing out", async () => {
+  it("reports offline only when the browser is offline, and other failures as an error, without signing out", async () => {
     const signOut = vi.fn();
     api.getCurrentUser.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    await expect(checkSession(signOut)).resolves.toEqual({ problem: "error" });
+    vi.stubGlobal("navigator", { onLine: false });
+    api.getCurrentUser.mockRejectedValueOnce(new TypeError("Failed to fetch"));
     await expect(checkSession(signOut)).resolves.toEqual({ problem: "offline" });
+    vi.unstubAllGlobals();
     api.getCurrentUser.mockRejectedValueOnce(new Error("HTTP 500"));
     await expect(checkSession(signOut)).resolves.toEqual({ problem: "error" });
     expect(signOut).not.toHaveBeenCalled();

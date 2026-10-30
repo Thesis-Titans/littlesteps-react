@@ -1,4 +1,5 @@
 import { getCurrentUser, UnauthorizedError } from "../../services/api";
+import { failureKind } from "../../services/offline";
 
 export type SessionProblem = "offline" | "error";
 export type SessionCheck = { notice?: string; problem?: SessionProblem };
@@ -13,8 +14,6 @@ export async function checkSession(signOut: () => Promise<void>): Promise<Sessio
       void signOut();
       return { notice: error.message };
     }
-    // fetch rejects with a TypeError when the network is down
-    const offline = navigator.onLine === false || error instanceof TypeError;
-    return { problem: offline ? "offline" : "error" };
+    return { problem: failureKind(error, navigator.onLine !== false) === "offline" ? "offline" : "error" };
   }
 }

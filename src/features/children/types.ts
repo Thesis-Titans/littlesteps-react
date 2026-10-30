@@ -29,7 +29,20 @@ export type CreateChildInput = { nickname: string } & AgeSource;
 /** nickname and/or one age source; an empty update is rejected by the API. */
 export type UpdateChildInput = { nickname?: string } & (AgeSource | { birthMonthYear?: never; ageBand?: never });
 
+export type ChildStatus = "loading" | "ready" | "error" | "offline" | "unauthorized";
+
 export type ChildState = {
+  children: Child[];
   activeChild: Child | null;
+  status: ChildStatus;
+  error: Error | null;
   setActiveChild: (child: Child | null) => void;
+  refresh: () => void;
+  /** Creates the child, adds it to the list and makes it the active child. */
+  addChild: (input: CreateChildInput) => Promise<Child>;
+  editChild: (childId: string, input: UpdateChildInput) => Promise<Child>;
 };
+
+/** Most children one caregiver can have; the API enforces the same limit. */
+export const MAX_CHILDREN = 20;
+export const atChildLimit = (count: number) => count >= MAX_CHILDREN;

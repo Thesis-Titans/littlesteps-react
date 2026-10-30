@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button, Card } from "../../../components/common";
 import { useAuth } from "../../auth";
 import { AccountPage } from "./AccountPage";
@@ -24,8 +25,7 @@ export function SettingsScreen() {
       </Card>
       <Card as="section" aria-labelledby="settings-children">
         <h2 id="settings-children">Children</h2>
-        {/* react #6 fills this section with the link to child profiles. */}
-        <p className="account-note">Adding and changing your child's profile will be here.</p>
+        <p><Link to="/children">Your children</Link></p>
       </Card>
       <Card as="section" aria-labelledby="settings-data">
         <h2 id="settings-data">Your data</h2>

@@ -9,5 +9,6 @@ export { InlineAlert } from "./InlineAlert";
 export { Logo } from "./Logo";
 export { Select } from "./Select";
 export { Skeleton } from "./Skeleton";
+export { SuccessNotice } from "./SuccessNotice";
 export { TextField } from "./TextField";
 export { UndoToast } from "./UndoToast";

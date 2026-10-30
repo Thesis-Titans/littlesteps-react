@@ -117,7 +117,7 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: var(--siz
 .screen { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-8); max-width: 70ch; }
 .screen h1 { font: var(--font-display-mobile); letter-spacing: 0; }
 .screen-subtitle { margin: 0 0 var(--space-16); font: var(--font-body); color: var(--color-text-secondary); overflow-wrap: anywhere; }
-/* "For [child]" (§2.1, §5.2): a read-only label styled like a badge until react #6 makes it the switcher */
+/* "For [child]" (§2.1, §5.2): a badge-styled button that opens the child switcher */
 .child-chip { max-width: 100%; background: var(--color-surface-soft-green); color: var(--color-brand-forest); overflow-wrap: anywhere; }
 
 @media (min-width: 768px) {
@@ -136,3 +136,43 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: var(--siz
 /* Last so breakpoint visibility wins over component display rules */
 @media (max-width: 1023px) { .desktop-only { display: none; } }
 @media (min-width: 1024px) { .mobile-only { display: none; } }
+
+/* Child profiles · switcher, list and form (react #6) */
+.child-switcher { position: relative; min-width: 0; }
+.child-switcher-button, .child-menu > * { display: flex; align-items: center; gap: var(--space-8); width: 100%; min-height: var(--size-touch-target-min); padding: 0 var(--space-12); border: 1px solid var(--color-border-input); border-radius: var(--radius-control); background: var(--color-surface-card); color: var(--color-text-primary); font: var(--font-label); text-align: left; text-decoration: none; white-space: normal; cursor: pointer; }
+.child-switcher-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.child-switcher-top .child-switcher-age { display: none; }
+.child-switcher-add { display: inline-flex; align-items: center; min-height: var(--size-touch-target-min); color: var(--color-text-brand); font: var(--font-label); }
+.child-menu { max-width: calc(100vw - 2 * var(--space-16)); display: flex; flex-direction: column; gap: var(--space-4); margin-top: var(--space-4); padding: var(--space-8); background: var(--color-surface-card); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-card); box-shadow: var(--elevation-overlay); }
+.child-menu > * { border-color: transparent; overflow-wrap: anywhere; }
+.child-menu > [aria-checked="true"] { background: var(--color-surface-soft-green); color: var(--color-text-brand); }
+.child-menu > :focus-visible, .child-switcher-button:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus); outline-offset: var(--focus-ring-offset); }
+.child-switcher-chip { width: fit-content; max-width: 100%; }
+.child-chip-button { min-height: var(--size-touch-target-min); padding: 0 var(--space-12); border: 0; font: var(--font-label); text-align: left; cursor: pointer; }
+.child-chip-button:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus); outline-offset: var(--focus-ring-offset); }
+.child-switcher-chip .child-menu { position: absolute; top: 100%; left: 0; z-index: 2; min-width: 240px; }
+.child-switcher-top .child-menu { position: absolute; top: 100%; right: 0; z-index: 2; min-width: 240px; }
+
+.child-form { display: flex; flex-direction: column; gap: var(--space-16); width: 100%; }
+.child-form-age { display: flex; flex-direction: column; gap: var(--space-8); margin: 0; padding: 0; border: 0; min-width: 0; }
+.child-form-age legend { padding: 0; }
+.child-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-12); }
+.child-form-actions { display: flex; flex-wrap: wrap; gap: var(--space-12); }
+.child-first-run { display: flex; flex-direction: column; gap: var(--space-16); width: 100%; }
+.child-first-run h2, .child-add-card h2 { margin: 0; font: var(--font-h2-mobile); }
+.child-list { display: flex; flex-direction: column; gap: var(--space-12); width: 100%; margin: 0; padding: 0; list-style: none; }
+.child-list-item { flex-direction: row; align-items: center; justify-content: space-between; gap: var(--space-12); }
+.child-list-item > span { min-width: 0; overflow-wrap: anywhere; }
+.child-list-age { color: var(--color-text-secondary); }
+.child-form-age-fixed { margin: 0; overflow-wrap: anywhere; }
+.child-edit-link { display: inline-flex; align-items: center; min-height: var(--size-touch-target-min); padding: 0 var(--space-12); color: var(--color-text-brand); font: var(--font-label); }
+.child-edit-link:focus-visible, .child-switcher-add:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus); outline-offset: var(--focus-ring-offset); }
+.child-add-card { width: 100%; }
+
+@media (min-width: 768px) {
+  .child-chip-button { min-height: var(--size-touch-target-secondary); }
+  .child-switcher-top { display: none; }
+  .child-first-run h2, .child-add-card h2 { font: var(--font-h2-desktop); }
+}
+.child-limit-note { margin: 0; color: var(--color-text-secondary); font: var(--font-body); }
+.child-menu > .child-menu-note { cursor: default; }
