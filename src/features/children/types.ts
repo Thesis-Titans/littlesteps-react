@@ -29,7 +29,7 @@ export type CreateChildInput = { nickname: string } & AgeSource;
 /** nickname and/or one age source; an empty update is rejected by the API. */
 export type UpdateChildInput = { nickname?: string } & (AgeSource | { birthMonthYear?: never; ageBand?: never });
 
-export type ChildStatus = "loading" | "ready" | "error" | "offline";
+export type ChildStatus = "loading" | "ready" | "error" | "offline" | "unauthorized";
 
 export type ChildState = {
   children: Child[];

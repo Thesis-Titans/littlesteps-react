@@ -1,10 +1,13 @@
 import { Button, InlineAlert, Skeleton } from "../../../components/common";
 import type { ChildStatus } from "../types";
 
-/** Loading, error and offline states for anything that needs the child list. Renders nothing when ready. */
-export function ChildStatusNotice({ status, onRetry }: { status: ChildStatus; onRetry: () => void }) {
+/**
+ * Loading, error, offline and signed-out states for anything that needs the child list. Renders nothing when ready.
+ * With `hasChildren` it sits above the list and never replaces it, so loading shows nothing.
+ */
+export function ChildStatusNotice({ status, onRetry, hasChildren = false }: { status: ChildStatus; onRetry: () => void; hasChildren?: boolean }) {
   const retry = <Button variant="secondary" onClick={onRetry}>Retry</Button>;
-  if (status === "loading") return <Skeleton kind="profile" label="Loading your children…" />;
+  if (status === "loading") return hasChildren ? null : <Skeleton kind="profile" label="Loading your children…" />;
   if (status === "offline") {
     return (
       <InlineAlert kind="offline" title="You're offline." action={retry}>
@@ -14,8 +17,15 @@ export function ChildStatusNotice({ status, onRetry }: { status: ChildStatus; on
   }
   if (status === "error") {
     return (
-      <InlineAlert kind="error" title="We couldn't load your children." action={retry}>
-        Your saved notes are safe. Please try again.
+      <InlineAlert kind="error" title="We couldn't reach LittleSteps." action={retry}>
+        Try again. Your saved notes are safe.
+      </InlineAlert>
+    );
+  }
+  if (status === "unauthorized") {
+    return (
+      <InlineAlert kind="error" title="Please sign in again.">
+        Your session has ended. Your saved notes are safe.
       </InlineAlert>
     );
   }

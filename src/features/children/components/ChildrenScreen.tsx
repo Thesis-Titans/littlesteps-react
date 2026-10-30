@@ -21,9 +21,9 @@ export function ChildrenScreen() {
   return (
     <section className="screen" aria-labelledby="children-title">
       <ScreenHeader id="children-title" title="Your children" childScoped={false} />
-      <ChildStatusNotice status={status} onRetry={refresh} />
+      <ChildStatusNotice status={status} onRetry={refresh} hasChildren={children.length > 0} />
       {status === "ready" && children.length === 0 && <FirstRun startOpen={adding} />}
-      {status === "ready" && children.length > 0 && (
+      {children.length > 0 && (
         <>
           <ul className="child-list">
             {children.map((child) => (

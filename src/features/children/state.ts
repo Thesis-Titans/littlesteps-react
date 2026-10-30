@@ -1,50 +1,99 @@
 import { ApiError, UnauthorizedError } from "../../services/api";
 import type { Child, ChildStatus } from "./types";
 
-export type LoadState = { children: Child[]; activeId: string | null; status: ChildStatus; error: Error | null };
+export type LoadState = {
+  userId: string;
+  children: Child[];
+  activeId: string | null;
+  status: ChildStatus;
+  error: Error | null;
+  /** Counts adds and edits, so a list request that started before one can be told apart. */
+  mutations: number;
+  /** `mutations` when the current list request started. */
+  loadStartedAt: number;
+  /** Children added or edited here, kept so an older list response cannot drop them. */
+  touched: Record<string, Child>;
+};
 
 export type Action =
   | { type: "loading" }
-  | { type: "loaded"; children: Child[] }
-  | { type: "failed"; status: "error" | "offline"; error: Error }
+  | { type: "loaded"; userId: string; children: Child[] }
+  | { type: "failed"; userId: string; status: "error" | "offline" | "unauthorized"; error: Error }
   | { type: "select"; id: string | null }
   | { type: "added"; child: Child }
   | { type: "edited"; child: Child };
 
+export const initialState = (userId: string, activeId: string | null): LoadState => ({
+  userId, children: [], activeId, status: "loading", error: null, mutations: 0, loadStartedAt: 0, touched: {}
+});
+
+/** The server list with the children changed here since the request began put back. */
+function mergeTouched(list: Child[], touched: Record<string, Child>): Child[] {
+  const merged = list.map((c) => touched[c.id] ?? c);
+  const extra = Object.values(touched).filter((c) => !list.some((l) => l.id === c.id));
+  return [...merged, ...extra];
+}
+
 export function reducer(state: LoadState, action: Action): LoadState {
   switch (action.type) {
     case "loading":
-      return { ...state, status: "loading", error: null };
-    case "loaded":
+      return { ...state, status: "loading", error: null, loadStartedAt: state.mutations };
+    case "loaded": {
+      if (action.userId !== state.userId) return state; // a different person's answer
+      const stale = state.loadStartedAt !== state.mutations;
+      const list = stale ? mergeTouched(action.children, state.touched) : action.children;
       return {
         ...state,
-        children: action.children,
+        children: list,
         // Keep the remembered child only if it still exists; otherwise fall back to the first one.
-        activeId: action.children.some((c) => c.id === state.activeId) ? state.activeId : (action.children[0]?.id ?? null),
+        activeId: list.some((c) => c.id === state.activeId) ? state.activeId : (list[0]?.id ?? null),
         status: "ready",
-        error: null
+        error: null,
+        touched: stale ? state.touched : {}
       };
+    }
     case "failed":
+      if (action.userId !== state.userId) return state;
       return { ...state, status: action.status, error: action.error };
     case "select":
       return { ...state, activeId: action.id };
     case "added":
-      return { ...state, children: [...state.children, action.child], activeId: action.child.id };
+      return {
+        ...state,
+        children: [...state.children, action.child],
+        activeId: action.child.id,
+        mutations: state.mutations + 1,
+        touched: { ...state.touched, [action.child.id]: action.child }
+      };
     case "edited":
-      return { ...state, children: state.children.map((c) => (c.id === action.child.id ? action.child : c)) };
+      return {
+        ...state,
+        children: state.children.map((c) => (c.id === action.child.id ? action.child : c)),
+        mutations: state.mutations + 1,
+        touched: { ...state.touched, [action.child.id]: action.child }
+      };
   }
 }
 
 export const activeChildOf = (state: Pick<LoadState, "children" | "activeId">): Child | null =>
   state.children.find((c) => c.id === state.activeId) ?? state.children[0] ?? null;
 
-/** "offline" only when the browser says so or fetch itself failed; API answers (401, 404, 500) are "error". */
-export function failureStatus(error: unknown, online: boolean): "error" | "offline" {
-  if (error instanceof ApiError || error instanceof UnauthorizedError) return "error";
-  return !online || error instanceof TypeError ? "offline" : "error";
+/** Offline only when the browser says so. Any other failure to reach the API is a plain error; 401 is its own state. */
+export function failureStatus(error: unknown, online: boolean): "error" | "offline" | "unauthorized" {
+  if (error instanceof UnauthorizedError || (error instanceof ApiError && error.status === 401)) return "unauthorized";
+  return !online ? "offline" : "error";
 }
 
-export type GateView = "loading" | "error" | "offline" | "first-run" | "content";
+/** Calls `fn` when the browser comes back online; returns the cleanup. `target` is injectable for tests. */
+export function onOnline(
+  fn: () => void,
+  target: Pick<Window, "addEventListener" | "removeEventListener"> = window
+): () => void {
+  target.addEventListener("online", fn);
+  return () => target.removeEventListener("online", fn);
+}
+
+export type GateView = "loading" | "error" | "offline" | "unauthorized" | "first-run" | "content";
 
 /** What the five tab screens show: their content, or a state that comes first. */
 export function gateView(status: ChildStatus, childCount: number): GateView {

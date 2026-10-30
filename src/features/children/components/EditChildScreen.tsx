@@ -17,13 +17,13 @@ export function EditChildScreen() {
   return (
     <section className="screen" aria-labelledby="edit-child-title">
       <ScreenHeader id="edit-child-title" title="Edit child" childScoped={false} />
-      <ChildStatusNotice status={status} onRetry={refresh} />
+      <ChildStatusNotice status={status} onRetry={refresh} hasChildren={children.length > 0} />
       {status === "ready" && !child && (
         <InlineAlert kind="error" title="We can't open this profile.">
           It may have been deleted. Your own notes are safe.
         </InlineAlert>
       )}
-      {status === "ready" && child && (
+      {child && (
         <ChildForm
           key={child.id}
           child={child}

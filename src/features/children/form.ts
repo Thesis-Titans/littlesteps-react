@@ -78,6 +78,31 @@ export function toUpdateInput(values: FormValues, child: Child): UpdateChildInpu
   return Object.keys(input).length ? input : null;
 }
 
+/** True when the form's age source differs from what is stored. */
+export function ageChanged(values: FormValues, child: Child): boolean {
+  const diff = toUpdateInput(values, child);
+  return !!diff && ("birthMonthYear" in diff || "ageBand" in diff);
+}
+
+/** On edit the age is checked only if it changed, so a child can be renamed even when the stored age is old. */
+export function validateForm(values: FormValues, child?: Child, now = new Date()): FieldErrors {
+  const { age, ...rest } = validate(values, now);
+  return !child || ageChanged(values, child) ? { ...rest, ...(age ? { age } : {}) } : rest;
+}
+
+export type Prepared = { errors: FieldErrors } | { input: CreateChildInput & UpdateChildInput | null };
+
+/** What submitting does: show errors, send this input, or (null) send nothing because nothing changed. */
+export function prepareSubmit(values: FormValues, child?: Child, now = new Date()): Prepared {
+  const errors = validateForm(values, child, now);
+  if (errors.nickname || errors.age) return { errors };
+  return { input: (child ? toUpdateInput(values, child) : toCreateInput(values)) as CreateChildInput & UpdateChildInput | null };
+}
+
+/** The stored birth month sits outside the year list, so it can be shown but not picked again. */
+export const birthOutOfRange = (child: Child | undefined, now = new Date()) =>
+  !!child?.birthMonthYear && !yearOptions(now).includes(child.birthMonthYear.slice(0, 4));
+
 /** Turns a failed save into messages for the fields (400/422 details) or the whole form. */
 export function mapApiError(error: unknown): FieldErrors {
   if (error instanceof UnauthorizedError) return { form: MSG.signedOut };
@@ -99,7 +124,10 @@ export const MONTHS = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-/** Current year and the five before it: the last six years (UI/UX spec §2.2). */
+/**
+ * Current year and the five before it: the last six years (UI/UX spec §2.2).
+ * Because years run back only five, the oldest months (70 and 71 months old) cannot be picked; this matches the spec.
+ */
 export const yearOptions = (now = new Date()) =>
   Array.from({ length: 6 }, (_, i) => String(now.getUTCFullYear() - i));
 

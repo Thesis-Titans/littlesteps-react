@@ -29,7 +29,7 @@ export function Select({ label, options, hint, error, className = "", ...rest }:
         <Icon name="chevron-down" className="ls-select-chevron" />
       </div>
       {hint && <p id={hintId} className="ls-field-hint">{hint}</p>}
-      {error && <p id={errorId} className="ls-field-message" role="alert">{error}</p>}
+      {error && <p id={errorId} className="ls-field-message">{error}</p>}
     </div>
   );
 }

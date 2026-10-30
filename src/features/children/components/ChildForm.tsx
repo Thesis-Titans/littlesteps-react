@@ -1,10 +1,10 @@
 import { useId, useRef, useState, type FormEvent } from "react";
 import { Button, InlineAlert, Select, TextField } from "../../../components/common";
 import {
-  MONTHS, bandOptions, initialValues, mapApiError, toCreateInput, toUpdateInput, validate, yearOptions,
+  MONTHS, bandOptions, birthOutOfRange, initialValues, mapApiError, prepareSubmit, yearOptions,
   type AgeMode, type FieldErrors, type FormValues
 } from "../form";
-import type { Child, CreateChildInput, UpdateChildInput } from "../types";
+import { ageBandLabel, type Child, type CreateChildInput, type UpdateChildInput } from "../types";
 
 type ChildFormProps = {
   /** Present when editing. */
@@ -26,25 +26,26 @@ export function ChildForm({ child, online, onSubmit, onCancel }: ChildFormProps)
   const [errors, setErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
   const form = useRef<HTMLFormElement>(null);
+  const formAlert = useRef<HTMLDivElement>(null);
   const set = (patch: Partial<FormValues>) => setValues((v) => ({ ...v, ...patch }));
 
   const fail = (next: FieldErrors) => {
     setErrors(next);
     setSaving(false);
     // Move to the first problem so keyboard and screen reader users land on it.
-    requestAnimationFrame(() => form.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus?.());
+    requestAnimationFrame(() => (formAlert.current ?? form.current?.querySelector<HTMLElement>('[aria-invalid="true"]'))?.focus());
   };
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    const found = validate(values);
-    if (found.nickname || found.age) return fail(found);
-    const input = child ? toUpdateInput(values, child) : toCreateInput(values);
+    const prepared = prepareSubmit(values, child);
+    if ("errors" in prepared) return fail(prepared.errors);
+    const input = prepared.input;
     if (!input) return onCancel?.(); // Nothing changed.
     setSaving(true);
     setErrors({});
     try {
-      await onSubmit(input as CreateChildInput & UpdateChildInput);
+      await onSubmit(input);
     } catch (error) {
       fail(mapApiError(error));
     }
@@ -55,7 +56,7 @@ export function ChildForm({ child, online, onSubmit, onCancel }: ChildFormProps)
   const years = [{ value: "", label: "Choose a year" }, ...yearOptions().map((y) => ({ value: y, label: y }))];
   return (
     <form ref={form} className="child-form" onSubmit={handleSubmit} noValidate>
-      {errors.form && <InlineAlert kind="error" title="We couldn't save this.">{errors.form}</InlineAlert>}
+      {errors.form && <InlineAlert ref={formAlert} tabIndex={-1} kind="error" title="We couldn't save this.">{errors.form}</InlineAlert>}
       <TextField
         label="Nickname"
         hint="A nickname is enough. You don't need a real name or an exact birth date."
@@ -70,7 +71,12 @@ export function ChildForm({ child, online, onSubmit, onCancel }: ChildFormProps)
         value={values.mode}
         onChange={(e) => set({ mode: e.target.value as AgeMode })}
       />
-      {values.mode === "birth" ? (
+      {values.mode === "birth" && birthOutOfRange(child) && child ? (
+        <p className="child-form-age-fixed">
+          Birth month and year: {MONTHS[Number(child.birthMonthYear?.slice(5)) - 1]} {child.birthMonthYear?.slice(0, 4)} ·{" "}
+          {ageBandLabel(child.ageBand)}. To change it, choose an age range above.
+        </p>
+      ) : values.mode === "birth" ? (
         <fieldset className="child-form-age">
           <legend className="ls-field-label">Birth month and year</legend>
           <div className="child-form-row">
@@ -79,7 +85,7 @@ export function ChildForm({ child, online, onSubmit, onCancel }: ChildFormProps)
             <Select label="Year" options={years} value={values.year} {...ageProps}
               onChange={(e) => set({ year: e.target.value })} />
           </div>
-          {errors.age && <p id={ageErrorId} className="ls-field-message" role="alert">{errors.age}</p>}
+          {errors.age && <p id={ageErrorId} className="ls-field-message">{errors.age}</p>}
         </fieldset>
       ) : (
         <Select
