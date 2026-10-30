@@ -27,7 +27,7 @@ export function TextField(props: TextFieldProps) {
         ? <textarea {...common} {...(field as TextareaHTMLAttributes<HTMLTextAreaElement>)} />
         : <input {...common} {...(field as InputHTMLAttributes<HTMLInputElement>)} />}
       {hint && <p id={hintId} className="ls-field-hint">{hint}</p>}
-      {error && <p id={errorId} className="ls-field-message">{error}</p>}
+      {error && <p id={errorId} className="ls-field-message" role="alert">{error}</p>}
       {field.maxLength !== undefined && (
         <p className="ls-field-count" aria-live="polite">{length.toLocaleString()} / {field.maxLength.toLocaleString()}</p>
       )}

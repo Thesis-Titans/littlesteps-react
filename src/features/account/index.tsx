@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "../../components/common";
 import { ScreenHeader } from "../../components/layout";
 import { useAuth } from "../auth";
@@ -8,6 +9,7 @@ export function AccountScreen() {
   return (
     <section className="screen" aria-labelledby="account-title">
       <ScreenHeader id="account-title" title="Account" subtitle={user?.email ?? undefined} childScoped={false} />
+      <Link className="secondary-button" to="/children">Your children</Link>
       <Button variant="secondary" onClick={() => void signOut()}>Sign out</Button>
     </section>
   );

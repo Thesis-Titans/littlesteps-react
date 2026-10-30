@@ -33,7 +33,7 @@ export function ProtectedRoute() {
   const context: ShellContext = { sessionProblem, retry: () => setRetries((count) => count + 1) };
   // Keyed by user so a chosen child never carries over to the next person who signs in.
   return (
-    <ChildProvider key={user.uid}>
+    <ChildProvider key={user.uid} userId={user.uid}>
       <Outlet context={context} />
     </ChildProvider>
   );

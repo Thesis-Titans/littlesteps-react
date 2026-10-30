@@ -7,7 +7,7 @@ import { ScreenHeader } from "./ScreenHeader";
 import { AuthContext } from "../../features/auth/context";
 import type { AuthState } from "../../features/auth";
 import { ChildContext } from "../../features/children/context";
-import type { Child } from "../../features/children";
+import type { Child, ChildState } from "../../features/children";
 
 vi.mock("firebase/auth", () => ({ onIdTokenChanged: vi.fn(), signInWithEmailAndPassword: vi.fn(), signOut: vi.fn() }));
 vi.mock("../../services/firebase", () => ({ auth: {} }));
@@ -23,9 +23,14 @@ function render(path: string, user: User | null) {
   );
 }
 
+const noopState: ChildState = {
+  children: [], activeChild: null, status: "ready", error: null,
+  setActiveChild: vi.fn(), refresh: vi.fn(), addChild: vi.fn(), editChild: vi.fn()
+};
+
 function renderHeader(activeChild: Child | null, childScoped?: boolean) {
   return renderToStaticMarkup(
-    <ChildContext.Provider value={{ activeChild, setActiveChild: vi.fn() }}>
+    <ChildContext.Provider value={{ ...noopState, activeChild }}>
       <ScreenHeader id="t" title="Today" childScoped={childScoped} />
     </ChildContext.Provider>
   );
@@ -41,8 +46,12 @@ describe("AppShell", () => {
     expect(tabLabels(html)).toEqual(Array(2).fill(["Today", "Explore", "Milestones", "Journal", "This week"]).flat());
     expect(html.match(/<a aria-current="page"[^>]*href="\/explore"/g)).toHaveLength(2);
     expect(html.match(/<main/g)).toHaveLength(1);
-    expect(html).toContain('<h1 id="explore-title">Explore</h1>');
-    expect(html).toContain("<title>Explore · LittleSteps</title>");
+    // Tab screens wait for the child list (loading here); the page title is checked on Account.
+    expect(html).toContain("Loading your children…");
+    const account = render("/account", caregiver);
+    expect(account).toContain('<h1 id="account-title">Account</h1>');
+    expect(account).toContain("<title>Account · LittleSteps</title>");
+    expect(account).toContain('href="/children"');
   });
 
   it("shows the child label in child-scoped page headers once a child is chosen", () => {
