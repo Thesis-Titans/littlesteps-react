@@ -32,7 +32,8 @@ function renderHeader(activeChild: Child | null, childScoped?: boolean) {
 }
 
 const caregiver = { uid: "u1", email: "parent@example.com" } as User;
-const tabLabels = (html: string) => [...html.matchAll(/class="tab-link[^"]*"[^>]*>[\s\S]*?<span>([^<]+)<\/span>/g)].map((m) => m[1]);
+// The soft hyphen in the Milestones label is invisible unless the word wraps, so it is stripped for the comparison.
+const tabLabels = (html: string) => [...html.matchAll(/class="tab-link[^"]*"[^>]*>[\s\S]*?<span>([^<]+)<\/span>/g)].map((m) => m[1].replace(/\u00AD/g, ""));
 
 describe("AppShell", () => {
   it("shows the five tabs in order, marks the current one and has one main landmark", () => {
@@ -40,6 +41,7 @@ describe("AppShell", () => {
     // Sidebar and bottom bar each render the same five tabs; CSS shows one per viewport.
     expect(tabLabels(html)).toEqual(Array(2).fill(["Today", "Explore", "Milestones", "Journal", "This week"]).flat());
     expect(html.match(/<a aria-current="page"[^>]*href="\/explore"/g)).toHaveLength(2);
+    expect(html).toContain("Mile\u00ADstones");
     expect(html.match(/<main/g)).toHaveLength(1);
     expect(html).toContain('<h1 id="explore-title">Explore</h1>');
     expect(html).toContain("<title>Explore · LittleSteps</title>");
