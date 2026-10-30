@@ -2,7 +2,8 @@ import { useContext, useEffect, useId, useRef, useState, type KeyboardEvent } fr
 import { Link } from "react-router-dom";
 import { Icon } from "../../../components/common";
 import { ChildContext } from "../context";
-import { ageBandLabel } from "../types";
+import { ageBandLabel, atChildLimit } from "../types";
+import { ChildLimitNote } from "./ChildLimitNote";
 import { initialIndex, keyOpensMenu, menuAction } from "./menuKeys";
 
 const OPEN_EVENT = "ls:child-menu-open";
@@ -53,6 +54,7 @@ export function ChildSwitcher({ variant }: { variant: "side" | "top" | "chip" })
     return <Link className={`child-switcher-add child-switcher-${variant}`} to="/children?add=1">Add a child</Link>;
   }
 
+  const full = atChildLimit(children.length);
   const close = (refocus: boolean) => {
     setOpen(false);
     if (refocus) button.current?.focus();
@@ -106,7 +108,9 @@ export function ChildSwitcher({ variant }: { variant: "side" | "top" | "chip" })
               {child.nickname} · {ageBandLabel(child.ageBand)}
             </button>
           ))}
-          <Link role="menuitem" tabIndex={children.length === index ? 0 : -1} to="/children?add=1" onClick={() => close(false)}>Add a child</Link>
+          {full ? <ChildLimitNote className="child-menu-note" role="menuitem" tabIndex={children.length === index ? 0 : -1} /> : (
+            <Link role="menuitem" tabIndex={children.length === index ? 0 : -1} to="/children?add=1" onClick={() => close(false)}>Add a child</Link>
+          )}
           <Link role="menuitem" tabIndex={children.length + 1 === index ? 0 : -1} to="/children" onClick={() => close(false)}>Manage children</Link>
         </div>
       )}

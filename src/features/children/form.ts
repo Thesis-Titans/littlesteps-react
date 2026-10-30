@@ -21,6 +21,8 @@ export const MSG = {
   generic: "Add a nickname, then pick a birth month and year or an age range.",
   signedOut: "Please sign in again to continue.",
   notFound: "We can't find this profile. It may have been deleted.",
+  limitNote: "You have added the most children you can (20).",
+  limit: "You can add up to 20 children.",
   notSaved: "We couldn't save this. Your changes weren't saved. Check your connection and try again."
 } as const;
 
@@ -111,6 +113,11 @@ export function prepareSubmit(values: FormValues, child?: Child, now = new Date(
 export const birthOutOfRange = (child: Child | undefined, now = new Date()) =>
   !!child?.birthMonthYear && !yearOptions(now).includes(child.birthMonthYear.slice(0, 4));
 
+/** The API refused a 21st child (422 on the "children" field, or a message about 20 children). */
+export const isLimitError = (error: unknown) =>
+  error instanceof ApiError && error.status === 422 &&
+  (error.details.some((d) => d.field === "children") || /20 children/i.test(error.message));
+
 /** Turns a failed save into messages for the fields (400/422 details) or the whole form. */
 export function mapApiError(error: unknown): FieldErrors {
   if (error instanceof UnauthorizedError) return { form: MSG.signedOut };
@@ -118,6 +125,7 @@ export function mapApiError(error: unknown): FieldErrors {
   if (error.status === 404) return { form: MSG.notFound };
   if (error.status !== 400 && error.status !== 422) return { form: MSG.notSaved };
 
+  if (isLimitError(error)) return { form: MSG.limit };
   const errors: FieldErrors = {};
   for (const { field, issue } of error.details) {
     if (field === "nickname") {

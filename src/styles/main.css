@@ -173,3 +173,5 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: var(--siz
   .child-switcher-top { display: none; }
   .child-first-run h2, .child-add-card h2 { font: var(--font-h2-desktop); }
 }
+.child-limit-note { margin: 0; color: var(--color-text-secondary); font: var(--font-body); }
+.child-menu > .child-menu-note { cursor: default; }

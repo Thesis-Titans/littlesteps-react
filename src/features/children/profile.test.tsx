@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ApiError, UnauthorizedError } from "../../services/api";
 import { ChildContext } from "./context";
 import { ChildForm } from "./components/ChildForm";
+import { ChildLimitNote } from "./components/ChildLimitNote";
 import { ChildGate } from "./components/ChildGate";
 import { ChildrenScreen } from "./components/ChildrenScreen";
 import { ChildSwitcher } from "./components/ChildSwitcher";
@@ -12,8 +13,9 @@ import { NonDiagnosticNotice } from "./components/NonDiagnosticNotice";
 import { addedMessage, keepNoticeOn, noticeFor, noticeState, readNotice, savedMessage } from "./notice";
 import { InlineAlert, SuccessNotice, TextField } from "../../components/common";
 import { keyOpensMenu, initialIndex, menuAction } from "./components/menuKeys";
-import { MSG, ageChanged, bandOptions, birthOutOfRange, initialValues, mapApiError, normalizeNickname, prepareSubmit, toCreateInput, toUpdateInput, validate, validateForm, yearOptions } from "./form";
+import { MSG, ageChanged, bandOptions, birthOutOfRange, initialValues, isLimitError, mapApiError, normalizeNickname, prepareSubmit, toCreateInput, toUpdateInput, validate, validateForm, yearOptions } from "./form";
 import { activeChildOf, failureStatus, gateView, initialState, onOnline, readActiveId, reducer, writeActiveId } from "./state";
+import { MAX_CHILDREN, atChildLimit } from "./types";
 import type { Child, ChildState } from "./types";
 
 vi.mock("../../services/firebase", () => ({ auth: {} }));
@@ -511,5 +513,53 @@ describe("error announcements", () => {
     expect(html).toContain('aria-invalid="true"');
     expect(html).toContain("Add a nickname.");
     expect(html.match(/role="alert"/g) ?? []).toHaveLength(0);
+  });
+});
+
+describe("child limit", () => {
+  const many = (n: number): Child[] => Array.from({ length: n }, (_, i) => ({ ...maya, id: `c${i}`, nickname: `Kid${i}` }));
+  const NOTE = "You have added the most children you can (20).";
+  const full = state({ children: many(MAX_CHILDREN), activeChild: maya });
+
+  it("allows adding up to 19 children and stops at 20 and 21", () => {
+    expect(MAX_CHILDREN).toBe(20);
+    expect([19, 20, 21].map(atChildLimit)).toEqual([false, true, true]);
+  });
+
+  it("replaces the add actions with a note on the list", () => {
+    const html = page(<ChildrenScreen />, full, "/children");
+    expect(html).toContain(NOTE);
+    expect(html).not.toContain("Add a child");
+    const open = page(<ChildrenScreen />, state({ children: many(19), activeChild: maya }), "/children");
+    expect(open).toContain("Add a child");
+    expect(open).not.toContain(NOTE);
+  });
+
+  it("shows the note instead of the form when the add route is reached directly", () => {
+    const html = page(<ChildrenScreen />, full, "/children?add=1");
+    expect(html).toContain(NOTE);
+    expect(html).not.toContain("<form");
+  });
+
+  it("replaces the add item in the switcher menu", () => {
+    // The menu renders closed on the server, so check the note component and the closed trigger separately.
+    expect(page(<ChildSwitcher variant="side" />, full)).toContain("aria-haspopup");
+    expect(page(<ChildLimitNote />, full)).toContain(`<p class="child-limit-note">${NOTE}</p>`);
+  });
+
+  it("is a disabled menu item inside a menu, so the menu holds only valid children", () => {
+    const html = page(<ChildLimitNote className="child-menu-note" role="menuitem" tabIndex={-1} />, full);
+    expect(html).toContain('role="menuitem"');
+    expect(html).toContain('aria-disabled="true"');
+    expect(html).toContain(NOTE);
+  });
+
+  it("maps the 422 limit error to the form, and other 422s as before", () => {
+    const limit = apiError(422, [{ field: "children", issue: "Limit of 20 children reached" }]);
+    expect(isLimitError(limit)).toBe(true);
+    expect(mapApiError(limit)).toEqual({ form: "You can add up to 20 children." });
+    expect(mapApiError(new ApiError(422, "UNPROCESSABLE_ENTITY", "You can add up to 20 children.", []))).toEqual({ form: "You can add up to 20 children." });
+    expect(mapApiError(apiError(422, [{ field: "birthMonthYear", issue: "Must not be in the future" }]))).toEqual({ age: MSG.ageRange });
+    expect(isLimitError(apiError(400, [{ field: "children", issue: "x" }]))).toBe(false);
   });
 });

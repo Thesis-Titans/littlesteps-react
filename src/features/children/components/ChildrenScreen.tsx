@@ -4,9 +4,11 @@ import { Button, Card, SuccessNotice } from "../../../components/common";
 import { ScreenHeader } from "../../../components/layout";
 import { addedMessage, readNotice } from "../notice";
 import { useOnline } from "../hooks/useOnline";
-import { ageBandLabel } from "../types";
+import { isLimitError } from "../form";
+import { ageBandLabel, atChildLimit } from "../types";
 import { useChild } from "../useChild";
 import { ChildForm } from "./ChildForm";
+import { ChildLimitNote } from "./ChildLimitNote";
 import { ChildStatusNotice } from "./ChildStatus";
 import { FirstRun } from "./FirstRun";
 
@@ -49,14 +51,20 @@ export function ChildrenScreen() {
               </Card>
             ))}
           </ul>
-          {adding ? (
+          {atChildLimit(children.length) ? <ChildLimitNote /> : adding ? (
             <Card className="child-add-card">
               <h2>Add a child</h2>
               <ChildForm
                 online={online}
                 onCancel={() => setAdding(false)}
                 onSubmit={async (input) => {
-                  const child = await addChild(input);
+                  let child;
+                  try {
+                    child = await addChild(input);
+                  } catch (error) {
+                    if (isLimitError(error)) void refresh(); // another device may have added children
+                    throw error;
+                  }
                   setNotice(addedMessage(child.nickname));
                   setAdding(false);
                 }}

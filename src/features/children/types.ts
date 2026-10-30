@@ -42,3 +42,7 @@ export type ChildState = {
   addChild: (input: CreateChildInput) => Promise<Child>;
   editChild: (childId: string, input: UpdateChildInput) => Promise<Child>;
 };
+
+/** Most children one caregiver can have; the API enforces the same limit. */
+export const MAX_CHILDREN = 20;
+export const atChildLimit = (count: number) => count >= MAX_CHILDREN;
