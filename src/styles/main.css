@@ -94,7 +94,7 @@ button:disabled { cursor: wait; opacity: .65; }
 }
 
 /* App shell · UI/UX spec §5.2: mobile sticky top bar + fixed bottom tabs; sidebar from 768px (tablet and desktop) */
-html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: var(--size-bottom-bar); } /* §2.5 focus not hidden under the fixed bars */
+html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: calc(var(--size-bottom-bar) + var(--space-16)); } /* §2.5 focus not hidden under the fixed bars */
 .auth-loading { padding: var(--space-32) var(--space-16); text-align: center; color: var(--color-text-secondary); }
 .auth-loading p { margin: 0; }
 

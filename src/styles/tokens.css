@@ -61,9 +61,9 @@
   --size-touch-target-min: 48px;
   --size-touch-target-secondary: 44px;
 
-  /* App shell (UI/UX spec §2.5, §5.2); the bottom bar fits two-line tab labels */
+  /* App shell (UI/UX spec §2.5, §5.2); the bottom bar is 72px (spec §10.6); at 320px two-line labels make it taller, so scroll-padding adds 16px */
   --size-top-bar: 60px;
-  --size-bottom-bar: 88px;
+  --size-bottom-bar: 72px;
   --size-sidebar: 240px;
 
   /* Elevation (Figma effect styles LittleSteps/Elevation/*) */
