@@ -41,28 +41,15 @@ Each screen shows the right component for each state (UI/UX spec §7):
 
 Offline messages never say something was saved when it wasn't.
 
-## Wording (UI/UX spec §2.6)
+## Wording
 
-Parents read LittleSteps in short bursts, often one-handed, sometimes in their second or third language, and often worried about being judged. Every label, message and empty state follows these rules:
+The wording rules live in one place: [UI/UX specification §2.6](https://github.com/Thesis-Titans/littlesteps-docs/blob/main/docs/ui-ux-design-specification.md) (also summarized in [DESIGN.md](https://github.com/Thesis-Titans/littlesteps-docs/blob/main/docs/DESIGN.md)). It holds the banned words, the reassurance line and the full swap table. Read it before writing any label, message or empty state; it is not copied here so it cannot drift.
 
-- **Everyday words.** Name things the way a parent would. No catalog, domain, observation, assessment, analytics, generate or JSON on screen.
-- **Short and calm.** One idea per sentence. Say a reassurance once per screen, not on every card.
-- **No blame, no verdicts.** Never imply a child is behind or a parent has fallen short. No daily goals or streaks.
-- **Errors say what happened and what is still safe**, then what to do next: "It may have been deleted. Your own notes are safe."
-- **Label AI, don't sell it.** AI-written output shows `<Badge kind="ai" />`. Features are named for what they do ("Idea helper").
-- **Point to real people.** For worries about development: "your pediatrician or barangay health worker".
-- **Buttons name the action**: "Save note", "Delete note", "Add to today's plan".
+Three rules that show up in component code:
 
-| Instead of | Say |
-|---|---|
-| AI helper · Generate another · catalog | Idea helper · Another idea · our activity list |
-| Cognitive · Motor · Language · Socio-Emotional | Thinking · Moving · Talking · Feelings |
-| Domain · Age band · Setting | Kind of play · Child's age · Place |
-| Record an observation · Observed · Not yet observed | Note what you saw · I saw it / Not seen yet · Seen on Oct 21 |
-| This is not a developmental assessment | It's not a test |
-| Never sent to AI, analytics or error logs | Only you can see these notes. We never share them. |
-
-The API and data model keep their technical names (`observed`, `not_yet_observed`, `socioEmotional`); only the words on screen change.
+- **Buttons name the action**: "Save note", "Delete note", "Add to today's plan", never "OK".
+- **AI-written output shows `<Badge kind="ai" />`.** Features are named for what they do ("Idea helper").
+- **The API and data model keep their technical names** (`observed`, `not_yet_observed`, `socioEmotional`); only the words on screen change.
 
 ## Adding or changing a component
 
