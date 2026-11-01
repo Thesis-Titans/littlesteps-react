@@ -1,6 +1,8 @@
 @import "./tokens.css";
 @import "./components.css";
 @import "./account.css";
+@import "./catalog.css";
+@import "./ai.css";
 
 :root {
   font-family: var(--font-family-ui);

@@ -1,0 +1,331 @@
+/* Catalog and Learning Library (react #7) */
+
+.catalog-browser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  width: 100%;
+}
+
+.catalog-header-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.catalog-title {
+  margin: 0;
+  font: var(--font-h2-mobile);
+  color: var(--color-text-primary);
+}
+
+.catalog-subtitle {
+  margin: 0;
+  font: var(--font-body);
+  color: var(--color-text-secondary);
+}
+
+.catalog-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-16);
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.catalog-search-row {
+  width: 100%;
+}
+
+.catalog-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.catalog-quick-filter {
+  display: flex;
+  align-items: center;
+}
+
+.catalog-quick-filter .ls-button {
+  min-height: var(--size-touch-target-min);
+  padding: 0;
+  text-decoration: underline;
+  text-align: left;
+}
+
+.catalog-domains-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.catalog-filter-label {
+  font: var(--font-label);
+  color: var(--color-text-primary);
+}
+
+.catalog-domain-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.catalog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-16);
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .catalog-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Activity Card */
+.catalog-activity-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-12);
+  min-height: 220px;
+}
+
+.catalog-activity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.catalog-domain-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-8);
+  border-radius: 6px;
+  font: var(--font-meta);
+  font-weight: 600;
+  background: var(--color-surface-soft-green);
+  color: var(--color-brand-forest);
+}
+
+.catalog-domain-cognitive {
+  background: var(--color-status-info);
+  color: var(--color-text-primary);
+}
+
+.catalog-domain-motor {
+  background: var(--color-surface-soft-green);
+  color: var(--color-brand-forest);
+}
+
+.catalog-domain-language {
+  background: var(--color-brand-warm-cream);
+  color: var(--color-text-primary);
+}
+
+.catalog-domain-socioEmotional {
+  background: var(--color-status-caution);
+  color: var(--color-text-primary);
+}
+
+.catalog-activity-title {
+  margin: 0;
+  font: var(--font-h3);
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.catalog-activity-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font: var(--font-body-small);
+  color: var(--color-text-secondary);
+}
+
+.catalog-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.catalog-time-item {
+  font: var(--font-meta);
+  color: var(--color-text-secondary);
+}
+
+.catalog-meta-bullet {
+  color: var(--color-border-input);
+}
+
+.catalog-materials-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.catalog-material-pill {
+  padding: 2px var(--space-8);
+  border-radius: 4px;
+  background: var(--color-surface-canvas);
+  border: 1px solid var(--color-border-subtle);
+  font: var(--font-meta);
+  color: var(--color-text-secondary);
+}
+
+.catalog-activity-source {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  font: var(--font-meta);
+  color: var(--color-text-secondary);
+}
+
+.catalog-activity-actions {
+  margin-top: auto;
+  padding-top: var(--space-8);
+}
+
+/* Detail Modal */
+.catalog-detail-dialog {
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.catalog-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-12);
+  margin-bottom: var(--space-16);
+}
+
+.catalog-detail-title {
+  margin: var(--space-8) 0 0;
+  font: var(--font-h2-mobile);
+  color: var(--color-text-primary);
+}
+
+.catalog-close-button {
+  min-height: var(--size-touch-target-min);
+  min-width: var(--size-touch-target-min);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.catalog-detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.catalog-detail-specs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+  padding: var(--space-12);
+  background: var(--color-surface-canvas);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.catalog-spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.catalog-spec-label {
+  font: var(--font-meta);
+  color: var(--color-text-secondary);
+}
+
+.catalog-spec-value {
+  font: var(--font-label);
+  color: var(--color-text-primary);
+}
+
+.catalog-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.catalog-section-title {
+  margin: 0;
+  font: var(--font-label);
+  color: var(--color-text-primary);
+}
+
+.catalog-materials-list {
+  margin: 0;
+  padding-left: var(--space-24);
+  font: var(--font-body-small);
+  color: var(--color-text-primary);
+}
+
+.catalog-instructions-list {
+  margin: 0;
+  padding-left: var(--space-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  font: var(--font-body-small);
+  color: var(--color-text-primary);
+}
+
+.catalog-instructions-list li {
+  line-height: 1.5;
+}
+
+.catalog-limitations-section {
+  padding: var(--space-12);
+  background: var(--color-surface-canvas);
+  border-radius: var(--radius-control);
+  border-left: 3px solid var(--color-border-input);
+}
+
+.catalog-limitations-text {
+  margin: 0;
+  font: var(--font-body-small);
+  color: var(--color-text-secondary);
+}
+
+.catalog-detail-source {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  font: var(--font-meta);
+  color: var(--color-text-secondary);
+}
+
+.catalog-detail-actions {
+  margin-top: var(--space-24);
+}
+
+@media (min-width: 768px) {
+  .catalog-title {
+    font: var(--font-h2-desktop);
+  }
+  .catalog-detail-title {
+    font: var(--font-h2-desktop);
+  }
+}
