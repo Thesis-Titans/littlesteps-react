@@ -14,7 +14,7 @@ Build every screen from these components and the tokens in `src/styles/tokens.cs
 | Component | Use it for | Key props | States and accessibility |
 |---|---|---|---|
 | `Button` | Every action | `variant`: `primary` (one per screen), `secondary`, `text` (links like "Forgot password?"), `danger` (permanent deletes); `busy`; `fullWidth` | 48px tall (text buttons 44px). `busy` disables it and sets `aria-busy`. Disabled is dimmed and not clickable. |
-| `TextField` | Single-line input, or notes with `multiline` | `label` (always visible), `hint`, `error`, `maxLength` (shows "0 / 500") | The label is tied to the field. `error` sets `aria-invalid` and links the message with `aria-describedby`. Error style uses the error tokens. Paste is never blocked. |
+| `TextField` | Single-line input, or notes with `multiline` | `label` (always visible), `hint`, `error`, `maxLength` (shows "0 / 500"), `trailing` (e.g. password toggle) | The label is tied to the field. `error` sets `aria-invalid` and links the message with `aria-describedby`. Error style uses the error tokens. Paste is never blocked. |
 | `Select` | Picking one option from a short list (child's age, week) | `label`, `options`, `hint`, `error` | Native `<select>`, so it works with the keyboard and screen readers on every phone. |
 | `Chip` | Filters and choices (Thinking, Moving, Under 10 min) | `selected` | A toggle button with `aria-pressed`. 48px tall. |
 | `Card` | Grouping content | `as` (`div`, `section`, `article`, `li`), `elevated` | Use `elevated` only for cards on the page background, not cards inside cards. |
@@ -25,7 +25,7 @@ Build every screen from these components and the tokens in `src/styles/tokens.cs
 | `ConfirmDialog` | Permanent actions only: deleting a note, a child's records or the account | `open`, `title`, `confirmLabel`, `destructive`, `onConfirm`, `onCancel` | Native `<dialog>`: keeps focus inside, Escape cancels, and Cancel gets focus first. The confirm button names the action ("Delete note"), never "OK". |
 | `UndoToast` | Reversible actions (mark complete) | `message`, `onUndo`, `onClose`, `durationMs` | Stays at least 10 seconds and pauses while hovered or focused (`role="status"`). Prefer undo over a confirm dialog when the action can be reversed. |
 | `SuccessNotice` | Confirming a finished action ("Maya added.") | `message` (optional), `onClose`, `durationMs` | Always renders an empty `role="status"` region; keep it mounted and change `message` so the text is announced (the alert, check icon and "Dismiss message" button render inside it). Dismissing moves focus to the page `h1`. The timer restarts for each new message. Stays at least 10 seconds and pauses while hovered or focused. No motion, so nothing to turn off for reduced motion. |
-| `Icon` | The 15 Figma icons in `src/assets/icons` | `name`, `size` (16, 20, 24), `label` | Takes the text color. Decorative by default (`aria-hidden`). Give a `label` only when the icon is the only content of a control. |
+| `Icon` | The 17 Figma icons in `src/assets/icons` | `name`, `size` (16, 20, 24), `label` | Takes the text color. Decorative by default (`aria-hidden`). Give a `label` only when the icon is the only content of a control. |
 
 ## Five states on every screen
 

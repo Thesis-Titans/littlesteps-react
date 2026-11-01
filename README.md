@@ -1,6 +1,6 @@
 # LittleSteps Web
 
-React + TypeScript web client for LittleSteps, powered by Vite. The initial scaffold provides a project landing screen and a small API health-check integration; product features and authenticated views are not implemented yet.
+React + TypeScript web client for LittleSteps, powered by Vite. Features include caregiver authentication (sign-in and sign-up with in-field password toggle), responsive 5-tab app shell (desktop sidebar and 72px mobile tab bar), child profile management, account and privacy views, learning catalog exploration, and a constrained AI play idea helper with deterministic catalog fallback.
 
 ---
 
@@ -27,7 +27,7 @@ LittleSteps uses a three-tier documentation structure. System architecture, prod
 2. Set `VITE_API_BASE_URL` to the local Firebase Functions emulator API URL (e.g., `http://127.0.0.1:5001/demo-littlesteps/asia-southeast1/api`).
 3. Run `npm ci` to install dependencies from the lockfile.
 4. Run `npm run lint` to verify code quality with ESLint.
-5. Run `npm test` to run the unit test suite.
+5. Run `npm test` to run the unit and DOM test suite (209 passing tests).
 6. Run `npm run typecheck` and `npm run build` to verify TypeScript types and the Vite production build.
 7. Run `npm run dev` to launch the local Vite development server. Open [`http://localhost:5173`](http://localhost:5173) in your browser. (The local API server permits both `http://localhost:5173` and `http://127.0.0.1:5173` by default).
 
@@ -59,14 +59,15 @@ src/
 │   │   ├── types.ts        # Domain types
 │   │   ├── auth.test.ts    # Unit tests
 │   │   └── index.ts        # Public feature interface
-│   ├── children/           # Active child context, reset per signed-in user (Issue #6 builds the profile flow)
-│   ├── today/              # Today tab: activity planning (Issue #8)
-│   ├── explore/            # Explore tab: age-aware learning catalog (Issue #7)
+│   ├── children/           # Active child context, profile creation & editing (Issue #6)
+│   ├── today/              # Today tab: routine activity planning (Issue #8)
+│   ├── explore/            # Explore tab: learning catalog & AI helper integration (Issue #7)
 │   ├── milestones/         # Milestones tab: observation prompts (Issue #17)
 │   ├── journal/            # Journal tab: private observation journal (Issue #9)
 │   ├── this-week/          # This week tab: weekly reflection (Issue #10)
-│   ├── account/            # Account, settings, privacy and help (Issue #16)
-│   └── ai-helper/          # AI suggestion experience & safe fallback states (Issue #11, not created yet)
+│   ├── account/            # Account, settings, privacy disclosure and help (Issue #16)
+│   ├── catalog/            # Learning catalog browser, domain chips & search (Issue #7)
+│   └── ai/                 # AI suggestion experience (IdeaHelper), prompt constraints & fallback (Issue #11)
 ├── components/             # Reusable design system UI components
 │   ├── common/             # Buttons, fields, chips, alerts, states (see components/README.md)
 │   └── layout/             # App shell: ProtectedRoute, AppShell, SideNav, TopBar, BottomTabBar, ScreenHeader (Issue #18)
