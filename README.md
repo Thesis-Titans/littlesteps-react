@@ -29,7 +29,7 @@ LittleSteps uses a three-tier documentation structure. System architecture, prod
 4. Run `npm run lint` to verify code quality with ESLint.
 5. Run `npm test` to run the unit test suite.
 6. Run `npm run typecheck` and `npm run build` to verify TypeScript types and the Vite production build.
-7. Run `npm run dev` to launch the local Vite development server. Open [`http://localhost:5173`](http://localhost:5173) in your browser. (Always access via `localhost` rather than `127.0.0.1`, as the API CORS configuration defaults to `http://localhost:5173`).
+7. Run `npm run dev` to launch the local Vite development server. Open [`http://localhost:5173`](http://localhost:5173) in your browser. (The local API server permits both `http://localhost:5173` and `http://127.0.0.1:5173` by default).
 
 > [!CAUTION]
 > Do not put Firebase Admin credentials, AI provider keys, or server secrets in `VITE_*` environment variables. Vite bakes these values directly into the browser-facing bundle.
