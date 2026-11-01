@@ -19,6 +19,16 @@ describe("TextField", () => {
     expect(html).toContain("<textarea");
     expect(html).toContain("5 / 500");
   });
+
+  it("renders a trailing element inside an input wrapper", () => {
+    const html = renderToStaticMarkup(
+      <TextField label="Password" type="password" trailing={<button type="button">Show</button>} />
+    );
+    expect(html).toContain("ls-input-wrapper");
+    expect(html).toContain("ls-control-with-trailing");
+    expect(html).toContain("ls-input-trailing");
+    expect(html).toContain("<button");
+  });
 });
 
 describe("Button", () => {
@@ -56,6 +66,13 @@ describe("Icon", () => {
     expect(decorative).toContain('stroke="currentColor"');
     expect(decorative).toContain('aria-hidden="true"');
     expect(renderToStaticMarkup(<Icon name="close" label="Close" />)).toContain('aria-label="Close"');
+  });
+
+  it("renders eye and eye-off icons", () => {
+    const eye = renderToStaticMarkup(<Icon name="eye" />);
+    const eyeOff = renderToStaticMarkup(<Icon name="eye-off" />);
+    expect(eye).toContain('stroke="currentColor"');
+    expect(eyeOff).toContain('stroke="currentColor"');
   });
 });
 
