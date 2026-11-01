@@ -53,6 +53,50 @@ textarea.ls-control { min-height: 120px; resize: vertical; }
 .ls-select .ls-control { appearance: none; padding-right: 44px; }
 .ls-select-chevron { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-secondary); pointer-events: none; }
 
+/* Input with trailing action (e.g. password visibility toggle) */
+.ls-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.ls-control.ls-control-with-trailing {
+  padding-right: 48px;
+}
+.ls-input-trailing {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+button.password-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+button.password-toggle-btn:hover {
+  color: var(--color-text-primary);
+  background: transparent;
+}
+button.password-toggle-btn:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: -2px;
+}
+
 /* Chip */
 .ls-chip {
   display: inline-flex; align-items: center; min-height: var(--size-touch-target-min);

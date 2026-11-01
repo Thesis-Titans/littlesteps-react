@@ -11,7 +11,8 @@ const icons = Object.fromEntries(
 export type IconName =
   | "today" | "explore" | "milestones" | "journal" | "this-week"
   | "lock" | "check" | "clock" | "info" | "sparkle"
-  | "chevron-down" | "chevron-right" | "close" | "plus" | "wifi-off";
+  | "chevron-down" | "chevron-right" | "close" | "plus" | "wifi-off"
+  | "eye" | "eye-off";
 
 type IconProps = {
   name: IconName;

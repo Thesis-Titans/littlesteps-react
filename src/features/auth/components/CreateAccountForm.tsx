@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Button, InlineAlert, TextField } from "../../../components/common";
+import { Button, Icon, InlineAlert, TextField } from "../../../components/common";
 import { Logo } from "../../../components/common/Logo";
 import { describeCreateAccountError, validateCreateAccount, type CreateAccountErrors } from "../createAccount";
 import { PRIVACY_CONTACT } from "../../account/content";
@@ -77,17 +77,25 @@ export function CreateAccountForm() {
             />
             <TextField
               label="Password"
-              hint={`At least 8 characters. A password manager is welcome.`}
+              hint="At least 8 characters. A password manager is welcome."
               type={showPassword ? "text" : "password"}
               name="password"
               autoComplete="new-password"
               value={password}
               error={errors.password}
               onChange={(event) => setPassword(event.target.value)}
+              trailing={
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  aria-label="Show password"
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword((shown) => !shown)}
+                >
+                  <Icon name={showPassword ? "eye-off" : "eye"} size={20} />
+                </button>
+              }
             />
-            <button type="button" className="text-button" aria-pressed={showPassword} onClick={() => setShowPassword((shown) => !shown)}>
-              Show password
-            </button>
             <details className="privacy-disclosure" id="privacy-notice">
               <summary>Read the privacy notice</summary>
               <dl>
