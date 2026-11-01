@@ -3,7 +3,7 @@
 Build every screen from these components and the tokens in `src/styles/tokens.css`. Don't restyle buttons, fields or states inside a feature. If you need a component or a variant that isn't here, comment on [react #22](https://github.com/Thesis-Titans/littlesteps-react/issues/22) so it's added for everyone.
 
 - **Import:** `import { Button, TextField } from "../components/common";`
-- **See them live:** run `npm run dev` and open [`/dev/components`](http://127.0.0.1:5173/dev/components). It shows every component in every state and exists only in development builds.
+- **See them live:** run `npm run dev` and open [`/dev/components`](http://localhost:5173/dev/components). It shows every component in every state and exists only in development builds.
 - **Design source:** Figma page `02 · Components`; rules in the [UI/UX specification](https://github.com/Thesis-Titans/littlesteps-docs/blob/main/docs/ui-ux-design-specification.md) §2.5 (interaction), §2.6 (wording), §6 (tokens), §7 (the five states).
 - **Flutter:** the same set lives in `lib/widgets/` of `littlesteps-flutter` (flutter #2), mapped by UI/UX spec §9.
 
