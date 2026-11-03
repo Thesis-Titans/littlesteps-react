@@ -27,7 +27,17 @@ const renderExplore = () =>
     </ChildContext.Provider>
   );
 
+const realFocus = HTMLElement.prototype.focus;
+// In a browser the card button could not take focus yet while the detail dialog was closing, so the plan dialog
+// opened with focus on <body>. Setting this reproduces that state; jsdom alone would not.
+let cardFocusBlocked = false;
+
 beforeEach(() => {
+  cardFocusBlocked = false;
+  HTMLElement.prototype.focus = function (this: HTMLElement, options?: FocusOptions) {
+    if (cardFocusBlocked && this.textContent?.startsWith("View activity")) return;
+    realFocus.call(this, options);
+  };
   // jsdom has no modal dialogs
   // Like a browser, opening a modal moves focus inside it.
   HTMLDialogElement.prototype.showModal = function () {
@@ -36,7 +46,10 @@ beforeEach(() => {
   };
   HTMLDialogElement.prototype.close = function () { this.removeAttribute("open"); };
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  HTMLElement.prototype.focus = realFocus;
+});
 
 describe("Explore: add an activity to the plan", () => {
   it("plans from the detail view, names the child, and confirms", async () => {
@@ -76,8 +89,10 @@ describe("Explore: add an activity to the plan", () => {
     renderExplore();
     const open = await screen.findByRole("button", { name: "View activity for Stack the cups" });
     await user.click(open);
+    cardFocusBlocked = true;
     await user.click(await screen.findByRole("button", { name: "Add to plan" }));
     const heading = await screen.findByRole("heading", { name: "Add to Maya's plan" });
+    cardFocusBlocked = false;
     // The detail dialog is gone, so the "Add to plan" button that opened this one no longer exists.
     expect(screen.queryByRole("button", { name: "Close activity details" })).toBeNull();
 
@@ -94,8 +109,10 @@ describe("Explore: add an activity to the plan", () => {
     renderExplore();
     const open = await screen.findByRole("button", { name: "View activity for Stack the cups" });
     await user.click(open);
+    cardFocusBlocked = true;
     await user.click(await screen.findByRole("button", { name: "Add to plan" }));
     await screen.findByRole("heading", { name: "Add to Maya's plan" });
+    cardFocusBlocked = false;
     open.remove(); // e.g. the list reloaded
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Explore", level: 1 })));
