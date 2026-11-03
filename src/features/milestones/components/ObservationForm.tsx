@@ -3,7 +3,7 @@ import { Button, ConfirmDialog, InlineAlert, Select, TextField } from "../../../
 import { ApiError } from "../../../services/api";
 import { failureKind } from "../../../services/offline";
 import { recordObservation, updateObservation } from "../api";
-import { FUTURE_DATE_MESSAGE, dateProblem, todayIso } from "../logic";
+import { dateProblem, futureDateMessage, todayIso } from "../logic";
 import { MILESTONE_STATUSES, NOTE_MAX_LENGTH, STATUS_LABELS, type MilestoneObservation, type MilestonePrompt, type MilestoneStatus } from "../types";
 
 type Props = {
@@ -64,7 +64,7 @@ export function ObservationForm({ childId, childName, prompt, existing, onSaved,
       const saved = existing ? await updateObservation(childId, existing.id, input) : await recordObservation(childId, prompt.id, input);
       onSaved(saved);
     } catch (error) {
-      if (error instanceof ApiError && error.status === 422) setDateError(FUTURE_DATE_MESSAGE);
+      if (error instanceof ApiError && error.status === 422) setDateError(futureDateMessage());
       else setFailure(failureFor(error));
     } finally {
       savingRef.current = false;
@@ -119,7 +119,7 @@ export function ObservationForm({ childId, childName, prompt, existing, onSaved,
       )}
       <div className="milestone-form-actions">
         <Button type="submit" busy={saving}>Save note</Button>
-        <Button variant="secondary" onClick={() => (dirty ? setConfirming(true) : onClose())}>Cancel</Button>
+        <Button variant="secondary" disabled={saving} onClick={() => (dirty ? setConfirming(true) : onClose())}>Cancel</Button>
       </div>
       <ConfirmDialog open={confirming} title="Discard this note?" confirmLabel="Discard note" cancelLabel="Keep editing" destructive onConfirm={onClose} onCancel={() => setConfirming(false)}>
         What you typed will not be saved.

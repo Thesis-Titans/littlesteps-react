@@ -73,10 +73,15 @@ describe("todayIso around midnight", () => {
     expect(at("America/Los_Angeles", "2026-10-22T03:00:00Z")).toBe("2026-10-21");
   });
 
+  it("names the real limit for the UTC-8 evening case too", () => {
+    at("America/Los_Angeles", "2026-10-22T03:00:00Z");
+    expect(dateProblem("2026-10-22")).toContain("latest date you can pick is Oct 21, 2026");
+  });
+
   it("accepts a date and rejects the next day at that moment", () => {
     at("Asia/Manila", "2026-10-21T20:00:00Z");
     expect(dateProblem("2026-10-21")).toBeUndefined();
-    expect(dateProblem("2026-10-22")).toMatch(/still ahead of today's date/);
+    expect(dateProblem("2026-10-22")).toBe("We can't save a date that's still ahead of today's date. The latest date you can pick is Oct 21, 2026.");
   });
 });
 

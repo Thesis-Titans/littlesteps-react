@@ -227,6 +227,29 @@ describe("MilestonesList follow-ups", () => {
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /Edit note: Finds a hidden toy/ })));
   });
 
+  it("keeps focus in row B's form when row A's form closes because Edit was clicked on B", async () => {
+    const user = userEvent.setup();
+    await ready();
+    await openForm(user, /Note what you saw: Finds a hidden toy/);
+    await user.click(screen.getByRole("button", { name: /Note what you saw: Stacks two blocks/ }));
+    const form = screen.getByRole("form", { name: /Note what you saw for Maya/ });
+    expect(screen.getAllByRole("form")).toHaveLength(1);
+    expect(form.contains(document.activeElement)).toBe(true);
+    expect(document.activeElement).toBe(screen.getByLabelText("What did you see?"));
+  });
+
+  it("disables Cancel while a save is running", async () => {
+    const user = userEvent.setup();
+    await ready();
+    let finish: (o: MilestoneObservation) => void = () => {};
+    vi.spyOn(api, "recordObservation").mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    await openForm(user, /Note what you saw/);
+    await save(user);
+    expect((screen.getByRole("button", { name: "Cancel" }) as HTMLButtonElement).disabled).toBe(true);
+    finish(obs());
+    await waitFor(() => expect(screen.queryByRole("form")).toBeNull());
+  });
+
   it("shows the saved note on the card, cut at a word when long", async () => {
     await ready([obs({ notes: "Under the blue cloth" }), obs({ id: "b", milestoneId: "fx-cog-12-23m-02", notes: "word ".repeat(60) })]);
     expect(screen.getByText("Your note: Under the blue cloth")).toBeTruthy();
@@ -275,7 +298,7 @@ describe("MilestonesList follow-ups", () => {
     vi.spyOn(api, "recordObservation").mockRejectedValue(new ApiError(422, "UNPROCESSABLE_ENTITY", "future"));
     await openForm(user, /Note what you saw/);
     await save(user);
-    expect(await screen.findByText("We can't save a date that's still ahead of today's date. Pick yesterday.")).toBeTruthy();
+    expect(await screen.findByText(/still ahead of today's date\. The latest date you can pick is [A-Z][a-z]{2} \d{1,2}, \d{4}\./)).toBeTruthy();
     expect(screen.getByLabelText(/^Date/).getAttribute("aria-invalid")).toBe("true");
     expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
   });

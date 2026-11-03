@@ -17,9 +17,14 @@ type Props = {
 
 export function PromptRow({ childId, childName, prompt, observation, editing, onEdit, onClose, onSaved }: Props) {
   const wasEditing = useRef(false);
-  // Closing the form (Save or Cancel) puts focus back on the button that opened it.
+  const focusInForm = useRef(false);
+  // Closing the form (Save or Cancel) puts focus back on the button that opened it, but only if focus was
+  // still in this form: when the caregiver moved on to another row, that row keeps focus.
   useEffect(() => {
-    if (!editing && wasEditing.current) document.getElementById(`trigger-${prompt.id}`)?.focus();
+    if (!editing && wasEditing.current && focusInForm.current && (!document.activeElement || document.activeElement === document.body)) {
+      document.getElementById(`trigger-${prompt.id}`)?.focus();
+    }
+    if (!editing) focusInForm.current = false;
     wasEditing.current = editing;
   }, [editing, prompt.id]);
   const observed = observation?.status === "observed";
@@ -37,7 +42,16 @@ export function PromptRow({ childId, childName, prompt, observation, editing, on
         {prompt.reviewStatus === "synthetic_fixture" && <Badge kind="source">Sample wording, not reviewed</Badge>}
       </p>
       {editing ? (
-        <ObservationForm childId={childId} childName={childName} prompt={prompt} existing={observation} onSaved={onSaved} onClose={onClose} />
+        <div
+          className="milestone-form-wrap"
+          onFocus={() => (focusInForm.current = true)}
+          // A blur with no target (a button turning busy) keeps the flag; moving to an element elsewhere clears it.
+          onBlur={(e) => {
+            if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget as Node)) focusInForm.current = false;
+          }}
+        >
+          <ObservationForm childId={childId} childName={childName} prompt={prompt} existing={observation} onSaved={onSaved} onClose={onClose} />
+        </div>
       ) : (
         <Button id={`trigger-${prompt.id}`} variant="secondary" onClick={onEdit} aria-label={`${observation ? "Edit note" : "Note what you saw"}: ${prompt.title}`}>
           {observation ? "Edit note" : "Note what you saw"}

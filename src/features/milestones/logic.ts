@@ -18,9 +18,12 @@ export function groupByDomain(prompts: MilestonePrompt[]): { domain: Domain; pro
 /** The only two lines a prompt may show. `not_sure` reads as not observed. */
 export function observedText(observation: MilestoneObservation | undefined): string {
   if (observation?.status !== "observed") return "Not seen yet";
-  const [y, m, d] = observation.observedDate.split("-").map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-  return `Seen on ${date}`;
+  return `Seen on ${formatDate(observation.observedDate)}`;
+}
+
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -32,7 +35,8 @@ export function todayIso(now = new Date()): string {
   return local < utc ? local : utc;
 }
 
-export const FUTURE_DATE_MESSAGE = "We can't save a date that's still ahead of today's date. Pick yesterday.";
+export const futureDateMessage = () =>
+  `We can't save a date that's still ahead of today's date. The latest date you can pick is ${formatDate(todayIso())}.`;
 
 /** First 120 characters of a note, cut at a word. */
 export function noteExcerpt(notes: string | undefined, max = 120): string {
@@ -43,6 +47,6 @@ export function noteExcerpt(notes: string | undefined, max = 120): string {
 
 export function dateProblem(date: string): string | undefined {
   if (!date) return "Choose the date you saw it.";
-  if (date > todayIso()) return FUTURE_DATE_MESSAGE;
+  if (date > todayIso()) return futureDateMessage();
   return undefined;
 }
