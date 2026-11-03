@@ -1,0 +1,16 @@
+/* Today plan and history (react #8) */
+.plan-section { display: flex; flex-direction: column; gap: var(--space-12); width: 100%; }
+.plan-heading { margin: 0; font: var(--font-h2-mobile); color: var(--color-text-primary); }
+.plan-filters { display: flex; flex-wrap: wrap; gap: var(--space-8); }
+.plan-list { display: flex; flex-direction: column; gap: var(--space-12); width: 100%; margin: 0; padding: 0; list-style: none; }
+.plan-card-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-8); }
+.plan-card-title { margin: 0; font: var(--font-h3); color: var(--color-text-primary); }
+.plan-card-meta { margin: 0; font: var(--font-body-small); color: var(--color-text-secondary); }
+.plan-card .ls-button { align-self: flex-start; }
+.plan-dialog-title { margin: 0 0 var(--space-8); font: var(--font-h2-mobile); }
+/* Stays in view above the fixed bottom bar on small screens (§2.5). */
+.plan-toast { position: sticky; bottom: calc(var(--size-bottom-bar) + var(--space-16)); z-index: 1; width: 100%; }
+@media (min-width: 1024px) {
+  .plan-heading { font: var(--font-h2-desktop); }
+  .plan-toast { bottom: var(--space-16); }
+}
