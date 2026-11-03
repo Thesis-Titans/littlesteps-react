@@ -1,16 +1,20 @@
 import { useEffect, useId, useRef } from "react";
-import { Button, Icon } from "../../../components/common";
+import { Button, Icon, useRestoreFocus } from "../../../components/common";
 import { ageBandLabel } from "../../children/types";
 import { DOMAIN_LABELS, SETTING_LABELS, type CatalogActivity } from "../types";
 
 type ActivityDetailModalProps = {
   activity: CatalogActivity | null;
   onClose: () => void;
+  /** When set, shows an "Add to plan" button. */
+  onPlan?: (activity: CatalogActivity) => void;
 };
 
-export function ActivityDetailModal({ activity, onClose }: ActivityDetailModalProps) {
+export function ActivityDetailModal({ activity, onClose, onPlan }: ActivityDetailModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+
+  useRestoreFocus(activity !== null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -110,7 +114,12 @@ export function ActivityDetailModal({ activity, onClose }: ActivityDetailModalPr
       </div>
 
       <div className="catalog-detail-actions">
-        <Button variant="primary" onClick={onClose} fullWidth>
+        {onPlan && (
+          <Button variant="primary" onClick={() => onPlan(activity)} fullWidth>
+            Add to plan
+          </Button>
+        )}
+        <Button variant={onPlan ? "secondary" : "primary"} onClick={onClose} fullWidth>
           Close
         </Button>
       </div>

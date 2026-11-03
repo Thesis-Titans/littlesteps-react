@@ -144,7 +144,7 @@ describe("CatalogBrowser DOM tests", () => {
     });
 
     const viewButton = screen.getByRole("button", {
-      name: "View details for Stack the cups",
+      name: "View activity for Stack the cups",
     });
     await user.click(viewButton);
 
