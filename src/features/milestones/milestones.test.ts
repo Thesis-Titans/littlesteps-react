@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { listObservations, recordObservation, updateObservation } from "./api";
-import { dateProblem, groupByDomain, latestByPrompt, observedText, todayIso } from "./logic";
+import { dateProblem, groupByDomain, latestByPrompt, noteExcerpt, observedText, todayIso } from "./logic";
 import { MILESTONE_PROMPTS } from "./prompts";
 
 vi.mock("../../services/firebase", () => ({ auth: { currentUser: { getIdToken: async () => "tok" } } }));
@@ -38,9 +38,9 @@ describe("milestone logic", () => {
   });
 
   it("shows only the two allowed status lines", () => {
-    expect(observedText(undefined)).toBe("Not yet observed");
-    expect(observedText({ status: "not_sure", observedDate: "2026-10-21" } as never)).toBe("Not yet observed");
-    expect(observedText({ status: "observed", observedDate: "2026-10-21" } as never)).toBe("Observed on Oct 21, 2026");
+    expect(observedText(undefined)).toBe("Not seen yet");
+    expect(observedText({ status: "not_sure", observedDate: "2026-10-21" } as never)).toBe("Not seen yet");
+    expect(observedText({ status: "observed", observedDate: "2026-10-21" } as never)).toBe("Seen on Oct 21, 2026");
   });
 
   it("groups in a fixed order and rejects missing or future dates", () => {
@@ -48,5 +48,41 @@ describe("milestone logic", () => {
     expect(dateProblem("")).toBeTruthy();
     expect(dateProblem("2999-01-01")).toBeTruthy();
     expect(dateProblem(todayIso())).toBeUndefined();
+  });
+});
+
+describe("todayIso around midnight", () => {
+  const oldTz = process.env.TZ;
+  afterEach(() => {
+    vi.useRealTimers();
+    if (oldTz === undefined) delete process.env.TZ;
+    else process.env.TZ = oldTz;
+  });
+  const at = (tz: string, iso: string) => {
+    process.env.TZ = tz;
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(iso));
+    return todayIso();
+  };
+
+  it("uses the UTC date when the local date is already ahead (Manila, 04:00 on the 22nd)", () => {
+    expect(at("Asia/Manila", "2026-10-21T20:00:00Z")).toBe("2026-10-21");
+  });
+
+  it("uses the local date when UTC is already ahead (Los Angeles, evening of the 21st)", () => {
+    expect(at("America/Los_Angeles", "2026-10-22T03:00:00Z")).toBe("2026-10-21");
+  });
+
+  it("accepts a date and rejects the next day at that moment", () => {
+    at("Asia/Manila", "2026-10-21T20:00:00Z");
+    expect(dateProblem("2026-10-21")).toBeUndefined();
+    expect(dateProblem("2026-10-22")).toMatch(/still ahead of today's date/);
+  });
+});
+
+describe("noteExcerpt", () => {
+  it("keeps short notes and cuts long ones at a word", () => {
+    expect(noteExcerpt("short")).toBe("short");
+    expect(noteExcerpt("word ".repeat(60))).toMatch(/word…$/);
   });
 });

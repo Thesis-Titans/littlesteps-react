@@ -7,6 +7,8 @@ import { promptsFor } from "../prompts";
 import { useObservations } from "../useObservations";
 import { PromptRow } from "./PromptRow";
 
+const LIST_LIMIT = 100;
+
 /** Prompts for the child's age, grouped by kind of play. Remount per child (key) so state starts clean. */
 export function MilestonesList({ child }: { child: Child }) {
   const { status, observations, reload, put } = useObservations(child.id);
@@ -17,6 +19,9 @@ export function MilestonesList({ child }: { child: Child }) {
   if (status === "loading") return <Skeleton kind="card" label="Loading milestones…" />;
   if (status === "offline") {
     return <InlineAlert kind="offline" title="You're offline." action={retry}>We can't load milestones right now. Reconnect and try again.</InlineAlert>;
+  }
+  if (status === "unauthorized") {
+    return <InlineAlert kind="error" title="Please sign in again to continue">Your session has ended. Your saved notes are safe.</InlineAlert>;
   }
   if (status === "error") {
     // INTERNAL_ERROR and any other failure: no technical detail on screen.
@@ -36,6 +41,10 @@ export function MilestonesList({ child }: { child: Child }) {
         }}
         options={AGE_BANDS.map((band) => ({ value: band, label: ageBandLabel(band) }))}
       />
+      {/* shortcut: the API list returns at most 100 records (api #42); tell the caregiver instead of dropping silently. */}
+      {observations.length >= LIST_LIMIT && (
+        <InlineAlert kind="info" title="Some older notes may not show here">This page can show up to {LIST_LIMIT} notes.</InlineAlert>
+      )}
       {groups.length === 0 && (
         <EmptyState title="Nothing noted yet">Look for small moments during play. Things to look for at this age will show here.</EmptyState>
       )}

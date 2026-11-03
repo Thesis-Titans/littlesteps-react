@@ -17,17 +17,32 @@ export function groupByDomain(prompts: MilestonePrompt[]): { domain: Domain; pro
 
 /** The only two lines a prompt may show. `not_sure` reads as not observed. */
 export function observedText(observation: MilestoneObservation | undefined): string {
-  if (observation?.status !== "observed") return "Not yet observed";
+  if (observation?.status !== "observed") return "Not seen yet";
   const [y, m, d] = observation.observedDate.split("-").map(Number);
   const date = new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-  return `Observed on ${date}`;
+  return `Seen on ${date}`;
 }
 
-/** The API rejects dates after today in UTC, so the form never offers a later one. */
-export const todayIso = () => new Date().toISOString().slice(0, 10);
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** The API rejects dates after today in UTC (api #43), so the latest date offered is the earlier of the local and UTC dates. */
+export function todayIso(now = new Date()): string {
+  const local = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const utc = now.toISOString().slice(0, 10);
+  return local < utc ? local : utc;
+}
+
+export const FUTURE_DATE_MESSAGE = "We can't save a date that's still ahead of today's date. Pick yesterday.";
+
+/** First 120 characters of a note, cut at a word. */
+export function noteExcerpt(notes: string | undefined, max = 120): string {
+  const text = (notes ?? "").trim();
+  if (text.length <= max) return text;
+  return `${text.slice(0, max).replace(/\s+\S*$/, "")}…`;
+}
 
 export function dateProblem(date: string): string | undefined {
   if (!date) return "Choose the date you saw it.";
-  if (date > todayIso()) return "Choose today or an earlier date.";
+  if (date > todayIso()) return FUTURE_DATE_MESSAGE;
   return undefined;
 }

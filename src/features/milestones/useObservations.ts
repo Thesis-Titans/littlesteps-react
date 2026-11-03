@@ -4,7 +4,7 @@ import { listObservations } from "./api";
 import type { MilestoneObservation } from "./types";
 
 export type ObservationsState = {
-  status: "loading" | "ready" | "error" | "offline";
+  status: "loading" | "ready" | "error" | "offline" | "unauthorized";
   observations: MilestoneObservation[];
   reload: () => void;
   /** Adds or replaces a saved record without another request. */
@@ -25,7 +25,7 @@ export function useObservations(childId: string): ObservationsState {
         setStatus("ready");
       },
       (error: unknown) => {
-        if (current) setStatus(failureKind(error, navigator.onLine) === "offline" ? "offline" : "error");
+        if (current) setStatus(failureKind(error, navigator.onLine));
       }
     );
     return () => {
