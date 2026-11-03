@@ -67,7 +67,11 @@ function TodayPlan({ childId, nickname }: { childId: string; nickname: string })
 
   // The pressed button may be gone now: focus goes to the toast's Undo, the alert's Retry, or the plan heading.
   useEffect(() => {
-    if (settled === 0) return;
+    if (settled.n === 0) return;
+    // Only when focus was lost with the pressed button (body) or is still in its card; never pull it from where the user went.
+    const active = document.activeElement;
+    const card = root.current?.querySelector(`[data-plan-id="${settled.planId}"]`);
+    if (active && active !== document.body && !card?.contains(active)) return;
     const target = root.current?.querySelector<HTMLElement>(".plan-toast button, .plan-problem button") ?? heading.current;
     target?.focus();
   }, [settled]);

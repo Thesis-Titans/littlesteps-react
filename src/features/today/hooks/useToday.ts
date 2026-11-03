@@ -30,7 +30,7 @@ export function useToday(childId: string, today: string) {
   const [reloads, setReloads] = useState(0);
   const [busyIds, setBusyIds] = useState<string[]>([]);
   /** Counts finished changes, so the screen can move focus once the button that was pressed is gone. */
-  const [settled, setSettled] = useState(0);
+  const [settled, setSettled] = useState<{ n: number; planId: string }>({ n: 0, planId: "" });
   const [problem, setProblem] = useState<Problem & { retry?: () => void }>();
   const [toast, setToast] = useState<Plan>();
 
@@ -70,7 +70,7 @@ export function useToday(childId: string, today: string) {
       const next = await updatePlan(childId, plan.id, { status });
       apply(next);
       // A new toast replaces the old one; a successful undo removes it. A failed undo keeps it so Undo can be pressed again.
-      setToast(status === "completed" ? next : undefined);
+      setToast((t) => (status === "completed" ? next : t?.id === plan.id ? undefined : t));
     } catch (error) {
       const found = problemFor(error, what);
       if (found.kind === "gone") {
@@ -80,7 +80,7 @@ export function useToday(childId: string, today: string) {
       setProblem({ ...found, retry: found.kind === "gone" || found.kind === "unauthorized" ? undefined : () => void change(plan, status) });
     } finally {
       setBusyIds((ids) => ids.filter((id) => id !== plan.id));
-      setSettled((n) => n + 1);
+      setSettled((s) => ({ n: s.n + 1, planId: plan.id }));
     }
   };
 

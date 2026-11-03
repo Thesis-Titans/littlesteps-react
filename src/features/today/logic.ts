@@ -30,7 +30,7 @@ export function matchesFilters(activity: CatalogActivity | undefined, filters: Q
   if (filters.length === 0) return true;
   if (!activity) return false;
   return filters.every((f) =>
-    f === "under10" ? activity.durationMinutes < 10 // "Under 10 mins" is strictly less than 10
+    f === "under10" ? activity.durationMinutes <= 10 // spec J2: "most take 10 minutes or less"; label wording tracked in docs #92
       : f === "noMaterials" ? activity.materials.length === 0
       : activity.setting !== "outdoor"
   );

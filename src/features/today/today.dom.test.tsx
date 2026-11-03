@@ -197,13 +197,46 @@ describe("Today screen follow-ups", () => {
     expect(screen.getByText(/shows the first 100 completed activities/)).toBeTruthy();
   });
 
-  it("treats Under 10 mins as strictly less than 10", async () => {
-    stubLists([plan()]); // tummy time is exactly 10 minutes
+  it("treats Under 10 mins as 10 minutes or less", async () => {
+    stubLists([plan(), plan({ id: "p2", activityId: "act-stack-cups" })]);
     const user = userEvent.setup();
     renderToday();
     await screen.findByText("Tummy time mirror play");
     await user.click(screen.getByRole("button", { name: "Under 10 mins" }));
-    expect(screen.getByText("No planned activities match these filters.")).toBeTruthy();
+    expect(screen.getByText("Tummy time mirror play")).toBeTruthy(); // 10 minutes counts
+    expect(screen.queryByText(cups.title)).toBeNull(); // 15 minutes does not
+  });
+
+  it("keeps the newer toast when an earlier undo resolves", async () => {
+    stubLists([plan(), plan({ id: "p2", activityId: "act-stack-cups" })]);
+    let finishUndo!: (p: Plan) => void;
+    vi.mocked(api.updatePlan)
+      .mockResolvedValueOnce(completed())
+      .mockImplementationOnce(() => new Promise<Plan>((resolve) => { finishUndo = resolve; }))
+      .mockResolvedValueOnce(completed({ id: "p2", activityId: cups.id }));
+    const user = userEvent.setup();
+    renderToday();
+    await user.click(await screen.findByRole("button", { name: "Mark complete for Tummy time mirror play" }));
+    await user.click(await screen.findByRole("button", { name: "Undo" }));
+    await user.click(screen.getByRole("button", { name: `Mark complete for ${cups.title}` }));
+    expect(await screen.findByText(`${cups.title} marked complete.`)).toBeTruthy();
+    finishUndo(plan());
+    await waitFor(() => expect(screen.getAllByRole("button", { name: /Mark complete for Tummy/ }).length).toBe(1));
+    expect(screen.getByText(`${cups.title} marked complete.`)).toBeTruthy();
+  });
+
+  it("does not pull focus from a control the user moved to", async () => {
+    stubLists([plan()]);
+    let finish!: (p: Plan) => void;
+    vi.mocked(api.updatePlan).mockImplementation(() => new Promise<Plan>((resolve) => { finish = resolve; }));
+    const user = userEvent.setup();
+    renderToday();
+    await user.click(await screen.findByRole("button", { name: /Mark complete/ }));
+    const chip = screen.getByRole("button", { name: "Indoor" });
+    chip.focus();
+    finish(completed());
+    await screen.findByText("Tummy time mirror play marked complete.");
+    expect(document.activeElement).toBe(chip);
   });
 
   it("reloads for the new day when the tab regains focus after midnight", async () => {

@@ -16,7 +16,7 @@ export function PlanCard({ plan, activity, busy, onComplete, showDate }: PlanCar
   const done = plan.status === "completed";
   const title = activity?.title ?? "Activity not available";
   return (
-    <Card as="li" elevated className="plan-card">
+    <Card as="li" elevated className="plan-card" data-plan-id={plan.id}>
       <div className="plan-card-head">
         {activity && <span className={`catalog-domain-tag catalog-domain-${activity.domain}`}>{DOMAIN_LABELS[activity.domain]}</span>}
         {activity && (

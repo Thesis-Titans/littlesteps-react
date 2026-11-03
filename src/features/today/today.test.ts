@@ -21,7 +21,8 @@ describe("today logic", () => {
     const tummy = byId("act-tummy-mirror"); // indoor, 10 min, has materials
     expect(matchesFilters(tummy, [])).toBe(true);
     expect(matchesFilters({ ...tummy, durationMinutes: 9 }, ["under10", "indoor"])).toBe(true);
-    expect(matchesFilters(tummy, ["under10"])).toBe(false); // exactly 10 is not under 10
+    expect(matchesFilters(tummy, ["under10"])).toBe(true); // 10 minutes counts
+    expect(matchesFilters({ ...tummy, durationMinutes: 11 }, ["under10"])).toBe(false);
     expect(matchesFilters(tummy, ["noMaterials"])).toBe(false);
     expect(matchesFilters({ ...tummy, setting: "outdoor" }, ["indoor"])).toBe(false);
     expect(matchesFilters(undefined, ["indoor"])).toBe(false);
