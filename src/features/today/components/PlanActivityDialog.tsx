@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { Button, InlineAlert, TextField } from "../../../components/common";
+import { Button, InlineAlert, TextField, useRestoreFocus } from "../../../components/common";
 import type { CatalogActivity } from "../../catalog";
 import { ApiError } from "../../../services/api";
 import { createPlan } from "../api";
@@ -28,6 +28,7 @@ function Form({ activity, childId, childNickname, onClose, onPlanned }: Props & 
   const [problem, setProblem] = useState<Problem>();
   const [busy, setBusy] = useState(false);
 
+  useRestoreFocus(true);
   useEffect(() => {
     const el = dialog.current;
     if (el && !el.open) el.showModal();

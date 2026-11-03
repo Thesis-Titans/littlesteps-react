@@ -5,7 +5,10 @@ import { listPlans, updatePlan } from "../api";
 import { byCompletedDesc, problemFor, type Problem } from "../logic";
 import type { Plan } from "../types";
 
-type Loaded = { plans: Plan[]; history: Plan[]; activities: Record<string, CatalogActivity> };
+/** The API lists at most this many plans, oldest first. */
+export const HISTORY_LIMIT = 100;
+
+type Loaded = { plans: Plan[]; history: Plan[]; historyCut: boolean; activities: Record<string, CatalogActivity> };
 type Load = { status: "loading" } | { status: "error" | "offline" | "unauthorized" } | ({ status: "ready" } & Loaded);
 
 /** The catalog is the source of titles; saved copies fill in when it can't be reached. */
@@ -25,7 +28,9 @@ const online = () => typeof navigator === "undefined" || navigator.onLine !== fa
 export function useToday(childId: string, today: string) {
   const [load, setLoad] = useState<Load>({ status: "loading" });
   const [reloads, setReloads] = useState(0);
-  const [busyId, setBusyId] = useState<string>();
+  const [busyIds, setBusyIds] = useState<string[]>([]);
+  /** Counts finished changes, so the screen can move focus once the button that was pressed is gone. */
+  const [settled, setSettled] = useState(0);
   const [problem, setProblem] = useState<Problem & { retry?: () => void }>();
   const [toast, setToast] = useState<Plan>();
 
@@ -33,8 +38,8 @@ export function useToday(childId: string, today: string) {
     let live = true;
     Promise.all([listPlans(childId, { date: today }), listPlans(childId, { status: "completed" }), loadActivities()]).then(
       ([plans, history, activities]) => {
-        // shortcut: the API returns the oldest 100 first, so very long histories are cut; add paging with the journal.
-        if (live) setLoad({ status: "ready", plans: plans.filter((p) => p.status !== "skipped"), history: history.sort(byCompletedDesc), activities });
+        // The API returns the oldest completed plans first, so a full page means newer ones may be missing (the screen says so).
+        if (live) setLoad({ status: "ready", plans: plans.filter((p) => p.status !== "skipped"), history: history.sort(byCompletedDesc), historyCut: history.length >= HISTORY_LIMIT, activities });
       },
       (error) => live && setLoad({ status: failureKind(error, online()) })
     );
@@ -58,31 +63,38 @@ export function useToday(childId: string, today: string) {
     );
 
   const change = async (plan: Plan, status: "completed" | "planned") => {
-    const what = status === "completed" ? "marked complete" : "changed back";
-    setBusyId(plan.id);
+    const what = status === "completed" ? "marked complete" : "changed back to planned";
+    setBusyIds((ids) => [...ids, plan.id]);
     setProblem(undefined);
-    setToast(undefined); // the next action replaces the toast
     try {
       const next = await updatePlan(childId, plan.id, { status });
       apply(next);
-      if (status === "completed") setToast(next);
+      // A new toast replaces the old one; a successful undo removes it. A failed undo keeps it so Undo can be pressed again.
+      setToast(status === "completed" ? next : undefined);
     } catch (error) {
       const found = problemFor(error, what);
-      if (found.kind === "gone") setLoad((s) => (s.status === "ready" ? { ...s, plans: s.plans.filter((p) => p.id !== plan.id) } : s));
+      if (found.kind === "gone") {
+        setLoad((s) => (s.status === "ready" ? { ...s, plans: s.plans.filter((p) => p.id !== plan.id) } : s));
+        setToast((t) => (t?.id === plan.id ? undefined : t));
+      }
       setProblem({ ...found, retry: found.kind === "gone" || found.kind === "unauthorized" ? undefined : () => void change(plan, status) });
     } finally {
-      setBusyId(undefined);
+      setBusyIds((ids) => ids.filter((id) => id !== plan.id));
+      setSettled((n) => n + 1);
     }
   };
 
   return {
     load,
     reload,
-    busyId,
+    busyIds,
+    settled,
     problem,
     toast,
     markComplete: (plan: Plan) => change(plan, "completed"),
-    undo: () => toast && change(toast, "planned"),
+    undo: () => {
+      if (toast && !busyIds.includes(toast.id)) void change(toast, "planned");
+    },
     closeToast: useCallback(() => setToast(undefined), [])
   };
 }

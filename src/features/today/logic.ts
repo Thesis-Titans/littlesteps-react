@@ -30,7 +30,7 @@ export function matchesFilters(activity: CatalogActivity | undefined, filters: Q
   if (filters.length === 0) return true;
   if (!activity) return false;
   return filters.every((f) =>
-    f === "under10" ? activity.durationMinutes <= 10
+    f === "under10" ? activity.durationMinutes < 10 // "Under 10 mins" is strictly less than 10
       : f === "noMaterials" ? activity.materials.length === 0
       : activity.setting !== "outdoor"
   );
@@ -38,6 +38,14 @@ export function matchesFilters(activity: CatalogActivity | undefined, filters: Q
 
 /** Most recently completed first. */
 export const byCompletedDesc = (a: Plan, b: Plan) => (b.completedAt ?? "").localeCompare(a.completedAt ?? "");
+
+/** The day a plan was completed, in the caregiver's local time; falls back to the planned date. */
+export function formatCompleted(plan: Plan): string {
+  const done = plan.completedAt ? new Date(plan.completedAt) : undefined;
+  return done && !Number.isNaN(done.getTime())
+    ? done.toLocaleDateString("en", { month: "short", day: "numeric", year: "numeric" })
+    : formatDate(plan.scheduledDate);
+}
 
 /** "2026-11-05" as "Nov 5, 2026" without time-zone drift. */
 export function formatDate(date: string): string {

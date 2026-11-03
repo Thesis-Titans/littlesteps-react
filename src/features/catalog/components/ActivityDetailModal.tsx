@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from "react";
-import { Button, Icon } from "../../../components/common";
+import { Button, Icon, useRestoreFocus } from "../../../components/common";
 import { ageBandLabel } from "../../children/types";
 import { DOMAIN_LABELS, SETTING_LABELS, type CatalogActivity } from "../types";
 
@@ -13,6 +13,8 @@ type ActivityDetailModalProps = {
 export function ActivityDetailModal({ activity, onClose, onPlan }: ActivityDetailModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+
+  useRestoreFocus(activity !== null);
 
   useEffect(() => {
     const dialog = dialogRef.current;

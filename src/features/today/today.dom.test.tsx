@@ -64,7 +64,7 @@ describe("Today screen", () => {
     vi.mocked(api.updatePlan).mockResolvedValueOnce(plan({ status: "completed", completedAt: "2026-11-03T10:00:00Z" }));
     const user = userEvent.setup();
     renderToday();
-    await user.click(await screen.findByRole("button", { name: "Mark Tummy time mirror play complete" }));
+    await user.click(await screen.findByRole("button", { name: "Mark complete for Tummy time mirror play" }));
     expect(await screen.findByText("Completed today")).toBeTruthy();
     expect(screen.getByText("Tummy time mirror play marked complete.")).toBeTruthy();
     expect(api.updatePlan).toHaveBeenCalledWith("c1", "p1", { status: "completed" });
@@ -81,7 +81,7 @@ describe("Today screen", () => {
     Object.defineProperty(navigator, "onLine", { value: false, configurable: true });
     const user = userEvent.setup();
     renderToday();
-    await user.click(await screen.findByRole("button", { name: /Mark .* complete/ }));
+    await user.click(await screen.findByRole("button", { name: /Mark complete/ }));
     expect(await screen.findByText("You're offline. This activity wasn't marked complete.")).toBeTruthy();
     expect(screen.queryByText("Completed today")).toBeNull();
     expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
@@ -93,7 +93,7 @@ describe("Today screen", () => {
     vi.mocked(api.updatePlan).mockRejectedValue(new ApiError(404, "RESOURCE_NOT_FOUND", "gone"));
     const user = userEvent.setup();
     renderToday();
-    await user.click(await screen.findByRole("button", { name: "Mark Tummy time mirror play complete" }));
+    await user.click(await screen.findByRole("button", { name: "Mark complete for Tummy time mirror play" }));
     expect(await screen.findByText(/isn't available anymore/)).toBeTruthy();
     expect(screen.queryByText("Tummy time mirror play")).toBeNull();
     expect(screen.getByText(cups.title)).toBeTruthy();
@@ -137,6 +137,89 @@ describe("Today screen", () => {
     vi.mocked(api.listPlans).mockRejectedValue(new UnauthorizedError());
     renderToday();
     expect(await screen.findByText("Please sign in again.")).toBeTruthy();
+  });
+});
+
+describe("Today screen follow-ups", () => {
+  const completed = (over: Partial<Plan> = {}) => plan({ status: "completed", completedAt: "2026-11-03T10:00:00Z", ...over });
+
+  it("moves focus to Undo after marking complete", async () => {
+    stubLists([plan()]);
+    vi.mocked(api.updatePlan).mockResolvedValue(completed());
+    const user = userEvent.setup();
+    renderToday();
+    await user.click(await screen.findByRole("button", { name: /Mark complete/ }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Undo" })));
+  });
+
+  it("keeps the toast and offers Retry when undo fails", async () => {
+    stubLists([plan()]);
+    vi.mocked(api.updatePlan).mockResolvedValueOnce(completed());
+    const user = userEvent.setup();
+    renderToday();
+    await user.click(await screen.findByRole("button", { name: /Mark complete/ }));
+    vi.mocked(api.updatePlan).mockRejectedValueOnce(new TypeError("fetch failed"));
+    Object.defineProperty(navigator, "onLine", { value: false, configurable: true });
+    await user.click(await screen.findByRole("button", { name: "Undo" }));
+    expect(await screen.findByText("You're offline. This activity wasn't changed back to planned.")).toBeTruthy();
+    expect(screen.getByText("Completed today")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Undo" })).toBeTruthy();
+
+    vi.mocked(api.updatePlan).mockResolvedValueOnce(plan());
+    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(screen.queryByText("Completed today")).toBeNull());
+  });
+
+  it("tracks busy per plan and keeps the first toast until the second completes", async () => {
+    stubLists([plan(), plan({ id: "p2", activityId: "act-stack-cups" })]);
+    let finishSecond!: (p: Plan) => void;
+    vi.mocked(api.updatePlan)
+      .mockResolvedValueOnce(completed())
+      .mockImplementationOnce(() => new Promise<Plan>((resolve) => { finishSecond = resolve; }));
+    const user = userEvent.setup();
+    renderToday();
+    await user.click(await screen.findByRole("button", { name: "Mark complete for Tummy time mirror play" }));
+    expect(await screen.findByText("Tummy time mirror play marked complete.")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: `Mark complete for ${cups.title}` }));
+    expect(screen.getByText("Tummy time mirror play marked complete.")).toBeTruthy();
+    expect((screen.getByRole("button", { name: `Mark complete for ${cups.title}` }) as HTMLButtonElement).disabled).toBe(true);
+    finishSecond(completed({ id: "p2", activityId: cups.id }));
+    expect(await screen.findByText(`${cups.title} marked complete.`)).toBeTruthy();
+  });
+
+  it("shows the completion day in local time and a note when history is cut", async () => {
+    const history = Array.from({ length: 100 }, (_, i) =>
+      completed({ id: `h${i}`, scheduledDate: "2026-10-30", completedAt: "2026-11-02T12:00:00Z" })
+    );
+    stubLists([], history);
+    renderToday();
+    expect((await screen.findAllByText(/Completed Nov 2, 2026/)).length).toBe(100);
+    expect(screen.getByText(/shows the first 100 completed activities/)).toBeTruthy();
+  });
+
+  it("treats Under 10 mins as strictly less than 10", async () => {
+    stubLists([plan()]); // tummy time is exactly 10 minutes
+    const user = userEvent.setup();
+    renderToday();
+    await screen.findByText("Tummy time mirror play");
+    await user.click(screen.getByRole("button", { name: "Under 10 mins" }));
+    expect(screen.getByText("No planned activities match these filters.")).toBeTruthy();
+  });
+
+  it("reloads for the new day when the tab regains focus after midnight", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date(2026, 10, 3, 23, 50));
+      stubLists([plan()]);
+      renderToday();
+      await screen.findByText("Tummy time mirror play");
+      expect(api.listPlans).toHaveBeenCalledWith("c1", { date: "2026-11-03" });
+      vi.setSystemTime(new Date(2026, 10, 4, 0, 10));
+      window.dispatchEvent(new Event("focus"));
+      await waitFor(() => expect(api.listPlans).toHaveBeenCalledWith("c1", { date: "2026-11-04" }));
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

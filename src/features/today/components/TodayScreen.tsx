@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Chip, EmptyState, InlineAlert, Skeleton, UndoToast } from "../../../components/common";
 import { ScreenHeader } from "../../../components/layout";
 import { useChild } from "../../children/useChild";
 import { NonDiagnosticNotice } from "../../children/components/NonDiagnosticNotice";
-import { useToday } from "../hooks/useToday";
+import { HISTORY_LIMIT, useToday } from "../hooks/useToday";
 import { localDate, matchesFilters, QUICK_FILTERS } from "../logic";
 import type { QuickFilter } from "../types";
 import { PlanCard } from "./PlanCard";
@@ -47,10 +47,30 @@ export function TodayScreen() {
 }
 
 function TodayPlan({ childId, nickname }: { childId: string; nickname: string }) {
-  const [today] = useState(localDate);
-  const { load, reload, busyId, problem, toast, markComplete, undo, closeToast } = useToday(childId, today);
+  const [today, setToday] = useState(localDate);
+  const { load, reload, busyIds, settled, problem, toast, markComplete, undo, closeToast } = useToday(childId, today);
+  const root = useRef<HTMLDivElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const [filters, setFilters] = useState<QuickFilter[]>([]);
   const navigate = useNavigate();
+
+  // A tab left open overnight picks up the new day when the caregiver comes back to it.
+  useEffect(() => {
+    const check = () => setToday(localDate());
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", check);
+    return () => {
+      window.removeEventListener("focus", check);
+      document.removeEventListener("visibilitychange", check);
+    };
+  }, []);
+
+  // The pressed button may be gone now: focus goes to the toast's Undo, the alert's Retry, or the plan heading.
+  useEffect(() => {
+    if (settled === 0) return;
+    const target = root.current?.querySelector<HTMLElement>(".plan-toast button, .plan-problem button") ?? heading.current;
+    target?.focus();
+  }, [settled]);
   const toggle = (id: QuickFilter) => setFilters((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
 
   if (load.status === "loading") {
@@ -81,17 +101,19 @@ function TodayPlan({ childId, nickname }: { childId: string; nickname: string })
   const shown = plans.filter((p) => matchesFilters(activities[p.activityId], filters));
 
   return (
-    <>
+    <div className="plan-root" ref={root}>
       {problem && (
+        <div className="plan-problem">
         <InlineAlert
           kind={problem.kind === "offline" ? "offline" : "error"}
           title={problem.message}
           action={problem.retry && <Button variant="secondary" onClick={problem.retry}>Retry</Button>}
         />
+        </div>
       )}
 
       <section className="plan-section" aria-labelledby="plan-heading">
-        <h2 id="plan-heading" className="plan-heading">{nickname}'s plan for today</h2>
+        <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>{nickname}'s plan for today</h2>
         {plans.length > 0 && (
           <div className="plan-filters" role="group" aria-label="Quick filters">
             {QUICK_FILTERS.map((f) => (
@@ -111,7 +133,7 @@ function TodayPlan({ childId, nickname }: { childId: string; nickname: string })
         ) : (
           <ul className="plan-list">
             {shown.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} activity={activities[plan.activityId]} busy={busyId === plan.id} onComplete={markComplete} />
+              <PlanCard key={plan.id} plan={plan} activity={activities[plan.activityId]} busy={busyIds.includes(plan.id)} onComplete={markComplete} />
             ))}
           </ul>
         )}
@@ -128,13 +150,16 @@ function TodayPlan({ childId, nickname }: { childId: string; nickname: string })
         {history.length === 0 ? (
           <p className="plan-card-meta">Completed activities for {nickname} will show here.</p>
         ) : (
+          <>
+          {load.historyCut && <p className="plan-card-meta">This list shows the first {HISTORY_LIMIT} completed activities. Newer ones may be missing.</p>}
           <ul className="plan-list">
             {history.map((plan) => (
               <PlanCard key={plan.id} plan={plan} activity={activities[plan.activityId]} showDate />
             ))}
           </ul>
+          </>
         )}
       </section>
-    </>
+    </div>
   );
 }

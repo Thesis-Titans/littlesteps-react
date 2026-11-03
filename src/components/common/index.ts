@@ -12,3 +12,4 @@ export { Skeleton } from "./Skeleton";
 export { SuccessNotice } from "./SuccessNotice";
 export { TextField } from "./TextField";
 export { UndoToast } from "./UndoToast";
+export { useRestoreFocus } from "./useRestoreFocus";

@@ -1,6 +1,6 @@
 import { Badge, Button, Card, Icon } from "../../../components/common";
 import { DOMAIN_LABELS, type CatalogActivity } from "../../catalog";
-import { formatDate } from "../logic";
+import { formatCompleted } from "../logic";
 import type { Plan } from "../types";
 
 type PlanCardProps = {
@@ -28,12 +28,12 @@ export function PlanCard({ plan, activity, busy, onComplete, showDate }: PlanCar
         {done && !showDate && <Badge kind="completed" />}
       </div>
       <h3 className="plan-card-title">{title}</h3>
-      {showDate && <p className="plan-card-meta">Completed {formatDate(plan.scheduledDate)}</p>}
+      {showDate && <p className="plan-card-meta">Completed {formatCompleted(plan)}</p>}
       {!activity && <p className="plan-card-meta">This activity was taken off our list.</p>}
       {activity && activity.materials.length > 0 && <p className="plan-card-meta">Materials: {activity.materials.join(", ")}</p>}
       {!done && onComplete && (
-        <Button variant="secondary" busy={busy} onClick={() => onComplete(plan)} aria-label={`Mark ${title} complete`}>
-          Mark complete
+        <Button variant="secondary" busy={busy} onClick={() => onComplete(plan)}>
+          Mark complete{" "}<span className="ls-visually-hidden">for {title}</span>
         </Button>
       )}
     </Card>

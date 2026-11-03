@@ -52,9 +52,8 @@ export function ActivityCard({ activity, onSelect }: ActivityCardProps) {
           variant="secondary"
           fullWidth
           onClick={() => onSelect(activity)}
-          aria-label={`View details for ${activity.title}`}
         >
-          View activity
+          View activity{" "}<span className="ls-visually-hidden">for {activity.title}</span>
         </Button>
       </div>
     </Card>
