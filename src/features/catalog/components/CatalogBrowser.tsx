@@ -17,9 +17,11 @@ import { ActivityDetailModal } from "./ActivityDetailModal";
 type CatalogBrowserProps = {
   initialAgeBand?: AgeBand;
   activeChildNickname?: string;
+  /** Called with the activity when the caregiver chooses "Add to plan" in the detail view. */
+  onPlan?: (activity: CatalogActivity) => void;
 };
 
-export function CatalogBrowser({ initialAgeBand, activeChildNickname }: CatalogBrowserProps) {
+export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: CatalogBrowserProps) {
   const [selectedAgeBand, setSelectedAgeBand] = useState<AgeBand | "all">(
     initialAgeBand ?? "all"
   );
@@ -261,6 +263,7 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname }: CatalogB
       <ActivityDetailModal
         activity={selectedActivity}
         onClose={() => setSelectedActivity(null)}
+        onPlan={onPlan && ((activity) => { setSelectedActivity(null); onPlan(activity); })}
       />
     </section>
   );
