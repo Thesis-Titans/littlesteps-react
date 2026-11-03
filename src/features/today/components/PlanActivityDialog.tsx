@@ -11,6 +11,10 @@ type Props = {
   childId: string;
   childNickname: string;
   onClose: () => void;
+  /** The control to return focus to; set when the dialog opens from another dialog that has closed. */
+  returnFocusTo?: HTMLElement | null;
+  /** Id of the element that gets focus if `returnFocusTo` is gone. */
+  fallbackFocusId?: string;
   onPlanned: (plan: Plan, activity: CatalogActivity) => void;
 };
 
@@ -20,7 +24,7 @@ export function PlanActivityDialog({ activity, ...rest }: Props) {
   return activity ? <Form key={activity.id} activity={activity} {...rest} /> : null;
 }
 
-function Form({ activity, childId, childNickname, onClose, onPlanned }: Props & { activity: CatalogActivity }) {
+function Form({ activity, childId, childNickname, onClose, onPlanned, returnFocusTo, fallbackFocusId }: Props & { activity: CatalogActivity }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [date, setDate] = useState(localDate);
@@ -28,7 +32,7 @@ function Form({ activity, childId, childNickname, onClose, onPlanned }: Props & 
   const [problem, setProblem] = useState<Problem>();
   const [busy, setBusy] = useState(false);
 
-  useRestoreFocus(true);
+  useRestoreFocus(true, returnFocusTo, fallbackFocusId);
   useEffect(() => {
     const el = dialog.current;
     if (el && !el.open) el.showModal();

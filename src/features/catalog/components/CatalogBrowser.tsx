@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Chip,
@@ -18,7 +18,8 @@ type CatalogBrowserProps = {
   initialAgeBand?: AgeBand;
   activeChildNickname?: string;
   /** Called with the activity when the caregiver chooses "Add to plan" in the detail view. */
-  onPlan?: (activity: CatalogActivity) => void;
+  /** `opener` is the card's "View activity" button, for returning focus after the plan dialog closes. */
+  onPlan?: (activity: CatalogActivity, opener: HTMLElement | null) => void;
 };
 
 export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: CatalogBrowserProps) {
@@ -32,6 +33,7 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: 
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [usingFallback, setUsingFallback] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<CatalogActivity | null>(null);
+  const cardButton = useRef<HTMLElement | null>(null);
   const [reloads, setReloads] = useState(0);
 
   // Sync prop changes during render without an effect (React 19 pattern)
@@ -253,7 +255,7 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: 
             <ActivityCard
               key={activity.id}
               activity={activity}
-              onSelect={setSelectedActivity}
+              onSelect={(a, opener) => { cardButton.current = opener; setSelectedActivity(a); }}
             />
           ))}
         </div>
@@ -263,7 +265,7 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: 
       <ActivityDetailModal
         activity={selectedActivity}
         onClose={() => setSelectedActivity(null)}
-        onPlan={onPlan && ((activity) => { setSelectedActivity(null); onPlan(activity); })}
+        onPlan={onPlan && ((activity) => { setSelectedActivity(null); onPlan(activity, cardButton.current); })}
       />
     </section>
   );

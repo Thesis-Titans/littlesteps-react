@@ -4,7 +4,8 @@ import { DOMAIN_LABELS, SETTING_LABELS, type CatalogActivity } from "../types";
 
 type ActivityCardProps = {
   activity: CatalogActivity;
-  onSelect: (activity: CatalogActivity) => void;
+  /** `opener` is the button pressed, so focus can return to it later. */
+  onSelect: (activity: CatalogActivity, opener: HTMLElement) => void;
 };
 
 export function ActivityCard({ activity, onSelect }: ActivityCardProps) {
@@ -51,7 +52,7 @@ export function ActivityCard({ activity, onSelect }: ActivityCardProps) {
         <Button
           variant="secondary"
           fullWidth
-          onClick={() => onSelect(activity)}
+          onClick={(event) => onSelect(activity, event.currentTarget)}
         >
           View activity{" "}<span className="ls-visually-hidden">for {activity.title}</span>
         </Button>

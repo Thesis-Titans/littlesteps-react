@@ -12,7 +12,7 @@ export function ExploreScreen() {
   const { activeChild } = useChild();
   const ageBand = activeChild?.ageBand ?? "12-23m";
   const nickname = activeChild?.nickname;
-  const [planning, setPlanning] = useState<CatalogActivity | null>(null);
+  const [planning, setPlanning] = useState<{ activity: CatalogActivity; opener: HTMLElement | null } | null>(null);
   const [notice, setNotice] = useState<string>();
 
   return (
@@ -35,12 +35,14 @@ export function ExploreScreen() {
       <CatalogBrowser
         initialAgeBand={ageBand}
         activeChildNickname={nickname}
-        onPlan={activeChild ? setPlanning : undefined}
+        onPlan={activeChild ? (activity, opener) => setPlanning({ activity, opener }) : undefined}
       />
 
       {activeChild && (
         <PlanActivityDialog
-          activity={planning}
+          activity={planning?.activity ?? null}
+          returnFocusTo={planning?.opener}
+          fallbackFocusId="explore-title"
           childId={activeChild.id}
           childNickname={activeChild.nickname}
           onClose={() => setPlanning(null)}
