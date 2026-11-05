@@ -8,6 +8,7 @@ import {
   Skeleton,
   TextField,
 } from "../../../components/common";
+import { failureKind } from "../../../services/offline";
 import { AGE_BANDS, ageBandLabel, type AgeBand } from "../../children/types";
 import { fetchCatalogActivities, filterFallbackActivities } from "../api";
 import { DOMAIN_LABELS, DOMAINS, type CatalogActivity, type Domain } from "../types";
@@ -30,7 +31,7 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: 
   const [selectedDomain, setSelectedDomain] = useState<Domain | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activities, setActivities] = useState<CatalogActivity[]>([]);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "error" | "unauthorized">("loading");
   const [usingFallback, setUsingFallback] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<CatalogActivity | null>(null);
   const cardButton = useRef<HTMLElement | null>(null);
@@ -68,7 +69,13 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: 
           setStatus("ready");
         }
       },
-      () => {
+      (error: unknown) => {
+        if (!live) return;
+        if (failureKind(error, true) === "unauthorized") {
+          setUsingFallback(false);
+          setStatus("unauthorized");
+          return;
+        }
         if (!live) return;
         // In case of network failure or server error, provide deterministic catalog fallback
         const fallback = filterFallbackActivities({
@@ -220,6 +227,12 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: 
           <Skeleton kind="card" label="Loading activities" />
           <Skeleton kind="card" label="Loading activities" />
         </div>
+      )}
+
+      {status === "unauthorized" && (
+        <InlineAlert kind="error" title="Please sign in again to continue">
+          <p>Your session has ended. Your saved notes are safe.</p>
+        </InlineAlert>
       )}
 
       {status === "error" && (

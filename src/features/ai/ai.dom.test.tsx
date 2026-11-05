@@ -2,7 +2,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError } from "../../services/api";
+import { ApiError, UnauthorizedError } from "../../services/api";
 import * as api from "./api";
 import { IdeaHelper } from "./components/IdeaHelper";
 import type { RecommendationResponse } from "./types";
@@ -209,6 +209,18 @@ describe("IdeaHelper DOM tests", () => {
     await user.click(changeBtn);
 
     expect(screen.getByRole("button", { name: "Find ideas" })).toBeTruthy();
+  });
+
+  it("shows Please sign in again to continue with no Retry when unauthorized", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(api, "getAiRecommendations").mockRejectedValue(new UnauthorizedError());
+
+    render(<IdeaHelper ageBand="12-23m" childNickname="Maya" />);
+    await user.click(screen.getByRole("button", { name: "Find ideas" }));
+
+    expect(await screen.findByText("Please sign in again to continue")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Another idea" })).toBeNull();
   });
 
   it("strictly enforces zero AI buzzwords across UI text and fallbacks", async () => {

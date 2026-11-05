@@ -123,6 +123,52 @@ describe("apiFetch & getCurrentUser", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it.each(["auth/user-token-expired", "auth/user-not-found", "auth/user-disabled"])(
+    "throws UnauthorizedError when forced token refresh rejects with %s after a 401",
+    async (code) => {
+      const getIdToken = vi.fn(async (forceRefresh?: boolean) => {
+        if (forceRefresh) throw Object.assign(new Error(code), { code });
+        return "stale";
+      });
+      mockAuth.currentUser = { getIdToken };
+      const fetchMock = vi.fn().mockResolvedValueOnce(jsonResponse(401));
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(getCurrentUser()).rejects.toBeInstanceOf(UnauthorizedError);
+      expect(getIdToken).toHaveBeenCalledTimes(2);
+      expect(getIdToken).toHaveBeenLastCalledWith(true);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  it.each(["auth/user-token-expired", "auth/user-not-found", "auth/user-disabled"])(
+    "throws UnauthorizedError when initial token lookup rejects with %s",
+    async (code) => {
+      mockAuth.currentUser = {
+        getIdToken: vi.fn().mockRejectedValue(Object.assign(new Error(code), { code }))
+      };
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(getCurrentUser()).rejects.toBeInstanceOf(UnauthorizedError);
+      expect(fetchMock).not.toHaveBeenCalled();
+    }
+  );
+
+  it("rethrows non-auth errors when token refresh fails due to network", async () => {
+    const networkError = Object.assign(new Error("Network error"), { code: "auth/network-request-failed" });
+    mockAuth.currentUser = {
+      getIdToken: vi.fn(async (forceRefresh?: boolean) => {
+        if (forceRefresh) throw networkError;
+        return "stale";
+      })
+    };
+    const fetchMock = vi.fn().mockResolvedValueOnce(jsonResponse(401));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getCurrentUser()).rejects.toBe(networkError);
+  });
+
   it("rejects a malformed /me payload", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(200, { uid: 42 })));
     await expect(getCurrentUser()).rejects.toThrow("API returned an unexpected account response.");
