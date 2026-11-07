@@ -260,7 +260,7 @@ describe("states", () => {
   });
   it("unauthorized asks to sign in again, with no Retry", () => {
     const html = tabs({ status: "unauthorized" });
-    expect(html).toContain("Please sign in again.");
+    expect(html).toContain("Please sign in again to continue");
     expect(html).not.toContain("Retry");
   });
   it("a failed refresh keeps the list and shows an alert above it", () => {

@@ -30,7 +30,7 @@ export function ChildStatusNotice({ status, onRetry, hasChildren = false }: { st
   }
   if (status === "unauthorized") {
     return (
-      <InlineAlert kind="error" title="Please sign in again.">
+      <InlineAlert kind="error" title="Please sign in again to continue">
         Your session has ended. Your saved notes are safe.
       </InlineAlert>
     );

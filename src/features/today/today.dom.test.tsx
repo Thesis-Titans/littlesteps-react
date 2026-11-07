@@ -136,7 +136,8 @@ describe("Today screen", () => {
 
     vi.mocked(api.listPlans).mockRejectedValue(new UnauthorizedError());
     renderToday();
-    expect(await screen.findByText("Please sign in again.")).toBeTruthy();
+    expect(await screen.findByText("Please sign in again to continue")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
   });
 });
 

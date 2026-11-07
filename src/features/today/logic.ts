@@ -62,6 +62,6 @@ export function problemFor(error: unknown, what: string): Problem {
   }
   const kind = failureKind(error, typeof navigator === "undefined" || navigator.onLine !== false);
   if (kind === "offline") return { kind, message: `You're offline. This activity wasn't ${what}.` };
-  if (kind === "unauthorized") return { kind, message: `Your session has ended. Please sign in again. This activity wasn't ${what}.` };
+  if (kind === "unauthorized") return { kind, message: `Please sign in again to continue. Your session has ended. This activity wasn't ${what}.` };
   return { kind, message: `We couldn't reach LittleSteps. This activity wasn't ${what}.` };
 }

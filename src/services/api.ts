@@ -79,6 +79,17 @@ export async function getApiHealth(): Promise<ApiHealth> {
   return { status: "ok" };
 }
 
+const REVOKED_AUTH_CODES = new Set([
+  "auth/user-token-expired",
+  "auth/user-not-found",
+  "auth/user-disabled"
+]);
+
+function isRevokedTokenError(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code;
+  return typeof code === "string" && REVOKED_AUTH_CODES.has(code);
+}
+
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const apiBaseUrl = getApiBaseUrl();
   if (!apiBaseUrl) throw new Error("Set VITE_API_BASE_URL in .env.local first.");
@@ -86,7 +97,13 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
   const send = async (forceRefresh: boolean) => {
     const headers = new Headers(init.headers);
     headers.set("Accept", "application/json");
-    const token = await auth.currentUser?.getIdToken(forceRefresh);
+    let token: string | undefined;
+    try {
+      token = await auth.currentUser?.getIdToken(forceRefresh);
+    } catch (error) {
+      if (isRevokedTokenError(error)) throw new UnauthorizedError();
+      throw error;
+    }
     if (token) headers.set("Authorization", `Bearer ${token}`);
     return fetch(`${apiBaseUrl}${path}`, { ...init, headers, cache: "no-store" });
   };

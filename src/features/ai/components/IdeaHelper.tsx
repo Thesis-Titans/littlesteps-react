@@ -11,6 +11,7 @@ import {
 } from "../../../components/common";
 import { ageBandLabel, type AgeBand } from "../../children/types";
 import { DOMAIN_LABELS, DOMAINS, SETTING_LABELS, type Domain, type Setting } from "../../catalog/types";
+import { failureKind } from "../../../services/offline";
 import { ApiError, buildDeterministicFallback, getAiRecommendations } from "../api";
 import type { RecommendationRequest, RecommendationResponse } from "../types";
 
@@ -20,7 +21,7 @@ type IdeaHelperProps = {
   onSelectActivity?: (activityId: string) => void;
 };
 
-type ViewState = "form" | "loading" | "results";
+type ViewState = "form" | "loading" | "results" | "unauthorized";
 
 const TIME_CHOICES = [10, 15, 30, 45] as const;
 
@@ -63,7 +64,9 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity }: IdeaHel
       setResponse(res);
       setViewState("results");
     } catch (err) {
-      if (err instanceof ApiError && err.status === 429) {
+      if (failureKind(err, true) === "unauthorized") {
+        setViewState("unauthorized");
+      } else if (err instanceof ApiError && err.status === 429) {
         // Rate limited fallback
         setRateLimitMessage(
           "Let's take a short break. You've asked for many ideas in a row. Please wait a minute, then try again."
@@ -187,6 +190,12 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity }: IdeaHel
             <div className="idea-helper-loading-bar" aria-hidden="true" />
           </div>
         </div>
+      )}
+
+      {viewState === "unauthorized" && (
+        <InlineAlert kind="error" title="Please sign in again to continue">
+          Your session has ended. Your saved notes are safe.
+        </InlineAlert>
       )}
 
       {viewState === "results" && response && (

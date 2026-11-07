@@ -86,7 +86,7 @@ function TodayPlan({ childId, nickname }: { childId: string; nickname: string })
     );
   }
   if (load.status === "unauthorized") {
-    return <InlineAlert kind="error" title="Please sign in again.">Your session has ended. Your saved notes are safe.</InlineAlert>;
+    return <InlineAlert kind="error" title="Please sign in again to continue">Your session has ended. Your saved notes are safe.</InlineAlert>;
   }
   if (load.status !== "ready") {
     const offline = load.status === "offline";

@@ -2,6 +2,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { UnauthorizedError } from "../../services/api";
 import * as api from "./api";
 import { CatalogBrowser } from "./components/CatalogBrowser";
 import { FALLBACK_CATALOG_ACTIVITIES } from "./fallbackData";
@@ -175,6 +176,17 @@ describe("CatalogBrowser DOM tests", () => {
     await waitFor(() => {
       expect(screen.getByText("The activity list didn't load")).toBeTruthy();
       expect(screen.getByRole("button", { name: "Retry" })).toBeTruthy();
+    });
+  });
+
+  it("shows Please sign in again to continue with no Retry when unauthorized", async () => {
+    vi.spyOn(api, "fetchCatalogActivities").mockRejectedValue(new UnauthorizedError());
+
+    render(<CatalogBrowser />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Please sign in again to continue")).toBeTruthy();
+      expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
     });
   });
 });
