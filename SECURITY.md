@@ -1,37 +1,49 @@
-# Security Policy — LittleSteps Web
+# Security policy — LittleSteps Web
 
-This repository contains the frontend web application for LittleSteps. For the comprehensive cross-repository security, privacy, and child data policies, refer to the [canonical Security Policy in `littlesteps-docs`](https://github.com/Thesis-Titans/littlesteps-docs/blob/main/SECURITY.md).
+This repository contains the frontend web application for LittleSteps, built with React, TypeScript, and Vite.
+
+For shared system privacy, security, and child data policies, refer to the [canonical Security Policy in `littlesteps-docs`](https://github.com/Thesis-Titans/littlesteps-docs/blob/main/SECURITY.md).
 
 ---
 
-## 1. Supported Versions
+## Supported versions
 
 Only the latest commit on the `main` branch of `littlesteps-react` is actively maintained and evaluated for security:
 
 | Branch | Status |
 | :--- | :---: |
-| `main` | :white_check_mark: Supported |
-| All other branches / forks | :x: Not supported |
+| `main` | Supported |
+| All other branches and forks | Not supported |
 
 ---
 
-## 2. Reporting a Vulnerability
+## Reporting a vulnerability
 
 > [!IMPORTANT]
-> **Do NOT report potential security vulnerabilities through public GitHub issues, discussions, or pull requests.**
+> Do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.
 
 Please report vulnerabilities privately through either channel:
 
-1. **GitHub Private Vulnerability Reporting (Preferred):**  
-   Navigate to the **Security** tab of this repository and click **Report a vulnerability** to open a private advisory draft.
-2. **Direct Contact:**  
-   Email project lead and maintainer **Mark Alvin Cadangin** at [markcadangin@gmail.com](mailto:markcadangin@gmail.com) with the subject prefix `[SECURITY] LittleSteps Web: <Brief Description>`.
+1. **GitHub Private Vulnerability Reporting (preferred):**  
+   Navigate to the **Security** tab of this repository and select **Report a vulnerability** to open a private advisory draft.
+2. **Direct email:**  
+   Contact project maintainer **Mark Alvin Cadangin** at [markcadangin@gmail.com](mailto:markcadangin@gmail.com) with the subject prefix `[SECURITY] LittleSteps Web: <Brief Description>`.
 
 ---
 
-## 3. High-Priority Web Security Boundaries
+## Web security boundaries and threat model
 
-- **Client-Side Secret Exposure:** Never put private server credentials, Firebase Admin keys, or AI provider keys into frontend environment variables (`VITE_*`).
-- **Cross-Site Scripting (XSS) & Token Security:** Firebase ID tokens and sensitive session data must be handled securely without exposing tokens to unauthorized scripts.
-- **Child & Caregiver Data Leakage:** Ensure private journal notes, developmental milestones, and child names are not leaked to third-party analytics, public CDNs, or unencrypted local caches.
-- **Academic Context:** Vulnerabilities are triaged on a best-effort basis by undergraduate students during academic terms without commercial SLAs.
+### Client-side secret isolation
+- Never commit or configure private server credentials, Firebase Admin private keys, or AI provider keys (`GEMINI_API_KEY`) in frontend environment variables (`VITE_*`).
+- Vite bakes `VITE_*` variables directly into static client bundles, making them publicly readable by anyone inspecting JavaScript assets.
+
+### Token and session security
+- Firebase ID tokens and sensitive authentication sessions must be handled securely through Firebase Auth SDK and injected only into authorized `Authorization: Bearer <token>` request headers.
+- Never store Firebase ID tokens or caregiver credentials in unencrypted or long-lived custom browser storage.
+
+### Child and caregiver data minimization (RA 10173)
+- In compliance with the Philippine Data Privacy Act of 2012 (RA 10173), child names, birth dates, and qualitative caregiver journal entries must never be transmitted to third-party trackers, public CDNs, or external AI providers.
+- Avoid logging personal child information or journal contents to `console.log`.
+
+### Academic scope
+- Vulnerabilities are triaged on a best-effort basis by undergraduate students during the academic semester without commercial service-level agreements (SLAs).

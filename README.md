@@ -4,7 +4,7 @@ React + TypeScript web client for LittleSteps, powered by Vite. Features include
 
 ---
 
-## Canonical Project Documentation
+## Canonical project documentation
 LittleSteps uses a three-tier documentation structure. System architecture, product scope, and privacy policies are maintained centrally in [`littlesteps-docs`](https://github.com/Thesis-Titans/littlesteps-docs):
 
 - [Developer Onboarding Guide](https://github.com/Thesis-Titans/littlesteps-docs/blob/main/docs/getting-started.md): Full-stack local setup instructions.
@@ -22,12 +22,12 @@ LittleSteps uses a three-tier documentation structure. System architecture, prod
 
 ---
 
-## Local Setup & Verification
+## Local setup and verification
 1. Copy `.env.example` to `.env.local`.
 2. Set `VITE_API_BASE_URL` to the local Firebase Functions emulator API URL (e.g., `http://127.0.0.1:5001/demo-littlesteps/asia-southeast1/api`).
 3. Run `npm ci` to install dependencies from the lockfile.
 4. Run `npm run lint` to verify code quality with ESLint.
-5. Run `npm test` to run the unit and DOM test suite (209 passing tests).
+5. Run `npm test` to run the unit and DOM test suite (284 passing tests across 26 test suites).
 6. Run `npm run typecheck` and `npm run build` to verify TypeScript types and the Vite production build.
 7. Run `npm run dev` to launch the local Vite development server. Open [`http://localhost:5173`](http://localhost:5173) in your browser. (The local API server permits both `http://localhost:5173` and `http://127.0.0.1:5173` by default).
 
@@ -36,12 +36,12 @@ LittleSteps uses a three-tier documentation structure. System architecture, prod
 
 ---
 
-## Integration Contract
+## Integration contract
 The API repository owns the OpenAPI specification at [`openapi/openapi.yaml`](https://github.com/Thesis-Titans/littlesteps-api/blob/main/openapi/openapi.yaml). The client must use Firebase Authentication to obtain an ID token for authenticated requests and send it as a `Bearer` token. Never trust a client-provided UID for authorization.
 
 ---
 
-## Architecture & Project Organization
+## Architecture and project organization
 To support parallel feature development across course tracks while preventing file collisions and maintaining clean boundaries, `littlesteps-react` follows a feature-modular and layered architecture:
 
 ```
@@ -87,12 +87,13 @@ src/
 
 ---
 
-## Community & Contributing
+## Contributing and security
 - [Contributing Guidelines](CONTRIBUTING.md): Branch conventions, local verification commands, and PR review rules.
-- [Security Policy](SECURITY.md): Vulnerability reporting and responsible disclosure.
+- [Security Policy](SECURITY.md): Vulnerability reporting procedures and child data boundaries.
 - [Code of Conduct](https://github.com/Thesis-Titans/littlesteps-docs/blob/main/CODE_OF_CONDUCT.md): Shared expectations for respectful academic collaboration.
 
 ---
 
-## Rights Notice — Wording Pending Review
-**All Rights Reserved (Academic Evaluation Only)** is the project's intended rights policy. The repositories are public for academic course evaluation, faculty review, and demonstration; this notice does not technically restrict who can view or interact with public repositories. The wording and intended restrictions have not been represented as legally reviewed. Before relying on the notice as a formal legal instrument, seek review from the course instructor or an appropriate legal resource. No open-source license is intentionally granted by this project; do not interpret this notice as a reviewed license instrument.
+## Rights notice
+
+All Rights Reserved (Academic Evaluation Only). This repository is published publicly for academic evaluation and faculty review at West Visayas State University. No open-source redistribution license is granted.
