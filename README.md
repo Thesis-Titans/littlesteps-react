@@ -27,7 +27,7 @@ LittleSteps uses a three-tier documentation structure. System architecture, prod
 2. Set `VITE_API_BASE_URL` to the local Firebase Functions emulator API URL (e.g., `http://127.0.0.1:5001/demo-littlesteps/asia-southeast1/api`).
 3. Run `npm ci` to install dependencies from the lockfile.
 4. Run `npm run lint` to verify code quality with ESLint.
-5. Run `npm test` to run the unit and DOM test suite (284 passing tests across 26 test suites).
+5. Run `npm test` to run the unit and DOM test suite (291 passing tests across 28 test suites).
 6. Run `npm run typecheck` and `npm run build` to verify TypeScript types and the Vite production build.
 7. Run `npm run dev` to launch the local Vite development server. Open [`http://localhost:5173`](http://localhost:5173) in your browser. (The local API server permits both `http://localhost:5173` and `http://127.0.0.1:5173` by default).
 
