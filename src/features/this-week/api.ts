@@ -14,3 +14,4 @@ export async function getWeeklySummary(
   const response = await apiFetch(`${summaryPath(childId)}${qs ? `?${qs}` : ""}`);
   return (await response.json()) as WeeklySummary;
 }
+

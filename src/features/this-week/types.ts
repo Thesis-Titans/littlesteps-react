@@ -21,3 +21,4 @@ export interface WeeklySummary {
 export interface WeeklySummaryQuery {
   startDate?: string;
 }
+

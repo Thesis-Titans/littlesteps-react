@@ -153,3 +153,4 @@ describe("journal API client", () => {
     );
   });
 });
+

@@ -26,3 +26,4 @@ export interface UpdateJournalEntryInput {
 export interface JournalFilter {
   date?: string;
 }
+

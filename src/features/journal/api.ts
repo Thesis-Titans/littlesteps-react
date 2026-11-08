@@ -50,3 +50,4 @@ export async function deleteJournalEntry(childId: string, entryId: string): Prom
     method: "DELETE"
   });
 }
+
