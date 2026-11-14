@@ -60,7 +60,10 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity }: IdeaHel
     const request = buildRequest();
 
     try {
-      const res = await getAiRecommendations(request);
+      let res = await getAiRecommendations(request);
+      if (!res.suggestions || res.suggestions.length === 0) {
+        res = buildDeterministicFallback(request);
+      }
       setResponse(res);
       setViewState("results");
     } catch (err) {
