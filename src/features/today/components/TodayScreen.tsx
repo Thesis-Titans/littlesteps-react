@@ -130,16 +130,6 @@ function TodayPlan({
 
   return (
     <div className="plan-root" ref={root}>
-      {/* Hero Greeting */}
-      <header className="today-hero">
-        <h2 className="today-hero-title">
-          {getTimeGreeting()}!
-        </h2>
-        <p className="today-hero-sub">
-          Today's plan for {nickname} &middot; {ageBand}
-        </p>
-      </header>
-
       {/* Optional Weather Hint (react #19) */}
       {weather && (weather.hint || (weather.condition && weather.condition !== "unavailable")) && (
         <aside className="today-weather-banner" role="status" aria-label="Weather play hint">
@@ -159,6 +149,16 @@ function TodayPlan({
       <div className="today-grid">
         {/* Main Column */}
         <div className="today-main-col">
+          {/* Hero Greeting in Main Column */}
+          <header className="today-hero">
+            <h2 className="today-hero-title">
+              {getTimeGreeting()}!
+            </h2>
+            <p className="today-hero-sub">
+              Today's plan for {nickname} &middot; {ageBand}
+            </p>
+          </header>
+
           {problem && (
             <div className="plan-problem">
               <InlineAlert
@@ -170,9 +170,9 @@ function TodayPlan({
           )}
 
           <section className="plan-section" aria-labelledby="plan-heading">
-            <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
+            <h3 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
               {nickname}'s plan for today
-            </h2>
+            </h3>
             {plans.length > 0 && (
               <div className="plan-filters" role="group" aria-label="Quick filters">
                 {QUICK_FILTERS.map((f) => (
