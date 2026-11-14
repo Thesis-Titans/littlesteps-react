@@ -166,6 +166,7 @@ describe("StorybooksSection", () => {
     expect(onPlanSpy).toHaveBeenCalledTimes(1);
     expect(onPlanSpy).toHaveBeenCalledWith(
       expect.objectContaining({
+        id: expect.stringMatching(/^[a-z0-9-]+$/),
         title: "Sock Caterpillar Puppet Play",
         type: "story",
         ageBand: "12-23m",

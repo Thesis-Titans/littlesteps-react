@@ -139,7 +139,7 @@ describe("PlayAssistantDrawer", () => {
     render(<PlayAssistantDrawer ageBand="24-35m" childNickname="Leo" />);
     await user.click(screen.getByRole("button", { name: /Ask for a play adaptation/i }));
 
-    const input = screen.getByPlaceholderText(/Ask for a play idea with Maya/i);
+    const input = screen.getByPlaceholderText(/Ask for a play idea with Leo/i);
     await user.type(input, "Balancing games");
     await user.click(screen.getByRole("button", { name: /Send/i }));
 
@@ -155,5 +155,13 @@ describe("PlayAssistantDrawer", () => {
     expect(calledPayload).not.toHaveProperty("surname");
     expect(calledPayload).not.toHaveProperty("birthDate");
     expect(calledPayload).not.toHaveProperty("journal");
+  });
+
+  it("uses default fallback placeholder when childNickname is omitted", async () => {
+    const user = userEvent.setup();
+    render(<PlayAssistantDrawer ageBand="12-23m" />);
+    await user.click(screen.getByRole("button", { name: /Ask for a play adaptation/i }));
+
+    expect(screen.getByPlaceholderText(/Ask for a play idea with your child/i)).toBeTruthy();
   });
 });

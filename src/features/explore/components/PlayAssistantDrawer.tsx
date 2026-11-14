@@ -267,7 +267,7 @@ export function PlayAssistantDrawer({
               <input
                 type="text"
                 className="ls-input"
-                placeholder={`Ask for a play idea with Maya...`}
+                placeholder={`Ask for a play idea with ${childNickname || "your child"}...`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={loading}

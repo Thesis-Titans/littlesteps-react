@@ -186,7 +186,7 @@ export function StorybooksSection({
         ? (storyIdea.domain as Domain)
         : "language";
     const activity: CatalogActivity = {
-      id: `story-${activeBook.id}`,
+      id: `story-${activeBook.id.toLowerCase().replace(/[^a-z0-9-]/g, "-")}`,
       title: ideaTitle,
       type: "story",
       language: "en",
