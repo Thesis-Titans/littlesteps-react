@@ -348,4 +348,33 @@ describe("MilestonesList follow-ups", () => {
     await ready([obs()]);
     expect(screen.queryByText("Some older notes may not show here")).toBeNull();
   });
+
+  it("filters prompts by developmental domain chips", async () => {
+    const user = userEvent.setup();
+    await ready();
+
+    expect(screen.getByRole("heading", { name: "Thinking" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Moving" })).toBeTruthy();
+
+    // Click "Thinking" filter chip
+    const thinkingChip = screen.getByRole("button", { name: "Thinking" });
+    await user.click(thinkingChip);
+
+    expect(screen.getByRole("heading", { name: "Thinking" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Moving" })).toBeNull();
+
+    // Click "All" chip
+    const allChip = screen.getByRole("button", { name: "All" });
+    await user.click(allChip);
+
+    expect(screen.getByRole("heading", { name: "Thinking" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Moving" })).toBeTruthy();
+  });
+
+  it("renders desktop guidance panel and calm reassurance note", async () => {
+    await ready();
+
+    expect(screen.getByRole("heading", { name: "Notice, don't score" })).toBeTruthy();
+    expect(screen.getByText("This saves one moment from one day. It isn't a test.")).toBeTruthy();
+  });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Button, ConfirmDialog, InlineAlert, Select, TextField } from "../../../components/common";
+import { Button, Chip, ConfirmDialog, InlineAlert, Select, TextField } from "../../../components/common";
 import { ApiError } from "../../../services/api";
 import { failureKind } from "../../../services/offline";
 import { recordObservation, updateObservation } from "../api";
@@ -82,6 +82,21 @@ export function ObservationForm({ childId, childName, prompt, existing, onSaved,
         onChange={(e) => setStatus(e.target.value as MilestoneStatus)}
         options={MILESTONE_STATUSES.map((value) => ({ value, label: STATUS_LABELS[value] }))}
       />
+      <div className="milestone-status-chips" role="group" aria-label="Status choices">
+        {MILESTONE_STATUSES.map((value) => (
+          <Chip
+            key={value}
+            selected={status === value}
+            onClick={() => setStatus(value)}
+            aria-pressed={status === value}
+          >
+            {STATUS_LABELS[value]}
+          </Chip>
+        ))}
+      </div>
+      <div className="milestone-calm-box">
+        <p>This saves one moment from one day. It isn&apos;t a test.</p>
+      </div>
       <TextField
         label="Date"
         type="date"
