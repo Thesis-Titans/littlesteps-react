@@ -299,4 +299,20 @@ describe("PlanActivityDialog", () => {
     expect(await screen.findByText("You're offline. This activity wasn't added to the plan.")).toBeTruthy();
     expect(onPlanned).not.toHaveBeenCalled();
   });
+
+  it("renders hero greeting and Figma sidebar widgets", async () => {
+    stubLists([]);
+    renderToday();
+
+    expect(await screen.findByRole("heading", { name: /Good (morning|afternoon|evening)!/i })).toBeTruthy();
+    expect(screen.getByText(/Today's plan for Maya · 12-23m/i)).toBeTruthy();
+
+    // Side widgets (react #45)
+    expect(screen.getByRole("heading", { name: "Need a quick idea?" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "This week" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Milestones to notice" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Find an idea" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "View reflection" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "View milestones" })).toBeTruthy();
+  });
 });

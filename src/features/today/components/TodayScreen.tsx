@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Chip, EmptyState, InlineAlert, Skeleton, UndoToast } from "../../../components/common";
 import { ScreenHeader } from "../../../components/layout";
-import { useChild } from "../../children/useChild";
+import { useWeather } from "../../../services/weather";
 import { NonDiagnosticNotice } from "../../children/components/NonDiagnosticNotice";
+import { useChild } from "../../children/useChild";
 import { HISTORY_LIMIT, useToday } from "../hooks/useToday";
 import { localDate, matchesFilters, QUICK_FILTERS } from "../logic";
 import type { QuickFilter } from "../types";
@@ -19,7 +20,14 @@ const readSeen = () => {
   }
 };
 
-/** Today screen: the selected child's plan, quick filters, mark complete and history. */
+function getTimeGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+/** Today screen: the selected child's plan, quick filters, mark complete, widgets and history. */
 export function TodayScreen() {
   const { activeChild } = useChild();
   const [showAdvisory, setShowAdvisory] = useState(() => !readSeen());
@@ -33,7 +41,7 @@ export function TodayScreen() {
   };
 
   return (
-    <section className="screen" aria-labelledby="today-title">
+    <section className="screen today-screen" aria-labelledby="today-title">
       <ScreenHeader id="today-title" title="Today" subtitle="Your plan for today." />
       {showAdvisory ? (
         <NonDiagnosticNotice action={<Button variant="secondary" onClick={hideAdvisory}>Hide this notice</Button>} />
@@ -41,14 +49,30 @@ export function TodayScreen() {
         <Button variant="text" onClick={() => setShowAdvisory(true)}>Not a diagnostic tool</Button>
       )}
       {/* Keyed by child so switching children starts a fresh load. */}
-      {activeChild && <TodayPlan key={activeChild.id} childId={activeChild.id} nickname={activeChild.nickname} />}
+      {activeChild && (
+        <TodayPlan
+          key={activeChild.id}
+          childId={activeChild.id}
+          nickname={activeChild.nickname}
+          ageBand={activeChild.ageBand}
+        />
+      )}
     </section>
   );
 }
 
-function TodayPlan({ childId, nickname }: { childId: string; nickname: string }) {
+function TodayPlan({
+  childId,
+  nickname,
+  ageBand,
+}: {
+  childId: string;
+  nickname: string;
+  ageBand: string;
+}) {
   const [today, setToday] = useState(localDate);
   const { load, reload, busyIds, settled, problem, toast, markComplete, undo, closeToast } = useToday(childId, today);
+  const { weather } = useWeather();
   const root = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const [filters, setFilters] = useState<QuickFilter[]>([]);
@@ -68,13 +92,13 @@ function TodayPlan({ childId, nickname }: { childId: string; nickname: string })
   // The pressed button may be gone now: focus goes to the toast's Undo, the alert's Retry, or the plan heading.
   useEffect(() => {
     if (settled.n === 0) return;
-    // Only when focus was lost with the pressed button (body) or is still in its card; never pull it from where the user went.
     const active = document.activeElement;
     const card = root.current?.querySelector(`[data-plan-id="${settled.planId}"]`);
     if (active && active !== document.body && !card?.contains(active)) return;
     const target = root.current?.querySelector<HTMLElement>(".plan-toast button, .plan-problem button") ?? heading.current;
     target?.focus();
   }, [settled]);
+
   const toggle = (id: QuickFilter) => setFilters((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
 
   if (load.status === "loading") {
@@ -106,64 +130,175 @@ function TodayPlan({ childId, nickname }: { childId: string; nickname: string })
 
   return (
     <div className="plan-root" ref={root}>
-      {problem && (
-        <div className="plan-problem">
-        <InlineAlert
-          kind={problem.kind === "offline" ? "offline" : "error"}
-          title={problem.message}
-          action={problem.retry && <Button variant="secondary" onClick={problem.retry}>Retry</Button>}
-        />
-        </div>
-      )}
+      {/* Hero Greeting */}
+      <header className="today-hero">
+        <h2 className="today-hero-title">
+          {getTimeGreeting()}!
+        </h2>
+        <p className="today-hero-sub">
+          Today's plan for {nickname} &middot; {ageBand}
+        </p>
+      </header>
 
-      <section className="plan-section" aria-labelledby="plan-heading">
-        <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>{nickname}'s plan for today</h2>
-        {plans.length > 0 && (
-          <div className="plan-filters" role="group" aria-label="Quick filters">
-            {QUICK_FILTERS.map((f) => (
-              <Chip key={f.id} selected={filters.includes(f.id)} onClick={() => toggle(f.id)}>{f.label}</Chip>
-            ))}
+      {/* Optional Weather Hint (react #19) */}
+      {weather && (weather.hint || (weather.condition && weather.condition !== "unavailable")) && (
+        <aside className="today-weather-banner" role="status" aria-label="Weather play hint">
+          <div className="today-weather-info">
+            <span aria-hidden="true">{weather.condition === "rainy" ? "🌧️" : "☀️"}</span>
+            <span>
+              {weather.hint ??
+                (weather.condition === "rainy"
+                  ? "Rain likely · Indoor ideas recommended"
+                  : "Good weather for outdoor play · Outdoor ideas")}
+            </span>
           </div>
-        )}
-        {plans.length === 0 ? (
-          <EmptyState
-            title="No activities planned for today."
-            action={<Button variant="secondary" onClick={() => navigate("/explore")}>Find an activity</Button>}
-          >
-            <p>Want a quick idea? Most take 10 minutes or less.</p>
-          </EmptyState>
-        ) : shown.length === 0 ? (
-          <EmptyState title="No planned activities match these filters." action={<Button variant="secondary" onClick={() => setFilters([])}>Clear filters</Button>} />
-        ) : (
-          <ul className="plan-list">
-            {shown.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} activity={activities[plan.activityId]} busy={busyIds.includes(plan.id)} onComplete={markComplete} />
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {toast && (
-        <div className="plan-toast">
-          <UndoToast message={`${activities[toast.activityId]?.title ?? "Activity"} marked complete.`} onUndo={undo} onClose={closeToast} />
-        </div>
+          <span className="today-weather-attr">Weather data by Open-Meteo.com</span>
+        </aside>
       )}
 
-      <section className="plan-section" aria-labelledby="history-heading">
-        <h2 id="history-heading" className="plan-heading">History</h2>
-        {history.length === 0 ? (
-          <p className="plan-card-meta">Completed activities for {nickname} will show here.</p>
-        ) : (
-          <>
-          {load.historyCut && <p className="plan-card-meta">This list shows the first {HISTORY_LIMIT} completed activities. Newer ones may be missing.</p>}
-          <ul className="plan-list">
-            {history.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} activity={activities[plan.activityId]} showDate />
-            ))}
-          </ul>
-          </>
-        )}
-      </section>
+      <div className="today-grid">
+        {/* Main Column */}
+        <div className="today-main-col">
+          {problem && (
+            <div className="plan-problem">
+              <InlineAlert
+                kind={problem.kind === "offline" ? "offline" : "error"}
+                title={problem.message}
+                action={problem.retry && <Button variant="secondary" onClick={problem.retry}>Retry</Button>}
+              />
+            </div>
+          )}
+
+          <section className="plan-section" aria-labelledby="plan-heading">
+            <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
+              {nickname}'s plan for today
+            </h2>
+            {plans.length > 0 && (
+              <div className="plan-filters" role="group" aria-label="Quick filters">
+                {QUICK_FILTERS.map((f) => (
+                  <Chip key={f.id} selected={filters.includes(f.id)} onClick={() => toggle(f.id)}>
+                    {f.label}
+                  </Chip>
+                ))}
+              </div>
+            )}
+            {plans.length === 0 ? (
+              <EmptyState
+                title="No activities planned for today."
+                action={<Button variant="secondary" onClick={() => navigate("/explore")}>Find an activity</Button>}
+              >
+                <p>Want a quick idea? Most take 10 minutes or less.</p>
+              </EmptyState>
+            ) : shown.length === 0 ? (
+              <EmptyState
+                title="No planned activities match these filters."
+                action={<Button variant="secondary" onClick={() => setFilters([])}>Clear filters</Button>}
+              />
+            ) : (
+              <ul className="plan-list">
+                {shown.map((plan) => (
+                  <PlanCard
+                    key={plan.id}
+                    plan={plan}
+                    activity={activities[plan.activityId]}
+                    busy={busyIds.includes(plan.id)}
+                    onComplete={markComplete}
+                  />
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {toast && (
+            <div className="plan-toast">
+              <UndoToast
+                message={`${activities[toast.activityId]?.title ?? "Activity"} marked complete.`}
+                onUndo={undo}
+                onClose={closeToast}
+              />
+            </div>
+          )}
+
+          <section className="plan-section" aria-labelledby="history-heading">
+            <h2 id="history-heading" className="plan-heading">History</h2>
+            {history.length === 0 ? (
+              <p className="plan-card-meta">Completed activities for {nickname} will show here.</p>
+            ) : (
+              <>
+                {load.historyCut && (
+                  <p className="plan-card-meta">
+                    This list shows the first {HISTORY_LIMIT} completed activities. Newer ones may be missing.
+                  </p>
+                )}
+                <ul className="plan-list">
+                  {history.map((plan) => (
+                    <PlanCard
+                      key={plan.id}
+                      plan={plan}
+                      activity={activities[plan.activityId]}
+                      showDate
+                    />
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+        </div>
+
+        {/* Desktop Side Column with Widgets (react #45) */}
+        <aside className="today-side-col" aria-label="Quick shortcuts and summaries">
+          {/* Idea Helper Widget */}
+          <div className="today-side-widget">
+            <h3 className="today-side-widget-title">Need a quick idea?</h3>
+            <p className="today-side-widget-body">
+              Find personalized play ideas for {nickname} using everyday items around the house.
+            </p>
+            <Button variant="secondary" onClick={() => navigate("/explore")}>
+              Find an idea
+            </Button>
+          </div>
+
+          {/* This Week Widget */}
+          <div className="today-side-widget">
+            <h3 className="today-side-widget-title">This week</h3>
+            <p className="today-side-widget-body">
+              Reflect on everyday moments and shared play from this week.
+            </p>
+            <Button variant="secondary" onClick={() => navigate("/this-week")}>
+              View reflection
+            </Button>
+          </div>
+
+          {/* Milestones to Notice Widget */}
+          <div className="today-side-widget">
+            <h3 className="today-side-widget-title">Milestones to notice</h3>
+            <p className="today-side-widget-body">
+              Everyday cues to notice for {nickname}:
+            </p>
+            <ul className="today-milestones-list">
+              <li className="today-milestone-cue">
+                <span aria-hidden="true">👀</span>
+                <span>Explores toys by banging, shaking, or dropping</span>
+              </li>
+              <li className="today-milestone-cue">
+                <span aria-hidden="true">👀</span>
+                <span>Points to show you something interesting</span>
+              </li>
+              <li className="today-milestone-cue">
+                <span aria-hidden="true">👀</span>
+                <span>Copies actions like waving goodbye or clapping</span>
+              </li>
+            </ul>
+            <Button
+              variant="secondary"
+              onClick={() => navigate("/milestones")}
+              style={{ marginTop: "var(--space-4)" }}
+            >
+              View milestones
+            </Button>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

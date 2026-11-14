@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button, Card } from "../../../components/common";
+import { PHILIPPINES_CITIES, useWeather } from "../../../services/weather";
 import { useAuth } from "../../auth";
 import { AccountPage } from "./AccountPage";
 
@@ -15,6 +16,8 @@ function NotAvailable({ id, label, children }: { id: string; label: string; chil
 
 export function SettingsScreen() {
   const { user, signOut } = useAuth();
+  const { cityName, updateCity } = useWeather();
+
   return (
     <AccountPage id="settings-title" title="Settings">
       <Card as="section" aria-labelledby="settings-account">
@@ -23,10 +26,40 @@ export function SettingsScreen() {
         <p className="account-email">{user?.email ?? "Not available"}</p>
         <Button variant="secondary" onClick={() => void signOut()}>Sign out</Button>
       </Card>
+
       <Card as="section" aria-labelledby="settings-children">
         <h2 id="settings-children">Children</h2>
         <p><Link to="/children">Your children</Link></p>
       </Card>
+
+      {/* Weather for activity ideas (react #19) */}
+      <Card as="section" aria-labelledby="settings-weather">
+        <h2 id="settings-weather">Weather for activity ideas</h2>
+        <p className="account-note">
+          Optional. Pick a nearby city to show gentle play hints like &ldquo;Rain likely this afternoon · Indoor ideas&rdquo;.
+        </p>
+        <div className="account-action" style={{ marginTop: "var(--space-12)" }}>
+          <label htmlFor="settings-weather-city" className="catalog-filter-label" style={{ display: "block", marginBottom: "var(--space-4)" }}>
+            City
+          </label>
+          <select
+            id="settings-weather-city"
+            className="ls-select"
+            value={cityName}
+            onChange={(e) => updateCity(e.target.value)}
+            style={{ width: "100%", maxWidth: "320px", minHeight: "var(--size-touch-target-min)" }}
+          >
+            <option value="">Off (no weather hints)</option>
+            {PHILIPPINES_CITIES.map((c) => (
+              <option key={c.name} value={c.name}>{c.name}</option>
+            ))}
+          </select>
+          <p className="account-note" style={{ marginTop: "var(--space-8)" }}>
+            Weather data by Open-Meteo.com. No location data is stored beyond your chosen city.
+          </p>
+        </div>
+      </Card>
+
       <Card as="section" aria-labelledby="settings-data">
         <h2 id="settings-data">Your data</h2>
         <NotAvailable id="export-note" label="Download my data">
