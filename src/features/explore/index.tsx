@@ -6,8 +6,11 @@ import { CatalogBrowser, type CatalogActivity } from "../catalog";
 import { useChild } from "../children/useChild";
 import { formatDate } from "../today/logic";
 import { PlanActivityDialog } from "../today";
+import { StorybooksSection } from "./components/StorybooksSection";
 
-/** Explore screen: Learning catalog browsing and AI idea helper with fallback */
+export { StorybooksSection };
+
+/** Explore screen: Learning catalog browsing, AI idea helper, and storybooks */
 export function ExploreScreen() {
   const { activeChild } = useChild();
   const ageBand = activeChild?.ageBand ?? "12-23m";
@@ -37,6 +40,9 @@ export function ExploreScreen() {
         activeChildNickname={nickname}
         onPlan={activeChild ? (activity, opener) => setPlanning({ activity, opener }) : undefined}
       />
+
+      {/* Storybooks from Open Library (react #48) */}
+      <StorybooksSection />
 
       {activeChild && (
         <PlanActivityDialog

@@ -1,4 +1,4 @@
-import type { CatalogActivity } from "./types";
+import type { BookItem, CatalogActivity } from "./types";
 
 export const SOURCE_ATTRIBUTION_FALLBACK = "Source: early learning guide · still being checked";
 
@@ -323,4 +323,42 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     status: "reviewed_approved",
     limitations: "Observational play prompt only. Not developmental assessment.",
   },
+];
+
+export const FALLBACK_BOOKS: BookItem[] = [
+  {
+    id: "OL52987W",
+    title: "The Very Hungry Caterpillar",
+    authors: ["Eric Carle"],
+    coverUrl: "https://covers.openlibrary.org/b/id/7835968-M.jpg",
+    subjects: ["picture books", "animals", "colors"]
+  },
+  {
+    id: "OL151798W",
+    title: "Goodnight Moon",
+    authors: ["Margaret Wise Brown"],
+    coverUrl: "https://covers.openlibrary.org/b/id/35556-M.jpg",
+    subjects: ["bedtime", "picture books"]
+  },
+  {
+    id: "OL58402W",
+    title: "Guess How Much I Love You",
+    authors: ["Sam McBratney", "Anita Jeram"],
+    coverUrl: "https://covers.openlibrary.org/b/id/13282906-M.jpg",
+    subjects: ["bedtime", "animals"]
+  },
+  {
+    id: "OL832133W",
+    title: "We're Going on a Bear Hunt",
+    authors: ["Michael Rosen"],
+    coverUrl: "https://covers.openlibrary.org/b/id/433694-M.jpg",
+    subjects: ["picture books", "animals"]
+  },
+  {
+    id: "OL506946W",
+    title: "Der Regenbogenfisch (The Rainbow Fish)",
+    authors: ["Marcus Pfister"],
+    coverUrl: "https://covers.openlibrary.org/b/id/3178656-M.jpg",
+    subjects: ["colors", "picture books", "animals"]
+  }
 ];

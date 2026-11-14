@@ -1,10 +1,37 @@
 import { apiFetch } from "../../services/api";
-import { FALLBACK_CATALOG_ACTIVITIES } from "./fallbackData";
+import { FALLBACK_CATALOG_ACTIVITIES, FALLBACK_BOOKS } from "./fallbackData";
 import type {
+  BookSubject,
+  BooksResponse,
   CatalogActivitiesQuery,
   CatalogActivitiesResponse,
   CatalogActivity,
 } from "./types";
+
+export async function fetchBooks(
+  subject: BookSubject = "picture_books",
+  limit = 12
+): Promise<BooksResponse> {
+  const params = new URLSearchParams({ subject, limit: String(limit) });
+  const response = await apiFetch(`/api/v1/catalog/books?${params.toString()}`);
+  return (await response.json()) as BooksResponse;
+}
+
+export function filterFallbackBooks(subject: BookSubject = "picture_books"): BooksResponse {
+  const matching = FALLBACK_BOOKS.filter(
+    (b) => b.subjects.some((s) => s.toLowerCase().includes(subject.replace("_", " ")))
+  );
+  const books = matching.length > 0 ? matching : FALLBACK_BOOKS;
+  return {
+    subject,
+    totalCount: books.length,
+    books,
+    provenance: {
+      source: "Open Library (Offline Fallback)",
+      license: "Open Library data (CC BY 4.0 / Public Domain)",
+    },
+  };
+}
 
 export async function fetchCatalogActivities(
   query: CatalogActivitiesQuery = {}
