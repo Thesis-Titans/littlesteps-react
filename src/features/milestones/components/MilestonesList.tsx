@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Chip, EmptyState, InlineAlert, Select, Skeleton } from "../../../components/common";
+import { Button, Chip, EmptyState, Icon, InlineAlert, Select, Skeleton } from "../../../components/common";
 import { AGE_BANDS, ageBandLabel, type AgeBand, type Child } from "../../children";
 import { DOMAIN_LABELS, type Domain } from "../../catalog/types";
 import { groupByDomain, latestByPrompt } from "../logic";
@@ -123,8 +123,9 @@ export function MilestonesList({ child }: { child: Child }) {
               <p>This saves one moment from one day. It isn&apos;t a test.</p>
             </div>
             <div style={{ borderTop: "1px solid var(--color-border-subtle)", paddingTop: "var(--space-12)" }}>
-              <p style={{ margin: 0, font: "var(--font-meta)", color: "var(--color-text-secondary)" }}>
-                🔒 <strong>Private observations.</strong> Only you can see notes you record here.
+              <p style={{ margin: 0, font: "var(--font-meta)", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "var(--space-6)" }}>
+                <Icon name="lock" size={14} />
+                <span><strong>Private observations.</strong> Only you can see notes you record here.</span>
               </p>
             </div>
           </div>

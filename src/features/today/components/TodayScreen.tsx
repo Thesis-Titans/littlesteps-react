@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Chip, EmptyState, InlineAlert, Skeleton, UndoToast } from "../../../components/common";
+import { Button, Chip, EmptyState, Icon, InlineAlert, Skeleton, UndoToast } from "../../../components/common";
 import { ScreenHeader } from "../../../components/layout";
 import { useWeather } from "../../../services/weather";
 import { NonDiagnosticNotice } from "../../children/components/NonDiagnosticNotice";
@@ -42,7 +42,7 @@ export function TodayScreen() {
 
   return (
     <section className="screen today-screen" aria-labelledby="today-title">
-      <ScreenHeader id="today-title" title="Today" subtitle="Your plan for today." />
+      <ScreenHeader id="today-title" title="Today" />
       {showAdvisory ? (
         <NonDiagnosticNotice action={<Button variant="secondary" onClick={hideAdvisory}>Hide this notice</Button>} />
       ) : (
@@ -144,7 +144,7 @@ function TodayPlan({
       {weather && (weather.hint || (weather.condition && weather.condition !== "unavailable")) && (
         <aside className="today-weather-banner" role="status" aria-label="Weather play hint">
           <div className="today-weather-info">
-            <span aria-hidden="true">{weather.condition === "rainy" ? "🌧️" : "☀️"}</span>
+            <Icon name={weather.condition === "rainy" ? "cloud-rain" : "sun"} size={18} />
             <span>
               {weather.hint ??
                 (weather.condition === "rainy"
@@ -187,7 +187,7 @@ function TodayPlan({
                 title="No activities planned for today."
                 action={<Button variant="secondary" onClick={() => navigate("/explore")}>Find an activity</Button>}
               >
-                <p>Want a quick idea? Most take 10 minutes or less.</p>
+                <p>Most play activities take 10 minutes or less.</p>
               </EmptyState>
             ) : shown.length === 0 ? (
               <EmptyState
@@ -247,18 +247,18 @@ function TodayPlan({
 
         {/* Desktop Side Column with Widgets (react #45) */}
         <aside className="today-side-col" aria-label="Quick shortcuts and summaries">
-          {/* Idea Helper Widget */}
+          {/* Play Ideas Shortcut */}
           <div className="today-side-widget">
             <h3 className="today-side-widget-title">Need a quick idea?</h3>
             <p className="today-side-widget-body">
-              Find personalized play ideas for {nickname} using everyday items around the house.
+              Everyday play ideas for {nickname} using common household items.
             </p>
             <Button variant="secondary" onClick={() => navigate("/explore")}>
               Find an idea
             </Button>
           </div>
 
-          {/* This Week Widget */}
+          {/* This Week Shortcut */}
           <div className="today-side-widget">
             <h3 className="today-side-widget-title">This week</h3>
             <p className="today-side-widget-body">
@@ -277,15 +277,15 @@ function TodayPlan({
             </p>
             <ul className="today-milestones-list">
               <li className="today-milestone-cue">
-                <span aria-hidden="true">👀</span>
+                <Icon name="eye" size={16} className="today-cue-icon" />
                 <span>Explores toys by banging, shaking, or dropping</span>
               </li>
               <li className="today-milestone-cue">
-                <span aria-hidden="true">👀</span>
+                <Icon name="eye" size={16} className="today-cue-icon" />
                 <span>Points to show you something interesting</span>
               </li>
               <li className="today-milestone-cue">
-                <span aria-hidden="true">👀</span>
+                <Icon name="eye" size={16} className="today-cue-icon" />
                 <span>Copies actions like waving goodbye or clapping</span>
               </li>
             </ul>

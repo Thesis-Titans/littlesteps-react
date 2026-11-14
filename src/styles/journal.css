@@ -5,7 +5,7 @@
   flex-direction: column;
   gap: var(--space-24);
   width: 100%;
-  max-width: 70ch;
+  max-width: 860px;
 }
 
 .journal-privacy-callout {

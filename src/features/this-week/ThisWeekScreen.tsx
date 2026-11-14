@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   EmptyState,
+  Icon,
   InlineAlert,
   Skeleton,
 } from "../../components/common";
@@ -209,7 +210,7 @@ function ActiveChildThisWeek({
           {/* Factual Non-diagnostic Reflection Card */}
           <aside className="this-week-reflection-card" aria-labelledby="reflection-heading">
             <h3 id="reflection-heading" className="this-week-reflection-heading">
-              <span>🌿</span>
+              <Icon name="sparkle" size={18} />
               <span>Reflections on your week</span>
             </h3>
 

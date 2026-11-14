@@ -5,6 +5,7 @@ import {
   Card,
   Chip,
   EmptyState,
+  Icon,
   InlineAlert,
   Skeleton,
 } from "../../../components/common";
@@ -149,7 +150,7 @@ export function StorybooksSection() {
                   style={{ display: book.coverUrl ? "none" : "flex" }}
                   aria-hidden="true"
                 >
-                  <span>📖</span>
+                  <Icon name="book" size={32} />
                 </div>
               </div>
 

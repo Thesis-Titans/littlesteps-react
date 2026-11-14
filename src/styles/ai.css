@@ -59,6 +59,20 @@
   gap: var(--space-8);
 }
 
+.idea-helper-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+@media (min-width: 640px) {
+  .idea-helper-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+  }
+}
+
 .idea-helper-field {
   display: flex;
   flex-direction: column;
@@ -185,11 +199,20 @@
   gap: var(--space-16);
 }
 
+@media (min-width: 768px) {
+  .idea-helper-suggestions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-16);
+    align-items: start;
+  }
+}
+
 .idea-suggestion-card {
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
-  padding: var(--space-16);
+  padding: var(--space-20);
   background: var(--color-surface-card);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card);

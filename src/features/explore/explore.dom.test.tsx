@@ -54,7 +54,7 @@ describe("ExploreScreen integration", () => {
     renderExplore();
 
     expect(
-      screen.getByText("Find a personalized play idea for Maya in seconds.")
+      screen.getByText("Find a play idea for Maya with the time and materials you have.")
     ).toBeTruthy();
   });
 });

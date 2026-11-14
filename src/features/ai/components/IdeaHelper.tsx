@@ -113,7 +113,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
           {isAiSuggestion && <Badge kind="ai" />}
         </div>
         <p className="idea-helper-subtitle">
-          Find a personalized play idea for {childName} in seconds.
+          Find a play idea for {childName} with the time and materials you have.
         </p>
       </div>
 
@@ -136,34 +136,36 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
             </div>
           </fieldset>
 
-          {/* Setting question */}
-          <div className="idea-helper-field">
-            <Select
-              label="Where will you play?"
-              value={setting}
-              onChange={(e) => setSetting(e.target.value as Setting)}
-              options={[
-                { value: "either", label: "Indoor or outdoor" },
-                { value: "indoor", label: "Indoor" },
-                { value: "outdoor", label: "Outdoor" },
-              ]}
-            />
-          </div>
+          <div className="idea-helper-row">
+            {/* Setting question */}
+            <div className="idea-helper-field">
+              <Select
+                label="Where will you play?"
+                value={setting}
+                onChange={(e) => setSetting(e.target.value as Setting)}
+                options={[
+                  { value: "either", label: "Indoor or outdoor" },
+                  { value: "indoor", label: "Indoor" },
+                  { value: "outdoor", label: "Outdoor" },
+                ]}
+              />
+            </div>
 
-          {/* Domain question */}
-          <div className="idea-helper-field">
-            <Select
-              label="Kind of play"
-              value={selectedDomain}
-              onChange={(e) => setSelectedDomain(e.target.value as Domain | "all")}
-              options={[
-                { value: "all", label: "Any kind of play" },
-                ...DOMAINS.map((domain) => ({
-                  value: domain,
-                  label: DOMAIN_LABELS[domain],
-                })),
-              ]}
-            />
+            {/* Domain question */}
+            <div className="idea-helper-field">
+              <Select
+                label="Kind of play"
+                value={selectedDomain}
+                onChange={(e) => setSelectedDomain(e.target.value as Domain | "all")}
+                options={[
+                  { value: "all", label: "Any kind of play" },
+                  ...DOMAINS.map((domain) => ({
+                    value: domain,
+                    label: DOMAIN_LABELS[domain],
+                  })),
+                ]}
+              />
+            </div>
           </div>
 
           {/* Materials question */}

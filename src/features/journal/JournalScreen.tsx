@@ -4,6 +4,7 @@ import {
   Button,
   ConfirmDialog,
   EmptyState,
+  Icon,
   InlineAlert,
   Skeleton,
   SuccessNotice,
@@ -117,7 +118,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
 
       {/* Privacy Callout Banner */}
       <aside className="journal-privacy-callout" role="note" aria-label="Privacy notice">
-        <span aria-hidden="true">🔒</span>
+        <Icon name="lock" size={16} />
         <span>
           <strong>Private by design.</strong> Only you can see these notes. They are never sent to external AI or shared.
         </span>

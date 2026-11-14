@@ -12,11 +12,11 @@ export type IconName =
   | "today" | "explore" | "milestones" | "journal" | "this-week"
   | "lock" | "check" | "clock" | "info" | "sparkle"
   | "chevron-down" | "chevron-right" | "close" | "plus" | "wifi-off"
-  | "eye" | "eye-off";
+  | "eye" | "eye-off" | "sun" | "cloud-rain" | "book";
 
 type IconProps = {
   name: IconName;
-  size?: 16 | 20 | 24;
+  size?: 14 | 16 | 18 | 20 | 24 | 32;
   /** Give a label only when the icon is the sole content of a control; otherwise it is decorative. */
   label?: string;
   className?: string;
