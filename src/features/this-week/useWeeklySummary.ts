@@ -14,11 +14,16 @@ export function useWeeklySummary(childId: string, query?: WeeklySummaryQuery): W
   const [status, setStatus] = useState<WeeklySummaryState["status"]>("loading");
   const [attempt, setAttempt] = useState(0);
 
-  const startDate = query?.startDate;
+  const queryWeek = query?.week;
+  const queryStartDate = query?.startDate;
 
   useEffect(() => {
     let current = true;
-    getWeeklySummary(childId, startDate ? { startDate } : undefined).then(
+    setStatus("loading");
+    getWeeklySummary(
+      childId,
+      queryWeek ? { week: queryWeek } : queryStartDate ? { startDate: queryStartDate } : undefined
+    ).then(
       (data) => {
         if (!current) return;
         setSummary(data);
@@ -31,7 +36,7 @@ export function useWeeklySummary(childId: string, query?: WeeklySummaryQuery): W
     return () => {
       current = false;
     };
-  }, [childId, startDate, attempt]);
+  }, [childId, queryWeek, queryStartDate, attempt]);
 
   const reload = useCallback(() => {
     setStatus("loading");

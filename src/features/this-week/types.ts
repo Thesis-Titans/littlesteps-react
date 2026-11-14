@@ -19,6 +19,7 @@ export interface WeeklySummary {
 }
 
 export interface WeeklySummaryQuery {
+  week?: string;
   startDate?: string;
 }
 

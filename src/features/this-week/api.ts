@@ -9,7 +9,11 @@ export async function getWeeklySummary(
   query?: WeeklySummaryQuery
 ): Promise<WeeklySummary> {
   const params = new URLSearchParams();
-  if (query?.startDate) params.set("startDate", query.startDate);
+  if (query?.week) {
+    params.set("week", query.week);
+  } else if (query?.startDate) {
+    params.set("startDate", query.startDate);
+  }
   const qs = params.toString();
   const response = await apiFetch(`${summaryPath(childId)}${qs ? `?${qs}` : ""}`);
   return (await response.json()) as WeeklySummary;

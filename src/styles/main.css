@@ -6,6 +6,7 @@
 @import "./ai.css";
 @import "./milestones.css";
 @import "./journal.css";
+@import "./this-week.css";
 
 :root {
   font-family: var(--font-family-ui);
