@@ -42,7 +42,11 @@ export function TodayScreen() {
 
   return (
     <section className="screen today-screen" aria-labelledby="today-title">
-      <ScreenHeader id="today-title" title="Today" />
+      <ScreenHeader
+        id="today-title"
+        title="Today"
+        subtitle={activeChild ? `${getTimeGreeting()}! Here's ${activeChild.nickname}'s play plan for today.` : "Your plan for today."}
+      />
       {showAdvisory ? (
         <NonDiagnosticNotice action={<Button variant="secondary" onClick={hideAdvisory}>Hide this notice</Button>} />
       ) : (
@@ -54,7 +58,6 @@ export function TodayScreen() {
           key={activeChild.id}
           childId={activeChild.id}
           nickname={activeChild.nickname}
-          ageBand={activeChild.ageBand}
         />
       )}
     </section>
@@ -64,11 +67,9 @@ export function TodayScreen() {
 function TodayPlan({
   childId,
   nickname,
-  ageBand,
 }: {
   childId: string;
   nickname: string;
-  ageBand: string;
 }) {
   const [today, setToday] = useState(localDate);
   const { load, reload, busyIds, settled, problem, toast, markComplete, undo, closeToast } = useToday(childId, today);
@@ -149,16 +150,6 @@ function TodayPlan({
       <div className="today-grid">
         {/* Main Column */}
         <div className="today-main-col">
-          {/* Hero Greeting in Main Column */}
-          <header className="today-hero">
-            <h2 className="today-hero-title">
-              {getTimeGreeting()}!
-            </h2>
-            <p className="today-hero-sub">
-              Today's plan for {nickname} &middot; {ageBand}
-            </p>
-          </header>
-
           {problem && (
             <div className="plan-problem">
               <InlineAlert
@@ -170,9 +161,9 @@ function TodayPlan({
           )}
 
           <section className="plan-section" aria-labelledby="plan-heading">
-            <h3 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
+            <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
               {nickname}'s plan for today
-            </h3>
+            </h2>
             {plans.length > 0 && (
               <div className="plan-filters" role="group" aria-label="Quick filters">
                 {QUICK_FILTERS.map((f) => (

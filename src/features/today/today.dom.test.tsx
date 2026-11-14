@@ -304,8 +304,8 @@ describe("PlanActivityDialog", () => {
     stubLists([]);
     renderToday();
 
-    expect(await screen.findByRole("heading", { name: /Good (morning|afternoon|evening)!/i })).toBeTruthy();
-    expect(screen.getByText(/Today's plan for Maya · 12-23m/i)).toBeTruthy();
+    expect(await screen.findByText(/Good (morning|afternoon|evening)!/i)).toBeTruthy();
+    expect(screen.getByText(/Here's Maya's play plan for today/i)).toBeTruthy();
 
     // Side widgets (react #45)
     expect(screen.getByRole("heading", { name: "Need a quick idea?" })).toBeTruthy();
