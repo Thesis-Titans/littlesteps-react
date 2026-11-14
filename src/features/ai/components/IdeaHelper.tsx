@@ -10,7 +10,7 @@ import {
   TextField,
 } from "../../../components/common";
 import { ageBandLabel, type AgeBand } from "../../children/types";
-import { DOMAIN_LABELS, DOMAINS, SETTING_LABELS, type Domain, type Setting } from "../../catalog/types";
+import { DOMAIN_LABELS, DOMAINS, SETTING_LABELS, type CatalogActivity, type Domain, type Setting } from "../../catalog/types";
 import { failureKind } from "../../../services/offline";
 import { ApiError, buildDeterministicFallback, getAiRecommendations } from "../api";
 import type { RecommendationRequest, RecommendationResponse } from "../types";
@@ -19,13 +19,14 @@ type IdeaHelperProps = {
   ageBand: AgeBand;
   childNickname?: string;
   onSelectActivity?: (activityId: string) => void;
+  onPlanActivity?: (activity: CatalogActivity) => void;
 };
 
 type ViewState = "form" | "loading" | "results" | "unauthorized";
 
 const TIME_CHOICES = [10, 15, 30, 45] as const;
 
-export function IdeaHelper({ ageBand, childNickname, onSelectActivity }: IdeaHelperProps) {
+export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanActivity }: IdeaHelperProps) {
   const [viewState, setViewState] = useState<ViewState>("form");
   const [timeMinutes, setTimeMinutes] = useState<number>(15);
   const [setting, setSetting] = useState<Setting>("either");
@@ -278,14 +279,24 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity }: IdeaHel
                   </ol>
                 </div>
 
-                {onSelectActivity && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => onSelectActivity(suggestion.activityId)}
-                  >
-                    View in catalog
-                  </Button>
-                )}
+                <div className="idea-suggestion-actions" style={{ display: "flex", gap: "var(--space-8)", marginTop: "var(--space-12)" }}>
+                  {onPlanActivity && (
+                    <Button
+                      variant="primary"
+                      onClick={() => onPlanActivity(suggestion.activity)}
+                    >
+                      Add to plan
+                    </Button>
+                  )}
+                  {onSelectActivity && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => onSelectActivity(suggestion.activityId)}
+                    >
+                      View in catalog
+                    </Button>
+                  )}
+                </div>
               </article>
             ))}
           </div>

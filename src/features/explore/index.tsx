@@ -32,6 +32,7 @@ export function ExploreScreen() {
       <IdeaHelper
         ageBand={ageBand}
         childNickname={nickname}
+        onPlanActivity={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
       />
 
       {/* Age-aware catalog browser */}
