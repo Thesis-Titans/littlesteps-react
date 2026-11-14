@@ -79,7 +79,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
       });
       setContent("");
       setNotice("Note saved to journal.");
-    } catch (err: unknown) {
+    } catch {
       const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
       if (isOffline) {
         setSubmitError("You're offline. Your note wasn't saved.");
@@ -98,7 +98,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
       await removeEntry(deletingEntry.id);
       setNotice("Note deleted.");
       setDeletingEntry(null);
-    } catch (err) {
+    } catch {
       setSubmitError("Could not delete this note. Please check your connection.");
     } finally {
       setIsDeleting(false);
@@ -269,8 +269,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
         <div className="journal-feed" aria-busy="true" aria-label="Loading journal notes">
           {Array.from({ length: 3 }).map((_, idx) => (
             <div key={idx} className="journal-card">
-              <Skeleton height="24px" width="40%" />
-              <Skeleton height="60px" width="100%" />
+              <Skeleton kind="card" label="Loading journal note…" />
             </div>
           ))}
         </div>

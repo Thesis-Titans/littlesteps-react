@@ -74,19 +74,12 @@ export function useWeather() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!cityName) {
-      setWeather(null);
-      return;
-    }
+    if (!cityName) return;
 
     const cityLoc = PHILIPPINES_CITIES.find((c) => c.name.toLowerCase() === cityName.toLowerCase());
-    if (!cityLoc) {
-      setWeather(null);
-      return;
-    }
+    if (!cityLoc) return;
 
     let current = true;
-    setLoading(true);
 
     fetchWeather(cityLoc)
       .then((data) => {
@@ -108,6 +101,7 @@ export function useWeather() {
   function updateCity(newCity: string) {
     saveCity(newCity);
     setCityName(newCity);
+    if (!newCity) setWeather(null);
   }
 
   return { cityName, updateCity, weather, loading };

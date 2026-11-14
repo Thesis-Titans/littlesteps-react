@@ -27,12 +27,14 @@ export interface BookItem {
 
 export interface BooksResponse {
   subject: string;
-  totalCount: number;
+  totalCount?: number;
   books: BookItem[];
-  provenance: {
+  provenance?: {
     source: string;
     license?: string;
   };
+  source?: string;
+  count?: number;
 }
 
 export const DOMAINS = ["cognitive", "motor", "language", "socioEmotional"] as const;

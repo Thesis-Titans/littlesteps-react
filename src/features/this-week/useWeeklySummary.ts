@@ -19,7 +19,6 @@ export function useWeeklySummary(childId: string, query?: WeeklySummaryQuery): W
 
   useEffect(() => {
     let current = true;
-    setStatus("loading");
     getWeeklySummary(
       childId,
       queryWeek ? { week: queryWeek } : queryStartDate ? { startDate: queryStartDate } : undefined

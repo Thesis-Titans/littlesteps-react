@@ -26,8 +26,6 @@ export function StorybooksSection() {
 
   useEffect(() => {
     let current = true;
-    setStatus("loading");
-    setErrorMessage(null);
 
     fetchBooks(selectedSubject)
       .then((data) => {
@@ -109,11 +107,7 @@ export function StorybooksSection() {
         <div className="storybooks-grid" aria-busy="true" aria-label="Loading storybooks">
           {Array.from({ length: 4 }).map((_, idx) => (
             <Card key={idx} as="div" className="storybook-card">
-              <Skeleton height="180px" />
-              <div style={{ marginTop: "var(--space-12)", display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
-                <Skeleton height="20px" width="75%" />
-                <Skeleton height="16px" width="50%" />
-              </div>
+              <Skeleton kind="card" label="Loading storybooks…" />
             </Card>
           ))}
         </div>

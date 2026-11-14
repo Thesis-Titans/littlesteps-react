@@ -122,18 +122,14 @@ function ActiveChildThisWeek({
         <div aria-busy="true" aria-label="Loading weekly summary" style={{ width: "100%", display: "flex", flexDirection: "column", gap: "var(--space-16)" }}>
           <div className="this-week-stats-grid">
             <Card as="div" className="this-week-stat-card">
-              <Skeleton height="36px" width="60px" />
-              <Skeleton height="20px" width="140px" />
+              <Skeleton kind="card" label="Loading completed activities…" />
             </Card>
             <Card as="div" className="this-week-stat-card">
-              <Skeleton height="36px" width="60px" />
-              <Skeleton height="20px" width="140px" />
+              <Skeleton kind="card" label="Loading milestones noticed…" />
             </Card>
           </div>
           <Card as="div" className="this-week-domains-card">
-            <Skeleton height="24px" width="180px" />
-            <Skeleton height="60px" width="100%" />
-            <Skeleton height="60px" width="100%" />
+            <Skeleton kind="card" label="Loading everyday play areas…" />
           </Card>
         </div>
       )}
