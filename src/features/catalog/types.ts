@@ -21,8 +21,10 @@ export interface BookItem {
   id: string;
   title: string;
   authors: string[];
+  firstPublishYear?: number;
   coverUrl: string | null;
   subjects: string[];
+  source?: string;
 }
 
 export interface BooksResponse {

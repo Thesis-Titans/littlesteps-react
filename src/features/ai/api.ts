@@ -1,6 +1,13 @@
 import { ApiError, apiFetch } from "../../services/api";
 import { filterFallbackActivities } from "../catalog/api";
-import type { RecommendationRequest, RecommendationResponse } from "./types";
+import type {
+  RecommendationRequest,
+  RecommendationResponse,
+  StoryActivityRequest,
+  StoryActivityResponse,
+  ChatRequest,
+  ChatResponse
+} from "./types";
 
 export async function getAiRecommendations(
   request: RecommendationRequest
@@ -59,6 +66,36 @@ export function buildDeterministicFallback(
       reviewed: true,
     },
   };
+}
+
+export async function fetchStoryActivity(
+  request: StoryActivityRequest
+): Promise<StoryActivityResponse> {
+  const response = await apiFetch("/api/v1/ai/story-activity", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      bookTitle: request.bookTitle,
+      subjects: request.subjects ?? [],
+      ageBand: request.ageBand,
+    }),
+  });
+  return (await response.json()) as StoryActivityResponse;
+}
+
+export async function sendAiChat(
+  request: ChatRequest
+): Promise<ChatResponse> {
+  const response = await apiFetch("/api/v1/ai/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: request.message,
+      ageBand: request.ageBand,
+      childNickname: request.childNickname,
+    }),
+  });
+  return (await response.json()) as ChatResponse;
 }
 
 export { ApiError };

@@ -34,3 +34,53 @@ export interface RecommendationResponse {
   provenance: Provenance;
   reason?: "NO_REVIEWED_CONTENT";
 }
+
+export interface StoryActivityRequest {
+  bookTitle: string;
+  subjects?: string[];
+  ageBand: AgeBand;
+}
+
+export interface StoryActivitySuggestion {
+  title: string;
+  domain: string;
+  instructions: string;
+  safetyNotice: string;
+}
+
+export interface StoryActivityResponse {
+  bookTitle: string;
+  suggestion: StoryActivitySuggestion;
+  provenance: {
+    tier: 1 | 2 | 3;
+    source: string;
+    badge: "Suggested by AI" | null;
+    disclaimer: string;
+  };
+}
+
+export interface ChatRequest {
+  message: string;
+  ageBand: AgeBand;
+  childNickname?: string;
+}
+
+export interface ChatActivitySuggestion {
+  title: string;
+  domain: string;
+  durationMinutes: number;
+  instructions: string;
+  materials: string[];
+  safetyNotice: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  suggestedActivity: ChatActivitySuggestion | null;
+  provenance: {
+    tier: 1 | 2 | 3;
+    source: string;
+    badge: "Suggested by AI" | null;
+    disclaimer: string;
+  };
+}
