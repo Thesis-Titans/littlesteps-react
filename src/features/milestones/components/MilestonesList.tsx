@@ -123,7 +123,7 @@ export function MilestonesList({ child }: { child: Child }) {
               <p>This saves one moment from one day. It isn&apos;t a test.</p>
             </div>
             <div style={{ borderTop: "1px solid var(--color-border-subtle)", paddingTop: "var(--space-12)" }}>
-              <p style={{ margin: 0, font: "var(--font-meta)", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "var(--space-6)" }}>
+              <p style={{ margin: 0, font: "var(--font-meta)", color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: "var(--space-8)" }}>
                 <Icon name="lock" size={14} />
                 <span><strong>Private observations.</strong> Only you can see notes you record here.</span>
               </p>

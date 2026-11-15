@@ -488,7 +488,7 @@ export function StorybooksSection({
             </p>
 
             {storyLoading ? (
-              <div style={{ padding: "var(--space-20)", textAlign: "center" }}>
+              <div style={{ padding: "var(--space-24)", textAlign: "center" }}>
                 <p>Generating personalized play companion with AI…</p>
               </div>
             ) : (

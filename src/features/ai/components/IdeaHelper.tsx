@@ -281,7 +281,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
                   </ol>
                 </div>
 
-                <div className="idea-suggestion-actions" style={{ display: "flex", gap: "var(--space-8)", marginTop: "var(--space-12)" }}>
+                <div className="idea-suggestion-actions">
                   {onPlanActivity && (
                     <Button
                       variant="primary"
