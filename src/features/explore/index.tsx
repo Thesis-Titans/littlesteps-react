@@ -7,11 +7,9 @@ import { useChild } from "../children/useChild";
 import { formatDate } from "../today/logic";
 import { PlanActivityDialog } from "../today";
 import { StorybooksSection } from "./components/StorybooksSection";
-import { PlayAssistantDrawer } from "./components/PlayAssistantDrawer";
+export { StorybooksSection };
 
-export { StorybooksSection, PlayAssistantDrawer };
-
-/** Explore screen: Learning catalog browsing, AI idea helper, conversational play assistant, and storybooks */
+/** Explore screen: Learning catalog browsing, AI idea helper, and storybooks */
 export function ExploreScreen() {
   const { activeChild } = useChild();
   const ageBand = activeChild?.ageBand ?? "12-23m";
@@ -34,13 +32,6 @@ export function ExploreScreen() {
         ageBand={ageBand}
         childNickname={nickname}
         onPlanActivity={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
-      />
-
-      {/* Conversational Play Assistant */}
-      <PlayAssistantDrawer
-        ageBand={ageBand}
-        childNickname={nickname}
-        onPlan={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
       />
 
       {/* Age-aware catalog browser */}

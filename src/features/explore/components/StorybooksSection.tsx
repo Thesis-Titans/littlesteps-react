@@ -26,15 +26,18 @@ import type { AgeBand } from "../../children/types";
 
 export interface StorybooksSectionProps {
   onPlan?: (activity: CatalogActivity) => void;
+  onPlanActivity?: (activity: CatalogActivity) => void;
   ageBand?: AgeBand;
   childNickname?: string;
 }
 
 export function StorybooksSection({
   onPlan,
+  onPlanActivity,
   ageBand = "12-23m",
   childNickname,
 }: StorybooksSectionProps) {
+  const planCallback = onPlanActivity ?? onPlan;
   const [activeTab, setActiveTab] = useState<"books" | "rhymes">("books");
   const [selectedSubject, setSelectedSubject] = useState<BookSubject>("picture_books");
   const [books, setBooks] = useState<BookItem[]>([]);
@@ -154,7 +157,7 @@ export function StorybooksSection({
   };
 
   const handlePlanRhyme = (rhyme: PhilippineRhyme) => {
-    if (!onPlan) return;
+    if (!planCallback) return;
     const activity: CatalogActivity = {
       id: rhyme.id,
       title: `Sing: ${rhyme.title}`,
@@ -172,14 +175,14 @@ export function StorybooksSection({
         ...rhyme.lyrics.slice(0, 4),
       ],
       provenanceSource: "Traditional Philippine Nursery Rhyme & ECCD Play",
-      status: "reviewed_approved",
-      limitations: "Stay close and enjoy singing together at a natural pace.",
+      status: "synthetic_fixture",
+      limitations: "Provisional Academic Reference — Pending Review. Educational prompt only; not a clinical milestone.",
     };
-    onPlan(activity);
+    planCallback(activity);
   };
 
   const handlePlanStorybook = () => {
-    if (!onPlan || !activeBook) return;
+    if (!planCallback || !activeBook) return;
     const ideaTitle = storyIdea?.title ?? `Story & Play: ${activeBook.title}`;
     const matchedDomain: Domain =
       typeof storyIdea?.domain === "string" && (DOMAINS as readonly string[]).includes(storyIdea.domain)
@@ -206,7 +209,7 @@ export function StorybooksSection({
     };
     setActiveBook(null);
     setStoryIdea(null);
-    onPlan(activity);
+    planCallback(activity);
   };
 
   return (
@@ -220,7 +223,7 @@ export function StorybooksSection({
         </p>
 
         {/* Tab Switcher: Open Library vs Philippine Rhymes */}
-        <div className="storybooks-tabs" role="tablist" aria-label="Stories and Rhymes" style={{ display: "flex", gap: "var(--space-8)", marginTop: "var(--space-12)" }}>
+        <div className="storybooks-tabs" role="tablist" aria-label="Stories and Rhymes" style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-8)", marginTop: "var(--space-12)" }}>
           <Button
             variant={activeTab === "books" ? "primary" : "secondary"}
             onClick={() => setActiveTab("books")}
@@ -249,6 +252,11 @@ export function StorybooksSection({
             </p>
           </div>
 
+          {/* Visible Provenance & Non-Diagnostic Notice */}
+          <InlineAlert kind="info" title="Provisional Academic Reference — Pending Review">
+            <p>Educational prompt only; not a clinical milestone. Traditional cultural songs awaiting subject-matter adviser review.</p>
+          </InlineAlert>
+
           <div className="storybooks-grid">
             {PHILIPPINE_RHYMES.map((rhyme) => (
               <Card key={rhyme.id} as="article" className="storybook-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
@@ -257,6 +265,11 @@ export function StorybooksSection({
                     <span className="storybook-subject-tag">{rhyme.domainLabel}</span>
                     <span style={{ font: "var(--font-meta)", color: "var(--color-text-secondary)" }}>{rhyme.durationMinutes} mins</span>
                   </div>
+
+                  <div style={{ marginBottom: "var(--space-8)" }}>
+                    <Badge kind="source">Provisional Academic Reference — Pending Review</Badge>
+                  </div>
+
                   <h3 className="storybook-title" style={{ marginBottom: "var(--space-4)" }}>{rhyme.title}</h3>
                   <p className="storybook-author" style={{ marginBottom: "var(--space-12)" }}>{rhyme.subtitle}</p>
 
@@ -272,7 +285,7 @@ export function StorybooksSection({
                 </div>
 
                 <div style={{ padding: "var(--space-16)", paddingTop: 0, marginTop: "auto" }}>
-                  {onPlan && (
+                  {planCallback && (
                     <Button
                       variant="secondary"
                       style={{ width: "100%" }}
@@ -498,7 +511,7 @@ export function StorybooksSection({
             </p>
           </div>
 
-          <div className="ls-dialog-actions" style={{ display: "flex", gap: "var(--space-8)", justifyContent: "flex-end" }}>
+          <div className="ls-dialog-actions" style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-8)", justifyContent: "flex-end" }}>
             <Button
               variant="secondary"
               onClick={() => {
@@ -508,7 +521,7 @@ export function StorybooksSection({
             >
               Done
             </Button>
-            {onPlan && (
+            {planCallback && (
               <Button
                 variant="primary"
                 onClick={handlePlanStorybook}

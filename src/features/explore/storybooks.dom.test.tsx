@@ -154,6 +154,7 @@ describe("StorybooksSection", () => {
     expect(
       screen.getByRole("heading", { name: "Play idea for The Very Hungry Caterpillar", level: 2 })
     ).toBeTruthy();
+    expect(screen.getByText("Suggested by AI")).toBeTruthy();
 
     await waitFor(() => {
       expect(screen.getByText("Sock Caterpillar Puppet Play")).toBeTruthy();
@@ -166,7 +167,7 @@ describe("StorybooksSection", () => {
     expect(onPlanSpy).toHaveBeenCalledTimes(1);
     expect(onPlanSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: expect.stringMatching(/^[a-z0-9-]+$/),
+        id: expect.stringMatching(/^story-[a-z0-9-]+$/),
         title: "Sock Caterpillar Puppet Play",
         type: "story",
         ageBand: "12-23m",
@@ -219,7 +220,7 @@ describe("StorybooksSection", () => {
     });
   });
 
-  it("switches to Philippine nursery rhymes tab and plans rhyme play", async () => {
+  it("switches to Philippine nursery rhymes tab and plans rhyme play with pending review status", async () => {
     vi.spyOn(catalogApi, "fetchBooks").mockResolvedValueOnce({
       subject: "picture_books",
       books: mockBooks,
@@ -233,8 +234,13 @@ describe("StorybooksSection", () => {
     const rhymesTab = screen.getByRole("tab", { name: /Read & Sing Together/i });
     fireEvent.click(rhymesTab);
 
+    // Verify headings
     expect(screen.getByRole("heading", { name: "Bahay Kubo", level: 3 })).toBeTruthy();
     expect(screen.getByRole("heading", { name: /Tong.*Pakitong-kitong/i, level: 3 })).toBeTruthy();
+
+    // Verify visible pending review provenance notice and badge
+    expect(screen.getAllByText(/Provisional Academic Reference — Pending Review/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Educational prompt only; not a clinical milestone/i)).toBeTruthy();
 
     const planButtons = screen.getAllByRole("button", { name: "Add to today's plan" });
     fireEvent.click(planButtons[0]);
@@ -242,9 +248,40 @@ describe("StorybooksSection", () => {
     expect(onPlanSpy).toHaveBeenCalledTimes(1);
     expect(onPlanSpy).toHaveBeenCalledWith(
       expect.objectContaining({
+        id: "rhyme-bahay-kubo",
         title: "Sing: Bahay Kubo",
         type: "rhyme",
+        language: "fil",
         domain: "cognitive",
+        status: "synthetic_fixture",
+        limitations: "Provisional Academic Reference — Pending Review. Educational prompt only; not a clinical milestone.",
+      })
+    );
+  });
+
+  it("plans rhyme activity using onPlanActivity callback alias", async () => {
+    vi.spyOn(catalogApi, "fetchBooks").mockResolvedValueOnce({
+      subject: "picture_books",
+      books: mockBooks,
+      source: "Open Library",
+      count: 2,
+    });
+
+    const onPlanActivitySpy = vi.fn();
+    render(<StorybooksSection onPlanActivity={onPlanActivitySpy} ageBand="12-23m" childNickname="Maya" />);
+
+    const rhymesTab = screen.getByRole("tab", { name: /Read & Sing Together/i });
+    fireEvent.click(rhymesTab);
+
+    const planButtons = screen.getAllByRole("button", { name: "Add to today's plan" });
+    fireEvent.click(planButtons[0]);
+
+    expect(onPlanActivitySpy).toHaveBeenCalledTimes(1);
+    expect(onPlanActivitySpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "rhyme-bahay-kubo",
+        status: "synthetic_fixture",
+        limitations: "Provisional Academic Reference — Pending Review. Educational prompt only; not a clinical milestone.",
       })
     );
   });

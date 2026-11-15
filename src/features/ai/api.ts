@@ -5,8 +5,6 @@ import type {
   RecommendationResponse,
   StoryActivityRequest,
   StoryActivityResponse,
-  ChatRequest,
-  ChatResponse
 } from "./types";
 
 export async function getAiRecommendations(
@@ -81,21 +79,6 @@ export async function fetchStoryActivity(
     }),
   });
   return (await response.json()) as StoryActivityResponse;
-}
-
-export async function sendAiChat(
-  request: ChatRequest
-): Promise<ChatResponse> {
-  const response = await apiFetch("/api/v1/ai/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: request.message,
-      ageBand: request.ageBand,
-      childNickname: request.childNickname,
-    }),
-  });
-  return (await response.json()) as ChatResponse;
 }
 
 export { ApiError };
