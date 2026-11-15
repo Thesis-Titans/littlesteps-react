@@ -7,7 +7,6 @@ import { useChild } from "../children/useChild";
 import { formatDate } from "../today/logic";
 import { PlanActivityDialog } from "../today";
 import { StorybooksSection } from "./components/StorybooksSection";
-
 export { StorybooksSection };
 
 /** Explore screen: Learning catalog browsing, AI idea helper, and storybooks */
@@ -42,8 +41,12 @@ export function ExploreScreen() {
         onPlan={activeChild ? (activity, opener) => setPlanning({ activity, opener }) : undefined}
       />
 
-      {/* Storybooks from Open Library (react #48) */}
-      <StorybooksSection />
+      {/* Storybooks from Open Library (react #48, ADR-010, ADR-013) */}
+      <StorybooksSection
+        onPlan={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
+        ageBand={ageBand}
+        childNickname={nickname}
+      />
 
       {activeChild && (
         <PlanActivityDialog

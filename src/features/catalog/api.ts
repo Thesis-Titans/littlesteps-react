@@ -17,6 +17,15 @@ export async function fetchBooks(
   return (await response.json()) as BooksResponse;
 }
 
+export async function searchBooks(
+  query: string,
+  limit = 10
+): Promise<BooksResponse> {
+  const params = new URLSearchParams({ q: query, limit: String(limit) });
+  const response = await apiFetch(`/api/v1/catalog/books/search?${params.toString()}`);
+  return (await response.json()) as BooksResponse;
+}
+
 export function filterFallbackBooks(subject: BookSubject = "picture_books"): BooksResponse {
   const matching = FALLBACK_BOOKS.filter(
     (b) => b.subjects.some((s) => s.toLowerCase().includes(subject.replace("_", " ")))
