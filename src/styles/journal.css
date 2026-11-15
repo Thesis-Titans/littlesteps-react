@@ -24,7 +24,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
-  padding: var(--space-20);
+  padding: var(--space-24);
   background: var(--color-surface-card);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card);
@@ -59,7 +59,7 @@
 .journal-form-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-8);
   flex: 1;
 }
 
@@ -70,7 +70,7 @@
 
 .journal-input {
   min-height: var(--size-touch-target-min);
-  padding: var(--space-12) var(--space-14);
+  padding: var(--space-12) var(--space-16);
   border: 1px solid var(--color-border-input);
   border-radius: var(--radius-control);
   background: var(--color-surface-card);
@@ -87,12 +87,12 @@
 .journal-textarea-wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-8);
 }
 
 .journal-textarea {
   min-height: 120px;
-  padding: var(--space-12) var(--space-14);
+  padding: var(--space-12) var(--space-16);
   border: 1px solid var(--color-border-input);
   border-radius: var(--radius-control);
   background: var(--color-surface-card);
@@ -172,7 +172,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
-  padding: var(--space-20);
+  padding: var(--space-24);
   background: var(--color-surface-card);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card);
