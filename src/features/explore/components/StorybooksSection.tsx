@@ -223,7 +223,7 @@ export function StorybooksSection({
         </p>
 
         {/* Tab Switcher: Open Library vs Philippine Rhymes */}
-        <div className="storybooks-tabs" role="tablist" aria-label="Stories and Rhymes" style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-8)", marginTop: "var(--space-12)" }}>
+        <div className="storybooks-tabs" role="tablist" aria-label="Stories and Rhymes">
           <Button
             variant={activeTab === "books" ? "primary" : "secondary"}
             onClick={() => setActiveTab("books")}
@@ -245,9 +245,9 @@ export function StorybooksSection({
 
       {activeTab === "rhymes" ? (
         /* Read & Sing Together: Philippine ECCD Action Rhymes */
-        <div className="philippine-rhymes-shelf" style={{ display: "flex", flexDirection: "column", gap: "var(--space-16)" }}>
-          <div className="rhymes-intro" style={{ background: "var(--color-surface-soft-green)", padding: "var(--space-12) var(--space-16)", borderRadius: "var(--radius-card)" }}>
-            <p style={{ margin: 0, font: "var(--font-body-small)", color: "var(--color-text-primary)" }}>
+        <div className="philippine-rhymes-shelf">
+          <div className="rhymes-intro">
+            <p>
               No physical book at home? Read, recite, and sing these classic Philippine nursery rhymes together with interactive action cues!
             </p>
           </div>
@@ -259,36 +259,36 @@ export function StorybooksSection({
 
           <div className="storybooks-grid">
             {PHILIPPINE_RHYMES.map((rhyme) => (
-              <Card key={rhyme.id} as="article" className="storybook-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div style={{ padding: "var(--space-16)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--space-8)" }}>
+              <Card key={rhyme.id} as="article" className="storybook-card rhyme-card">
+                <div className="rhyme-body">
+                  <div className="rhyme-meta">
                     <span className="storybook-subject-tag">{rhyme.domainLabel}</span>
-                    <span style={{ font: "var(--font-meta)", color: "var(--color-text-secondary)" }}>{rhyme.durationMinutes} mins</span>
+                    <span className="rhyme-duration">{rhyme.durationMinutes} mins</span>
                   </div>
 
-                  <div style={{ marginBottom: "var(--space-8)" }}>
+                  <div className="rhyme-badge">
                     <Badge kind="source">Provisional Academic Reference — Pending Review</Badge>
                   </div>
 
-                  <h3 className="storybook-title" style={{ marginBottom: "var(--space-4)" }}>{rhyme.title}</h3>
-                  <p className="storybook-author" style={{ marginBottom: "var(--space-12)" }}>{rhyme.subtitle}</p>
+                  <h3 className="storybook-title">{rhyme.title}</h3>
+                  <p className="storybook-author">{rhyme.subtitle}</p>
 
-                  <div style={{ background: "var(--color-brand-mist)", padding: "var(--space-12)", borderRadius: "var(--radius-control)", marginBottom: "var(--space-12)", fontStyle: "italic", fontSize: "0.9rem", lineHeight: "1.5" }}>
+                  <div className="rhyme-lyrics">
                     {rhyme.lyrics.map((line, idx) => (
                       <div key={idx}>{line}</div>
                     ))}
                   </div>
 
-                  <p style={{ font: "var(--font-body-small)", color: "var(--color-text-primary)", margin: 0 }}>
+                  <p className="rhyme-cue">
                     <strong>Action cue:</strong> {rhyme.actionPrompt}
                   </p>
                 </div>
 
-                <div style={{ padding: "var(--space-16)", paddingTop: 0, marginTop: "auto" }}>
+                <div className="rhyme-actions">
                   {planCallback && (
                     <Button
                       variant="secondary"
-                      style={{ width: "100%" }}
+                      fullWidth
                       onClick={() => handlePlanRhyme(rhyme)}
                     >
                       Add to today&apos;s plan
@@ -303,15 +303,14 @@ export function StorybooksSection({
         /* Open Library Books Shelf */
         <>
           {/* Live Search and Subject filter chips */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-12)" }}>
-            <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: "var(--space-8)", maxWidth: "480px" }}>
+          <div className="storybooks-search">
+            <form onSubmit={handleSearchSubmit} className="storybooks-search-form">
               <input
                 type="search"
-                className="ls-input"
+                className="ls-control storybooks-search-input"
                 placeholder="Search books you have at home..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ flex: 1, minHeight: "var(--size-touch-target-min)" }}
                 aria-label="Search storybooks by title or author"
               />
               <Button type="submit" variant="secondary">
@@ -488,7 +487,7 @@ export function StorybooksSection({
             </p>
 
             {storyLoading ? (
-              <div style={{ padding: "var(--space-24)", textAlign: "center" }}>
+              <div className="storybook-companion-loading">
                 <p>Generating personalized play companion with AI…</p>
               </div>
             ) : (
@@ -511,14 +510,13 @@ export function StorybooksSection({
             </p>
           </div>
 
-          <div className="ls-dialog-actions" style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-8)", justifyContent: "space-between", alignItems: "center" }}>
+          <div className="ls-dialog-actions storybook-dialog-actions">
             {activeBook.id ? (
               <a
                 href={`https://openlibrary.org/works/${activeBook.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ls-button ls-button-secondary"
-                style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "var(--space-8)" }}
+                className="ls-button ls-button-secondary storybook-borrow-link"
                 aria-label={`Read or borrow ${activeBook.title} on Open Library (opens in new tab)`}
               >
                 <Icon name="book" size={16} />
@@ -526,7 +524,7 @@ export function StorybooksSection({
                 <span aria-hidden="true">↗</span>
               </a>
             ) : <span />}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-8)" }}>
+            <div className="storybook-dialog-buttons">
               <Button
                 variant="secondary"
                 onClick={() => {

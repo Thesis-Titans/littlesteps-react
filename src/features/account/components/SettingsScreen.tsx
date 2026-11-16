@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Button, Card } from "../../../components/common";
+import { Button, Card, Select } from "../../../components/common";
 import { PHILIPPINES_CITIES, useWeather } from "../../../services/weather";
 import { useAuth } from "../../auth";
 import { AccountPage } from "./AccountPage";
@@ -56,26 +56,18 @@ function WeatherSettings() {
       <p className="account-note">
         Optional. Pick a nearby city to show gentle play hints like &ldquo;Rain likely this afternoon · Indoor ideas&rdquo;.
       </p>
-      <div className="account-action" style={{ marginTop: "var(--space-12)" }}>
-        <label htmlFor="settings-weather-city" className="catalog-filter-label" style={{ display: "block", marginBottom: "var(--space-4)" }}>
-          City
-        </label>
-        <select
-          id="settings-weather-city"
-          className="ls-select"
-          value={cityName}
-          onChange={(e) => updateCity(e.target.value)}
-          style={{ width: "100%", maxWidth: "320px", minHeight: "var(--size-touch-target-min)" }}
-        >
-          <option value="">Off (no weather hints)</option>
-          {PHILIPPINES_CITIES.map((c) => (
-            <option key={c.name} value={c.name}>{c.name}</option>
-          ))}
-        </select>
-        <p className="account-note" style={{ marginTop: "var(--space-8)" }}>
-          Weather data by Open-Meteo.com. No location data is stored beyond your chosen city.
-        </p>
-      </div>
+      {/* Shared Select: same label, chevron and focus ring as every other form field (react #51). */}
+      <Select
+        className="settings-weather-city"
+        label="City"
+        value={cityName}
+        onChange={(e) => updateCity(e.target.value)}
+        options={[
+          { value: "", label: "Off (no weather hints)" },
+          ...PHILIPPINES_CITIES.map((c) => ({ value: c.name, label: c.name })),
+        ]}
+        hint="Weather data by Open-Meteo.com. No location data is stored beyond your chosen city."
+      />
     </Card>
   );
 }
