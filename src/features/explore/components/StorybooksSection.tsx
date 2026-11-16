@@ -511,24 +511,40 @@ export function StorybooksSection({
             </p>
           </div>
 
-          <div className="ls-dialog-actions" style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-8)", justifyContent: "flex-end" }}>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setActiveBook(null);
-                setStoryIdea(null);
-              }}
-            >
-              Done
-            </Button>
-            {planCallback && (
-              <Button
-                variant="primary"
-                onClick={handlePlanStorybook}
+          <div className="ls-dialog-actions" style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-8)", justifyContent: "space-between", alignItems: "center" }}>
+            {activeBook.id ? (
+              <a
+                href={`https://openlibrary.org/works/${activeBook.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ls-button ls-button-secondary"
+                style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "var(--space-8)" }}
+                aria-label={`Read or borrow ${activeBook.title} on Open Library (opens in new tab)`}
               >
-                Add to today&apos;s plan
+                <Icon name="book" size={16} />
+                <span>Read or borrow</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            ) : <span />}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-8)" }}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setActiveBook(null);
+                  setStoryIdea(null);
+                }}
+              >
+                Done
               </Button>
-            )}
+              {planCallback && (
+                <Button
+                  variant="primary"
+                  onClick={handlePlanStorybook}
+                >
+                  Add to today&apos;s plan
+                </Button>
+              )}
+            </div>
           </div>
         </dialog>
       )}
