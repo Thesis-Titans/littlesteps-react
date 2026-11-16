@@ -12,7 +12,7 @@ export type IconName =
   | "today" | "explore" | "milestones" | "journal" | "this-week"
   | "lock" | "check" | "clock" | "info" | "sparkle"
   | "chevron-down" | "chevron-right" | "close" | "plus" | "wifi-off"
-  | "eye" | "eye-off" | "sun" | "cloud-rain" | "book";
+  | "eye" | "eye-off" | "sun" | "cloud-rain" | "book" | "user";
 
 type IconProps = {
   name: IconName;
