@@ -161,6 +161,12 @@ describe("StorybooksSection", () => {
       expect(screen.getByText(/Always stay close during play/i)).toBeTruthy();
     });
 
+    const borrowLink = screen.getByRole("link", { name: /Read or borrow The Very Hungry Caterpillar on Open Library/i });
+    expect(borrowLink).toBeTruthy();
+    expect(borrowLink.getAttribute("href")).toBe("https://openlibrary.org/works/OL1");
+    expect(borrowLink.getAttribute("target")).toBe("_blank");
+    expect(borrowLink.getAttribute("rel")).toBe("noopener noreferrer");
+
     const addToPlanBtn = screen.getByRole("button", { name: "Add to today's plan" });
     fireEvent.click(addToPlanBtn);
 
