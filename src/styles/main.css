@@ -113,7 +113,7 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: calc(var(
 .shell-logo.logo-horizontal .logo-symbol { width: 36px; height: 36px; }
 .shell-logo.logo-horizontal .logo-name { font-size: 20px; }
 .shell-logo .logo-tagline { display: none; }
-.account-link { display: inline-flex; align-items: center; min-height: var(--size-touch-target-min); padding: 0 var(--space-12); border-radius: var(--radius-control); color: var(--color-text-brand); font: var(--font-label); text-decoration: none; }
+.account-link { display: inline-flex; align-items: center; gap: var(--space-8); min-height: var(--size-touch-target-min); padding: 0 var(--space-12); border-radius: var(--radius-control); color: var(--color-text-brand); font: var(--font-label); text-decoration: none; }
 .account-link[aria-current="page"] { background: var(--color-surface-soft-green); }
 
 .top-bar { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); height: var(--size-top-bar); padding: 0 var(--space-16); background: var(--color-surface-card); border-bottom: 1px solid var(--color-border-subtle); }
