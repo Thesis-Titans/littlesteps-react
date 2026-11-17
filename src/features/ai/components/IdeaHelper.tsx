@@ -113,7 +113,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
       <div className="idea-helper-header">
         <div className="idea-helper-title-row">
           <h2 id="idea-helper-heading" className="idea-helper-title">
-            Idea helper
+            Idea Helper
           </h2>
           {isAiSuggestion && <Badge kind="ai" />}
         </div>

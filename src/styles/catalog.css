@@ -635,6 +635,20 @@
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
+.storybook-play-dialog {
+  flex-direction: column;
+  width: min(560px, calc(100vw - 2 * var(--space-16)));
+  max-height: min(80dvh, 640px);
+  overflow: hidden;
+  padding: 0;
+}
+
+.storybook-play-dialog[open] { display: flex; }
+.storybook-play-dialog .storybook-dialog-header { flex: 0 0 auto; }
+.storybook-play-dialog .ls-dialog-title { margin: 0; }
+.storybook-play-dialog .storybook-dialog-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.storybook-play-dialog .ls-dialog-actions { flex: 0 0 auto; margin: 0; padding: var(--space-16) var(--space-24); border-top: 1px solid var(--color-border-subtle); }
+
 .storybook-dialog-body {
   display: flex;
   flex-direction: column;
@@ -717,12 +731,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-8);
-}
-
-.storybook-play-dialog {
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
 }
 
 /* Family Bookshelf (ADR-015) */

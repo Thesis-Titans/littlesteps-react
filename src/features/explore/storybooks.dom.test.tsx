@@ -29,6 +29,8 @@ const mockBooks = [
 describe("StorybooksSection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", ""); };
+    HTMLDialogElement.prototype.close = function () { this.removeAttribute("open"); };
   });
 
   afterEach(() => {
@@ -181,6 +183,19 @@ describe("StorybooksSection", () => {
       })
     );
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("opens the play idea as a native modal and closes it with Escape", async () => {
+    vi.spyOn(catalogApi, "fetchBooks").mockResolvedValueOnce({
+      subject: "picture_books", books: mockBooks, source: "Open Library", count: 2,
+    });
+    render(<StorybooksSection />);
+    await screen.findByText("The Very Hungry Caterpillar");
+    fireEvent.click(screen.getByRole("button", { name: "Get a play idea for The Very Hungry Caterpillar" }));
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.hasAttribute("open")).toBe(true);
+    fireEvent(dialog, new Event("cancel", { bubbles: false, cancelable: true }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
   it("searches books via live Open Library search", async () => {

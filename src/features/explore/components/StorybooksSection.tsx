@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Badge,
   Button,
@@ -73,6 +73,14 @@ export function StorybooksSection({
     safetyNotice: string;
     badge?: string | null;
   } | null>(null);
+  const playDialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = playDialogRef.current;
+    if (!dialog) return;
+    if (activeBook && !dialog.open) dialog.showModal();
+    if (!activeBook && dialog.open) dialog.close();
+  }, [activeBook]);
 
   useEffect(() => {
     if (activeSearch) return; // Active search overrides subject selection
@@ -276,6 +284,7 @@ export function StorybooksSection({
       status: "reviewed_approved",
       limitations: storyIdea?.safetyNotice ?? "Ensure adult supervision during shared reading.",
     };
+    playDialogRef.current?.close();
     setActiveBook(null);
     setStoryIdea(null);
     planCallback(activity);
@@ -696,18 +705,19 @@ export function StorybooksSection({
         </>
       )}
 
-      {/* Play Idea Dialog with Closed-Loop Planning (ADR-013, ADR-015) */}
-      {activeBook && (
-        <dialog
-          className="ls-dialog storybook-play-dialog"
-          open
-          aria-labelledby="book-dialog-title"
-          onCancel={(e) => {
-            e.preventDefault();
-            setActiveBook(null);
-            setStoryIdea(null);
-          }}
-        >
+      {/* Play Idea Dialog with Closed-Loop Planning */}
+      <dialog
+        ref={playDialogRef}
+        className="ls-dialog storybook-play-dialog"
+        aria-labelledby="book-dialog-title"
+        onCancel={(e) => {
+          e.preventDefault();
+          setActiveBook(null);
+          setStoryIdea(null);
+        }}
+      >
+        {activeBook && (
+          <>
           <div className="storybook-dialog-header">
             <h2 id="book-dialog-title" className="ls-dialog-title">
               Play idea for {activeBook.title}
@@ -762,6 +772,7 @@ export function StorybooksSection({
               <Button
                 variant="secondary"
                 onClick={() => {
+                  playDialogRef.current?.close();
                   setActiveBook(null);
                   setStoryIdea(null);
                 }}
@@ -778,8 +789,9 @@ export function StorybooksSection({
               )}
             </div>
           </div>
-        </dialog>
-      )}
+          </>
+        )}
+      </dialog>
     </section>
   );
 }
