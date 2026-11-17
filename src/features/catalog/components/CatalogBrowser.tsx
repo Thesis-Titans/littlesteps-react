@@ -18,12 +18,13 @@ import { ActivityDetailModal } from "./ActivityDetailModal";
 type CatalogBrowserProps = {
   initialAgeBand?: AgeBand;
   activeChildNickname?: string;
+  childAgeMonths?: number;
   /** Called with the activity when the caregiver chooses "Add to plan" in the detail view. */
   /** `opener` is the card's "View activity" button, for returning focus after the plan dialog closes. */
   onPlan?: (activity: CatalogActivity, opener: HTMLElement | null) => void;
 };
 
-export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: CatalogBrowserProps) {
+export function CatalogBrowser({ initialAgeBand, activeChildNickname, childAgeMonths, onPlan }: CatalogBrowserProps) {
   const [selectedAgeBand, setSelectedAgeBand] = useState<AgeBand | "all">(
     initialAgeBand ?? "all"
   );
@@ -277,6 +278,7 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, onPlan }: 
       {/* Detail Modal */}
       <ActivityDetailModal
         activity={selectedActivity}
+        childAgeMonths={childAgeMonths}
         onClose={() => setSelectedActivity(null)}
         onPlan={onPlan && ((activity) => { setSelectedActivity(null); onPlan(activity, cardButton.current); })}
       />

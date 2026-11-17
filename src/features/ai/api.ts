@@ -1,6 +1,8 @@
 import { ApiError, apiFetch } from "../../services/api";
 import { filterFallbackActivities } from "../catalog/api";
 import type {
+  AdaptActivityRequest,
+  AdaptActivityResponse,
   RecommendationRequest,
   RecommendationResponse,
   StoryActivityRequest,
@@ -79,6 +81,29 @@ export async function fetchStoryActivity(
     }),
   });
   return (await response.json()) as StoryActivityResponse;
+}
+
+export async function adaptActivity(
+  request: AdaptActivityRequest
+): Promise<AdaptActivityResponse> {
+  const payload: Record<string, unknown> = {
+    activityId: request.activityId,
+    adjustment: request.adjustment,
+  };
+  if (request.missingMaterial) {
+    payload.missingMaterial = request.missingMaterial.slice(0, 60);
+  }
+  if (request.ageBand) {
+    payload.ageBand = request.ageBand;
+  }
+
+  const response = await apiFetch("/api/v1/ai/adapt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  return (await response.json()) as AdaptActivityResponse;
 }
 
 export { ApiError };

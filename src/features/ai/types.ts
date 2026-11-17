@@ -59,4 +59,35 @@ export interface StoryActivityResponse {
   };
 }
 
+export type ActivityAdjustment = "shorter" | "easier" | "harder" | "missing_material";
+
+export interface AdaptActivityRequest {
+  activityId: string;
+  adjustment: ActivityAdjustment;
+  missingMaterial?: string;
+  ageBand?: string;
+}
+
+export interface AdaptedActivitySuggestion {
+  activityId: string;
+  originalTitle: string;
+  adaptedTitle: string;
+  adjustment: ActivityAdjustment;
+  instructions: string[];
+  materials: string[];
+  safetyNotice: string;
+  explanation: string;
+}
+
+export interface AdaptActivityResponse {
+  adapted: AdaptedActivitySuggestion;
+  source: "ai" | "fallback";
+  tier: 1 | 2;
+  provenance: {
+    badge: "Suggested by AI" | null;
+    disclaimer: string;
+    model: string | null;
+  };
+}
+
 

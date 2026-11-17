@@ -79,8 +79,36 @@
   gap: var(--space-4);
 }
 
+.idea-helper-materials-field {
+  max-width: 640px;
+}
+
+.idea-helper-weather-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  background: var(--color-surface-soft-green);
+  border-radius: var(--radius-control);
+  font: var(--font-body-small);
+  color: var(--color-brand-forest);
+  margin-bottom: var(--space-4);
+  align-self: flex-start;
+}
+
 .idea-helper-actions {
   margin-top: var(--space-8);
+}
+
+.idea-helper-submit-btn {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .idea-helper-submit-btn {
+    width: auto;
+    min-width: 220px;
+  }
 }
 
 /* Loading State */
