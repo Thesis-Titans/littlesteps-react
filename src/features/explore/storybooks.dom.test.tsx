@@ -291,4 +291,182 @@ describe("StorybooksSection", () => {
       })
     );
   });
+
+  describe("Family Bookshelf (ADR-015)", () => {
+    it("renders 3 shelf tabs and displays bookshelf empty state", async () => {
+      vi.spyOn(catalogApi, "fetchBooks").mockResolvedValueOnce({
+        subject: "picture_books",
+        books: mockBooks,
+        source: "Open Library",
+        count: 2,
+      });
+      vi.spyOn(catalogApi, "fetchSavedBooks").mockResolvedValueOnce({
+        books: [],
+        totalCount: 0,
+      });
+
+      render(<StorybooksSection childId="child-1" childNickname="Maya" />);
+
+      // Verify all 3 tabs are present
+      expect(screen.getByRole("tab", { name: "Books from Open Library" })).toBeTruthy();
+      expect(screen.getByRole("tab", { name: "Our Bookshelf" })).toBeTruthy();
+      expect(screen.getByRole("tab", { name: /Read & Sing Together/i })).toBeTruthy();
+
+      // Click on Our Bookshelf tab
+      const shelfTab = screen.getByRole("tab", { name: "Our Bookshelf" });
+      fireEvent.click(shelfTab);
+
+      // Verify Maya's bookshelf intro
+      expect(screen.getByRole("heading", { name: "Maya's Bookshelf", level: 3 })).toBeTruthy();
+      expect(screen.getByText(/Physical storybooks you have at home/i)).toBeTruthy();
+
+      // Verify empty state and search button
+      await waitFor(() => {
+        expect(screen.getByText("Your bookshelf is empty")).toBeTruthy();
+      });
+
+      const searchStorybooksBtn = screen.getByRole("button", { name: "Search storybooks" });
+      fireEvent.click(searchStorybooksBtn);
+
+      // Should switch back to books tab
+      expect(screen.getByPlaceholderText(/Search books you have at home/i)).toBeTruthy();
+    });
+
+    it("saves a book to the shelf and removes it", async () => {
+      vi.spyOn(catalogApi, "fetchBooks").mockResolvedValueOnce({
+        subject: "picture_books",
+        books: mockBooks,
+        source: "Open Library",
+        count: 2,
+      });
+      vi.spyOn(catalogApi, "fetchSavedBooks").mockResolvedValueOnce({
+        books: [],
+        totalCount: 0,
+      });
+      const saveSpy = vi.spyOn(catalogApi, "saveBookToShelf").mockResolvedValueOnce({
+        id: "OL1",
+        childId: "child-1",
+        title: "The Very Hungry Caterpillar",
+        authors: ["Eric Carle"],
+        coverUrl: "https://covers.openlibrary.org/b/id/1-M.jpg",
+        subjects: ["Animals", "Counting"],
+        createdAt: "2026-11-17T09:00:00Z",
+        updatedAt: "2026-11-17T09:00:00Z",
+      });
+      const removeSpy = vi.spyOn(catalogApi, "removeBookFromShelf").mockResolvedValueOnce();
+
+      render(<StorybooksSection childId="child-1" childNickname="Maya" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("The Very Hungry Caterpillar")).toBeTruthy();
+      });
+
+      // Find the Save button on the first book
+      const saveBtn = screen.getByRole("button", {
+        name: "Save The Very Hungry Caterpillar to your shelf",
+      });
+      expect(saveBtn).toBeTruthy();
+
+      fireEvent.click(saveBtn);
+
+      await waitFor(() => {
+        expect(saveSpy).toHaveBeenCalledWith("child-1", {
+          id: "OL1",
+          title: "The Very Hungry Caterpillar",
+          authors: ["Eric Carle"],
+          coverUrl: "https://covers.openlibrary.org/b/id/1-M.jpg",
+          subjects: ["Animals", "Counting"],
+        });
+      });
+
+      // Tab updates to show count (1)
+      expect(screen.getByRole("tab", { name: "Our Bookshelf (1)" })).toBeTruthy();
+
+      // Now click on Our Bookshelf tab
+      const shelfTab = screen.getByRole("tab", { name: "Our Bookshelf (1)" });
+      fireEvent.click(shelfTab);
+
+      // Verify book is on the shelf
+      expect(screen.getByRole("heading", { name: "The Very Hungry Caterpillar", level: 3 })).toBeTruthy();
+
+      // Click remove button from the shelf
+      const removeBtn = screen.getByRole("button", {
+        name: "Remove The Very Hungry Caterpillar from bookshelf",
+      });
+      fireEvent.click(removeBtn);
+
+      await waitFor(() => {
+        expect(removeSpy).toHaveBeenCalledWith("child-1", "OL1");
+        expect(screen.getByText("Your bookshelf is empty")).toBeTruthy();
+      });
+    });
+
+    it("opens play companion dialog from saved books on shelf", async () => {
+      vi.spyOn(catalogApi, "fetchBooks").mockResolvedValueOnce({
+        subject: "picture_books",
+        books: mockBooks,
+        source: "Open Library",
+        count: 2,
+      });
+      vi.spyOn(catalogApi, "fetchSavedBooks").mockResolvedValueOnce({
+        books: [
+          {
+            id: "OL2",
+            childId: "child-1",
+            title: "Goodnight Moon",
+            authors: ["Margaret Wise Brown"],
+            coverUrl: null,
+            subjects: ["Bedtime"],
+            createdAt: "2026-11-17T09:00:00Z",
+            updatedAt: "2026-11-17T09:00:00Z",
+          },
+        ],
+        totalCount: 1,
+      });
+      vi.spyOn(aiApi, "fetchStoryActivity").mockResolvedValueOnce({
+        bookTitle: "Goodnight Moon",
+        suggestion: {
+          title: "Whisper Goodnight to Toys",
+          domain: "language",
+          instructions: "Walk around the room saying gentle goodnights.",
+          safetyNotice: "Supervise toddler closely.",
+        },
+        provenance: {
+          tier: 1,
+          source: "Gemini",
+          badge: "Suggested by AI",
+          disclaimer: "Observational play suggestion only.",
+        },
+      });
+
+      const onPlanSpy = vi.fn();
+      render(<StorybooksSection childId="child-1" childNickname="Maya" onPlan={onPlanSpy} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("tab", { name: "Our Bookshelf (1)" })).toBeTruthy();
+      });
+
+      fireEvent.click(screen.getByRole("tab", { name: "Our Bookshelf (1)" }));
+
+      const playIdeaBtn = screen.getByRole("button", { name: "Get a play idea for Goodnight Moon" });
+      fireEvent.click(playIdeaBtn);
+
+      expect(screen.getByRole("dialog")).toBeTruthy();
+      expect(screen.getByRole("heading", { name: "Play idea for Goodnight Moon", level: 2 })).toBeTruthy();
+
+      await waitFor(() => {
+        expect(screen.getByText("Whisper Goodnight to Toys")).toBeTruthy();
+      });
+
+      const addBtn = screen.getByRole("button", { name: "Add to today's plan" });
+      fireEvent.click(addBtn);
+
+      expect(onPlanSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Whisper Goodnight to Toys",
+          type: "story",
+        })
+      );
+    });
+  });
 });

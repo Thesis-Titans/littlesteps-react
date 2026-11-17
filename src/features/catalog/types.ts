@@ -39,6 +39,22 @@ export interface BooksResponse {
   count?: number;
 }
 
+export interface SavedBook {
+  id: string;
+  childId: string;
+  title: string;
+  authors: string[];
+  coverUrl?: string | null;
+  subjects: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SavedBooksResponse {
+  books: SavedBook[];
+  totalCount: number;
+}
+
 export const DOMAINS = ["cognitive", "motor", "language", "socioEmotional"] as const;
 export type Domain = (typeof DOMAINS)[number];
 

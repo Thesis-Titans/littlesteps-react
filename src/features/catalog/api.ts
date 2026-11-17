@@ -6,6 +6,8 @@ import type {
   CatalogActivitiesQuery,
   CatalogActivitiesResponse,
   CatalogActivity,
+  SavedBook,
+  SavedBooksResponse,
 } from "./types";
 
 export async function fetchBooks(
@@ -59,6 +61,36 @@ export async function fetchCatalogActivities(
   const response = await apiFetch(path);
   const data = (await response.json()) as CatalogActivitiesResponse;
   return data;
+}
+
+export async function fetchSavedBooks(childId: string): Promise<SavedBooksResponse> {
+  const response = await apiFetch(`/api/v1/children/${childId}/books`);
+  return (await response.json()) as SavedBooksResponse;
+}
+
+export async function saveBookToShelf(
+  childId: string,
+  book: { id: string; title: string; authors?: string[]; coverUrl?: string | null; subjects?: string[] }
+): Promise<SavedBook> {
+  const payload = {
+    id: book.id,
+    title: book.title,
+    authors: book.authors ?? [],
+    ...(book.coverUrl ? { coverUrl: book.coverUrl } : {}),
+    subjects: book.subjects ?? [],
+  };
+  const response = await apiFetch(`/api/v1/children/${childId}/books`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return (await response.json()) as SavedBook;
+}
+
+export async function removeBookFromShelf(childId: string, bookId: string): Promise<void> {
+  await apiFetch(`/api/v1/children/${childId}/books/${bookId}`, {
+    method: "DELETE",
+  });
 }
 
 export async function fetchCatalogActivityById(id: string): Promise<CatalogActivity> {

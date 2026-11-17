@@ -17,14 +17,23 @@ import {
   type BookSubject,
   type CatalogActivity,
   type Domain,
+  type SavedBook,
 } from "../../catalog/types";
-import { fetchBooks, filterFallbackBooks, searchBooks } from "../../catalog/api";
+import {
+  fetchBooks,
+  fetchSavedBooks,
+  filterFallbackBooks,
+  removeBookFromShelf,
+  saveBookToShelf,
+  searchBooks,
+} from "../../catalog/api";
 import { fetchStoryActivity } from "../../ai/api";
 import { failureKind } from "../../../services/offline";
 import { PHILIPPINE_RHYMES, type PhilippineRhyme } from "../data/philippineRhymes";
 import type { AgeBand } from "../../children/types";
 
 export interface StorybooksSectionProps {
+  childId?: string;
   onPlan?: (activity: CatalogActivity) => void;
   onPlanActivity?: (activity: CatalogActivity) => void;
   ageBand?: AgeBand;
@@ -32,17 +41,23 @@ export interface StorybooksSectionProps {
 }
 
 export function StorybooksSection({
+  childId,
   onPlan,
   onPlanActivity,
   ageBand = "12-23m",
   childNickname,
 }: StorybooksSectionProps) {
   const planCallback = onPlanActivity ?? onPlan;
-  const [activeTab, setActiveTab] = useState<"books" | "rhymes">("books");
+  const [activeTab, setActiveTab] = useState<"books" | "shelf" | "rhymes">("books");
   const [selectedSubject, setSelectedSubject] = useState<BookSubject>("picture_books");
   const [books, setBooks] = useState<BookItem[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error" | "offline">("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Home Bookshelf state (ADR-015)
+  const [savedBooks, setSavedBooks] = useState<SavedBook[]>([]);
+  const [savedStatus, setSavedStatus] = useState<"idle" | "loading" | "ready" | "error">(childId ? "loading" : "idle");
+  const [savedActionError, setSavedActionError] = useState<string | null>(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -97,6 +112,60 @@ export function StorybooksSection({
       current = false;
     };
   }, [selectedSubject, activeSearch]);
+
+  // Load saved home storybooks when childId is present
+  useEffect(() => {
+    if (!childId) return;
+
+    let current = true;
+
+    fetchSavedBooks(childId)
+      .then((data) => {
+        if (!current) return;
+        setSavedBooks(data.books ?? []);
+        setSavedStatus("ready");
+      })
+      .catch(() => {
+        if (!current) return;
+        setSavedStatus("error");
+      });
+
+    return () => {
+      current = false;
+    };
+  }, [childId]);
+
+  const isBookSaved = (bookId: string) => savedBooks.some((b) => b.id === bookId);
+
+  const handleToggleSave = async (book: BookItem | SavedBook) => {
+    if (!childId) return;
+    setSavedActionError(null);
+    const alreadySaved = isBookSaved(book.id);
+
+    if (alreadySaved) {
+      const prev = savedBooks;
+      setSavedBooks((curr) => curr.filter((b) => b.id !== book.id));
+      try {
+        await removeBookFromShelf(childId, book.id);
+      } catch {
+        setSavedBooks(prev);
+        setSavedActionError(`Could not remove "${book.title}" from your bookshelf. Please try again.`);
+      }
+    } else {
+      try {
+        const saved = await saveBookToShelf(childId, {
+          id: book.id,
+          title: book.title,
+          authors: book.authors,
+          coverUrl: book.coverUrl,
+          subjects: book.subjects,
+        });
+        setSavedBooks((curr) => [saved, ...curr.filter((b) => b.id !== saved.id)]);
+      } catch {
+        setSavedActionError(`Could not save "${book.title}" to your bookshelf. Please try again.`);
+      }
+    }
+  };
 
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -222,7 +291,7 @@ export function StorybooksSection({
           Recommended picture books and stories from Open Library.
         </p>
 
-        {/* Tab Switcher: Open Library vs Philippine Rhymes */}
+        {/* Tab Switcher: Open Library vs Our Bookshelf vs Philippine Rhymes */}
         <div className="storybooks-tabs" role="tablist" aria-label="Stories and Rhymes">
           <Button
             variant={activeTab === "books" ? "primary" : "secondary"}
@@ -231,6 +300,14 @@ export function StorybooksSection({
             aria-selected={activeTab === "books"}
           >
             Books from Open Library
+          </Button>
+          <Button
+            variant={activeTab === "shelf" ? "primary" : "secondary"}
+            onClick={() => setActiveTab("shelf")}
+            role="tab"
+            aria-selected={activeTab === "shelf"}
+          >
+            {savedBooks.length > 0 ? `Our Bookshelf (${savedBooks.length})` : "Our Bookshelf"}
           </Button>
           <Button
             variant={activeTab === "rhymes" ? "primary" : "secondary"}
@@ -243,8 +320,137 @@ export function StorybooksSection({
         </div>
       </div>
 
-      {activeTab === "rhymes" ? (
-        /* Read & Sing Together: Philippine ECCD Action Rhymes */
+      {/* Our Bookshelf Tab */}
+      {activeTab === "shelf" && (
+        <div className="bookshelf-shelf">
+          <div className="bookshelf-intro">
+            <h3>{childNickname ? `${childNickname}'s Bookshelf` : "Our Bookshelf"}</h3>
+            <p>
+              Physical storybooks you have at home. Tap &ldquo;Get a play idea&rdquo; for an instant story companion activity.
+            </p>
+          </div>
+
+          {savedActionError && (
+            <InlineAlert kind="caution" title="Bookshelf update">
+              <p>{savedActionError}</p>
+            </InlineAlert>
+          )}
+
+          {savedStatus === "error" && (
+            <InlineAlert kind="caution" title="Connection error">
+              <p>Could not load your saved storybooks right now. Please try again later.</p>
+            </InlineAlert>
+          )}
+
+          {savedStatus === "loading" && (
+            <div className="storybooks-grid" aria-busy="true" aria-label="Loading bookshelf">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <Card key={idx} as="div" className="storybook-card">
+                  <Skeleton kind="card" label="Loading saved storybooks…" />
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {savedStatus !== "loading" && savedBooks.length === 0 && (
+            <EmptyState
+              title="Your bookshelf is empty"
+              action={
+                <Button variant="secondary" onClick={() => setActiveTab("books")}>
+                  Search storybooks
+                </Button>
+              }
+            >
+              Search for storybooks you have at home to save them here and get instant play ideas anytime.
+            </EmptyState>
+          )}
+
+          {savedStatus !== "loading" && savedBooks.length > 0 && (
+            <div className="storybooks-grid">
+              {savedBooks.map((book) => (
+                <article key={book.id} className="storybook-card" aria-labelledby={`shelf-book-${book.id}`}>
+                  <div className="storybook-cover-wrapper">
+                    {book.coverUrl ? (
+                      <img
+                        src={book.coverUrl}
+                        alt={`${book.title} cover`}
+                        className="storybook-cover-img"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="storybook-cover-placeholder"
+                      style={{ display: book.coverUrl ? "none" : "flex" }}
+                      aria-hidden="true"
+                    >
+                      <Icon name="book" size={32} />
+                    </div>
+                  </div>
+
+                  <div className="storybook-content">
+                    <h3 id={`shelf-book-${book.id}`} className="storybook-title">
+                      {book.title}
+                    </h3>
+                    {book.authors.length > 0 && (
+                      <p className="storybook-author">
+                        by {book.authors.join(", ")}
+                      </p>
+                    )}
+
+                    {book.subjects && book.subjects.length > 0 && (
+                      <div className="storybook-subjects-tags">
+                        {book.subjects.slice(0, 3).map((sub, i) => (
+                          <span key={i} className="storybook-subject-tag">
+                            {sub}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="storybook-actions">
+                      <Button
+                        variant="secondary"
+                        className="storybook-play-btn"
+                        onClick={() =>
+                          handleOpenPlayIdea({
+                            id: book.id,
+                            title: book.title,
+                            authors: book.authors,
+                            coverUrl: book.coverUrl ?? null,
+                            subjects: book.subjects,
+                            source: "Our Bookshelf",
+                          })
+                        }
+                        aria-label={`Get a play idea for ${book.title}`}
+                      >
+                        Get a play idea
+                      </Button>
+                      <Button
+                        variant="text"
+                        className="storybook-bookmark-btn is-saved"
+                        onClick={() => handleToggleSave(book)}
+                        aria-label={`Remove ${book.title} from bookshelf`}
+                        title="Remove from bookshelf"
+                      >
+                        <Icon name="bookmark-check" size={18} />
+                        <span>Saved</span>
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Philippine Action Rhymes Tab */}
+      {activeTab === "rhymes" && (
         <div className="philippine-rhymes-shelf">
           <div className="rhymes-intro">
             <p>
@@ -299,8 +505,10 @@ export function StorybooksSection({
             ))}
           </div>
         </div>
-      ) : (
-        /* Open Library Books Shelf */
+      )}
+
+      {/* Open Library Books Shelf Tab */}
+      {activeTab === "books" && (
         <>
           {/* Live Search and Subject filter chips */}
           <div className="storybooks-search">
@@ -345,6 +553,12 @@ export function StorybooksSection({
             )}
           </div>
 
+          {savedActionError && (
+            <InlineAlert kind="caution" title="Bookshelf update">
+              <p>{savedActionError}</p>
+            </InlineAlert>
+          )}
+
           {status === "offline" && (
             <InlineAlert kind="info" title="Offline mode">
               <p>You are viewing cached and offline fallback storybooks.</p>
@@ -383,64 +597,84 @@ export function StorybooksSection({
           {/* Ready / Book Grid */}
           {(status === "ready" || status === "offline") && books.length > 0 && (
             <div className="storybooks-grid">
-              {books.map((book) => (
-                <article key={book.id} className="storybook-card" aria-labelledby={`book-${book.id}`}>
-                  <div className="storybook-cover-wrapper">
-                    {book.coverUrl ? (
-                      <img
-                        src={book.coverUrl}
-                        alt={`${book.title} cover`}
-                        className="storybook-cover-img"
-                        loading="lazy"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).style.display = "none";
-                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = "flex";
-                        }}
-                      />
-                    ) : null}
-                    <div
-                      className="storybook-cover-placeholder"
-                      style={{ display: book.coverUrl ? "none" : "flex" }}
-                      aria-hidden="true"
-                    >
-                      <Icon name="book" size={32} />
-                    </div>
-                  </div>
-
-                  <div className="storybook-content">
-                    <h3 id={`book-${book.id}`} className="storybook-title">
-                      {book.title}
-                    </h3>
-                    {book.authors.length > 0 && (
-                      <p className="storybook-author">
-                        by {book.authors.join(", ")}
-                      </p>
-                    )}
-
-                    {book.subjects.length > 0 && (
-                      <div className="storybook-subjects-tags">
-                        {book.subjects.slice(0, 3).map((sub, i) => (
-                          <span key={i} className="storybook-subject-tag">
-                            {sub}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="storybook-actions">
-                      <Button
-                        variant="secondary"
-                        className="storybook-play-btn"
-                        onClick={() => handleOpenPlayIdea(book)}
-                        aria-label={`Get a play idea for ${book.title}`}
+              {books.map((book) => {
+                const isSaved = isBookSaved(book.id);
+                return (
+                  <article key={book.id} className="storybook-card" aria-labelledby={`book-${book.id}`}>
+                    <div className="storybook-cover-wrapper">
+                      {book.coverUrl ? (
+                        <img
+                          src={book.coverUrl}
+                          alt={`${book.title} cover`}
+                          className="storybook-cover-img"
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).style.display = "none";
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = "flex";
+                          }}
+                        />
+                      ) : null}
+                      <div
+                        className="storybook-cover-placeholder"
+                        style={{ display: book.coverUrl ? "none" : "flex" }}
+                        aria-hidden="true"
                       >
-                        Get a play idea
-                      </Button>
+                        <Icon name="book" size={32} />
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
+
+                    <div className="storybook-content">
+                      <h3 id={`book-${book.id}`} className="storybook-title">
+                        {book.title}
+                      </h3>
+                      {book.authors.length > 0 && (
+                        <p className="storybook-author">
+                          by {book.authors.join(", ")}
+                        </p>
+                      )}
+
+                      {book.subjects.length > 0 && (
+                        <div className="storybook-subjects-tags">
+                          {book.subjects.slice(0, 3).map((sub, i) => (
+                            <span key={i} className="storybook-subject-tag">
+                              {sub}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="storybook-actions">
+                        <Button
+                          variant="secondary"
+                          className="storybook-play-btn"
+                          onClick={() => handleOpenPlayIdea(book)}
+                          aria-label={`Get a play idea for ${book.title}`}
+                        >
+                          Get a play idea
+                        </Button>
+                        {childId && (
+                          <Button
+                            variant={isSaved ? "secondary" : "text"}
+                            className={`storybook-bookmark-btn ${isSaved ? "is-saved" : ""}`}
+                            onClick={() => handleToggleSave(book)}
+                            aria-label={
+                              isSaved
+                                ? `Remove ${book.title} from your shelf`
+                                : `Save ${book.title} to your shelf`
+                            }
+                            aria-pressed={isSaved}
+                            title={isSaved ? "On your shelf" : "Save to shelf"}
+                          >
+                            <Icon name={isSaved ? "bookmark-check" : "bookmark"} size={18} />
+                            <span>{isSaved ? "Saved" : "Save"}</span>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
 
@@ -462,10 +696,10 @@ export function StorybooksSection({
         </>
       )}
 
-      {/* Play Idea Dialog with Closed-Loop Planning */}
+      {/* Play Idea Dialog with Closed-Loop Planning (ADR-013, ADR-015) */}
       {activeBook && (
         <dialog
-          className="ls-dialog"
+          className="ls-dialog storybook-play-dialog"
           open
           aria-labelledby="book-dialog-title"
           onCancel={(e) => {
