@@ -12,6 +12,7 @@ import {
 import { ageBandLabel, type AgeBand } from "../../children/types";
 import { DOMAIN_LABELS, DOMAINS, SETTING_LABELS, type CatalogActivity, type Domain, type Setting } from "../../catalog/types";
 import { failureKind } from "../../../services/offline";
+import { useWeather } from "../../../services/weather";
 import { ApiError, buildDeterministicFallback, getAiRecommendations } from "../api";
 import type { RecommendationRequest, RecommendationResponse } from "../types";
 
@@ -29,12 +30,16 @@ const TIME_CHOICES = [10, 15, 30, 45] as const;
 export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanActivity }: IdeaHelperProps) {
   const [viewState, setViewState] = useState<ViewState>("form");
   const [timeMinutes, setTimeMinutes] = useState<number>(15);
-  const [setting, setSetting] = useState<Setting>("either");
+  const [userSetting, setUserSetting] = useState<Setting | null>(null);
   const [materialsText, setMaterialsText] = useState("");
   const [selectedDomain, setSelectedDomain] = useState<Domain | "all">("all");
   const [response, setResponse] = useState<RecommendationResponse | null>(null);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const [fallbackReason, setFallbackReason] = useState<string | null>(null);
+
+  const { weather, cityName } = useWeather();
+  const defaultSetting: Setting = weather?.suggestedSetting === "indoor" ? "indoor" : "either";
+  const setting: Setting = userSetting ?? defaultSetting;
 
   const parsedMaterials = materialsText
     .split(",")
@@ -136,13 +141,24 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
             </div>
           </fieldset>
 
+          {weather && cityName && (
+            <div className="idea-helper-weather-hint" role="status" aria-label="Weather recommendation">
+              <Icon name={weather.condition === "rainy" ? "cloud-rain" : "sun"} size={16} />
+              <span>
+                {weather.condition === "rainy"
+                  ? `Rainy in ${cityName} · Indoor play suggested`
+                  : weather.hint ?? `Good weather in ${cityName} for outdoor play`}
+              </span>
+            </div>
+          )}
+
           <div className="idea-helper-row">
             {/* Setting question */}
             <div className="idea-helper-field">
               <Select
                 label="Where will you play?"
                 value={setting}
-                onChange={(e) => setSetting(e.target.value as Setting)}
+                onChange={(e) => setUserSetting(e.target.value as Setting)}
                 options={[
                   { value: "either", label: "Indoor or outdoor" },
                   { value: "indoor", label: "Indoor" },
@@ -169,7 +185,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
           </div>
 
           {/* Materials question */}
-          <div className="idea-helper-field">
+          <div className="idea-helper-field idea-helper-materials-field">
             <TextField
               label="What do you have at home?"
               placeholder="For example: cups, spoon, towel, paper"
@@ -180,7 +196,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
           </div>
 
           <div className="idea-helper-actions">
-            <Button variant="primary" type="submit" fullWidth>
+            <Button variant="primary" type="submit" className="idea-helper-submit-btn">
               Find ideas
             </Button>
           </div>

@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError, UnauthorizedError } from "../../services/api";
+import * as weatherService from "../../services/weather";
 import * as api from "./api";
 import { IdeaHelper } from "./components/IdeaHelper";
 import type { RecommendationResponse } from "./types";
@@ -239,5 +240,28 @@ describe("IdeaHelper DOM tests", () => {
     for (const word of bannedBuzzwords) {
       expect(renderedText.includes(word)).toBe(false);
     }
+  });
+
+  it("displays weather recommendation hint and preselects indoor play when rainy", async () => {
+    vi.spyOn(weatherService, "useWeather").mockReturnValue({
+      cityName: "Iloilo City",
+      weather: {
+        condition: "rainy",
+        rainChance: 85,
+        heatFlag: false,
+        suggestedSetting: "indoor",
+        hint: "Rainy in Iloilo City · Indoor play suggested",
+        provenance: { source: "open-meteo", attribution: "Open-Meteo", license: "CC-BY 4.0" },
+      },
+      updateCity: vi.fn(),
+      loading: false,
+    });
+
+    render(<IdeaHelper ageBand="12-23m" childNickname="Maya" />);
+
+    expect(screen.getByRole("status", { name: "Weather recommendation" })).toBeTruthy();
+    expect(screen.getByText("Rainy in Iloilo City · Indoor play suggested")).toBeTruthy();
+    const settingSelect = screen.getByLabelText("Where will you play?") as HTMLSelectElement;
+    expect(settingSelect.value).toBe("indoor");
   });
 });

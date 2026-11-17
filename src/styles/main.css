@@ -132,6 +132,9 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: calc(var(
 .bottom-tab-bar .tab-link[aria-current="page"] { border-top-color: var(--color-brand-forest); }
 
 .screen { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-24); width: 100%; max-width: 1120px; }
+@media (min-width: 1280px) {
+  .screen { max-width: 1400px; }
+}
 .screen h1 { font: var(--font-display-mobile); letter-spacing: 0; }
 .screen-subtitle { margin: 0 0 var(--space-8); font: var(--font-body); color: var(--color-text-secondary); overflow-wrap: anywhere; }
 /* "For [child]" (§2.1, §5.2): a badge-styled button that opens the child switcher */
