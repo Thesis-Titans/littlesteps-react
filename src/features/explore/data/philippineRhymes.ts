@@ -1,3 +1,5 @@
+import type { CatalogActivity } from "../../catalog/types";
+
 export interface PhilippineRhyme {
   id: string;
   title: string;
@@ -107,3 +109,30 @@ export const PHILIPPINE_RHYMES: PhilippineRhyme[] = [
     durationMinutes: 10
   }
 ];
+
+export function rhymeToCatalogActivity(rhyme: PhilippineRhyme, childNickname?: string): CatalogActivity {
+  return {
+    id: rhyme.id,
+    title: `Sing: ${rhyme.title}`,
+    type: "rhyme",
+    language: rhyme.language,
+    setting: "indoor",
+    ageBand: "12-23m",
+    domain: rhyme.domain,
+    durationMinutes: rhyme.durationMinutes,
+    durationEstimate: `${rhyme.durationMinutes} mins`,
+    materials: rhyme.materials,
+    instructions: [
+      `Sing "${rhyme.title}" together with ${childNickname ?? "your child"}.`,
+      rhyme.actionPrompt,
+      ...rhyme.lyrics.slice(0, 4),
+    ],
+    provenanceSource: "Traditional Philippine Nursery Rhyme & ECCD Play",
+    status: "synthetic_fixture",
+    limitations: "Provisional Academic Reference — Pending Review. Educational prompt only; not a clinical milestone.",
+  };
+}
+
+export const PHILIPPINE_RHYMES_CATALOG: CatalogActivity[] = PHILIPPINE_RHYMES.map((r) =>
+  rhymeToCatalogActivity(r)
+);

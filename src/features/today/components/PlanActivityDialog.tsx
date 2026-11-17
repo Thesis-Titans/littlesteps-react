@@ -3,7 +3,7 @@ import { Button, InlineAlert, TextField, useRestoreFocus } from "../../../compon
 import type { CatalogActivity } from "../../catalog";
 import { ApiError } from "../../../services/api";
 import { createPlan } from "../api";
-import { localDate, problemFor, validatePlanDate, type Problem } from "../logic";
+import { localDate, problemFor, savePlannedActivity, validatePlanDate, type Problem } from "../logic";
 import type { Plan } from "../types";
 
 type Props = {
@@ -46,7 +46,9 @@ function Form({ activity, childId, childNickname, onClose, onPlanned, returnFocu
     if (invalid) return;
     setBusy(true);
     try {
-      onPlanned(await createPlan(childId, { activityId: activity.id, scheduledDate: date }), activity);
+      const plan = await createPlan(childId, { activityId: activity.id, scheduledDate: date });
+      savePlannedActivity(activity);
+      onPlanned(plan, activity);
     } catch (error) {
       const serverDate = error instanceof ApiError && error.status === 400 ? error.details.find((d) => d.field === "scheduledDate") : undefined;
       if (serverDate) setDateError(serverDate.issue);

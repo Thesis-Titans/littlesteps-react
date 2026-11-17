@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchCatalogActivities, FALLBACK_CATALOG_ACTIVITIES, type CatalogActivity } from "../../catalog";
+import { PHILIPPINE_RHYMES_CATALOG } from "../../explore/data/philippineRhymes";
 import { failureKind } from "../../../services/offline";
 import { listPlans, updatePlan } from "../api";
-import { byCompletedDesc, problemFor, type Problem } from "../logic";
+import { byCompletedDesc, getSavedPlannedActivities, problemFor, type Problem } from "../logic";
 import type { Plan } from "../types";
 
 /** The API lists at most this many plans, oldest first. */
@@ -14,6 +15,13 @@ type Load = { status: "loading" } | { status: "error" | "offline" | "unauthorize
 /** The catalog is the source of titles; saved copies fill in when it can't be reached. */
 async function loadActivities(): Promise<Record<string, CatalogActivity>> {
   const map = Object.fromEntries(FALLBACK_CATALOG_ACTIVITIES.map((a) => [a.id, a]));
+  for (const rhyme of PHILIPPINE_RHYMES_CATALOG) {
+    map[rhyme.id] = rhyme;
+  }
+  const saved = getSavedPlannedActivities();
+  for (const [id, activity] of Object.entries(saved)) {
+    map[id] = activity;
+  }
   try {
     for (const a of (await fetchCatalogActivities()).items ?? []) map[a.id] = a;
   } catch {

@@ -330,4 +330,12 @@ describe("PlanActivityDialog", () => {
     expect(await screen.findByRole("heading", { name: "Need a quick idea?" })).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Find an idea" })).toHaveLength(1);
   });
+
+  it("resolves Philippine rhymes in planned activities without showing activity not available", async () => {
+    stubLists([plan({ id: "p-rhyme", activityId: "rhyme-bahay-kubo" })]);
+    renderToday();
+    expect(await screen.findByRole("heading", { name: "Sing: Bahay Kubo" })).toBeTruthy();
+    expect(screen.queryByText("Activity not available")).toBeNull();
+    expect(screen.queryByText("This activity was taken off our list.")).toBeNull();
+  });
 });

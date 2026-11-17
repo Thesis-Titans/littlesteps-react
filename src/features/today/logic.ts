@@ -65,3 +65,25 @@ export function problemFor(error: unknown, what: string): Problem {
   if (kind === "unauthorized") return { kind, message: `Please sign in again to continue. Your session has ended. This activity wasn't ${what}.` };
   return { kind, message: `We couldn't reach LittleSteps. This activity wasn't ${what}.` };
 }
+
+const PLANNED_ACTIVITIES_KEY = "ls_planned_activities_cache";
+
+export function savePlannedActivity(activity: CatalogActivity): void {
+  try {
+    const raw = localStorage.getItem(PLANNED_ACTIVITIES_KEY);
+    const existing: Record<string, CatalogActivity> = raw ? JSON.parse(raw) : {};
+    existing[activity.id] = activity;
+    localStorage.setItem(PLANNED_ACTIVITIES_KEY, JSON.stringify(existing));
+  } catch {
+    /* ignore storage failures in private browsing */
+  }
+}
+
+export function getSavedPlannedActivities(): Record<string, CatalogActivity> {
+  try {
+    const raw = localStorage.getItem(PLANNED_ACTIVITIES_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}

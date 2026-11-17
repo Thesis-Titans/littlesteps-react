@@ -29,7 +29,7 @@ import {
 } from "../../catalog/api";
 import { fetchStoryActivity } from "../../ai/api";
 import { failureKind } from "../../../services/offline";
-import { PHILIPPINE_RHYMES, type PhilippineRhyme } from "../data/philippineRhymes";
+import { PHILIPPINE_RHYMES, rhymeToCatalogActivity, type PhilippineRhyme } from "../data/philippineRhymes";
 import type { AgeBand } from "../../children/types";
 
 export interface StorybooksSectionProps {
@@ -227,26 +227,7 @@ export function StorybooksSection({
 
   const handlePlanRhyme = (rhyme: PhilippineRhyme) => {
     if (!planCallback) return;
-    const activity: CatalogActivity = {
-      id: rhyme.id,
-      title: `Sing: ${rhyme.title}`,
-      type: "rhyme",
-      language: rhyme.language,
-      setting: "indoor",
-      ageBand,
-      domain: rhyme.domain,
-      durationMinutes: rhyme.durationMinutes,
-      durationEstimate: `${rhyme.durationMinutes} mins`,
-      materials: rhyme.materials,
-      instructions: [
-        `Sing "${rhyme.title}" together with ${childNickname ?? "your child"}.`,
-        rhyme.actionPrompt,
-        ...rhyme.lyrics.slice(0, 4),
-      ],
-      provenanceSource: "Traditional Philippine Nursery Rhyme & ECCD Play",
-      status: "synthetic_fixture",
-      limitations: "Provisional Academic Reference — Pending Review. Educational prompt only; not a clinical milestone.",
-    };
+    const activity = rhymeToCatalogActivity(rhyme, childNickname);
     planCallback(activity);
   };
 
