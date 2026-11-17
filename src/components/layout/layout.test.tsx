@@ -38,7 +38,7 @@ const noopState: ChildState = {
 function renderHeader(activeChild: Child | null, childScoped?: boolean) {
   return renderToStaticMarkup(
     <ChildContext.Provider value={{ ...noopState, activeChild, children: activeChild ? [activeChild] : [] }}>
-      <ScreenHeader id="t" title="Today" childScoped={childScoped} />
+      <ScreenHeader id="t" title="Today" subtitle="A quick overview" childScoped={childScoped} />
     </ChildContext.Provider>
   );
 }
@@ -53,9 +53,9 @@ const maya: Child = {
 const readyState: ChildState = { ...noopState, children: [maya], activeChild: maya };
 const loadingState: ChildState = { ...noopState, status: "loading" };
 
-const caregiver = { uid: "u1", email: "parent@example.com" } as User;
+const caregiver = { uid: "u1", email: "parent@example.com", displayName: "John Doe" } as User;
 // The soft hyphen in the Milestones label is invisible unless the word wraps, so it is stripped for the comparison.
-const tabLabels = (html: string) => [...html.matchAll(/class="tab-link[^"]*"[^>]*>[\s\S]*?<span>([^<]+)<\/span>/g)].map((m) => m[1].replace(/\u00AD/g, ""));
+const tabLabels = (html: string) => [...html.matchAll(/<span class="tab-link-label">([^<]+)<\/span>/g)].map((m) => m[1].replace(/\u00AD/g, ""));
 
 describe("AppShell", () => {
   it("shows the five tabs in order, marks the current one and has one main landmark", () => {
@@ -63,10 +63,15 @@ describe("AppShell", () => {
     const html = render("/explore", caregiver);
     // Sidebar and bottom bar each render the same five tabs; CSS shows one per viewport.
     expect(tabLabels(html)).toEqual(Array(2).fill(["Today", "Explore", "Milestones", "Journal", "This week"]).flat());
-    expect(html.match(/<a aria-current="page"[^>]*href="\/explore"/g)).toHaveLength(2);
+    expect(html.match(/<a\b(?=[^>]*aria-current="page")(?=[^>]*href="\/explore")[^>]*>/g)).toHaveLength(2);
     expect(html).toContain("Mile\u00ADstones");
     expect(html.match(/<main/g)).toHaveLength(1);
     expect(html).toContain('<h1 id="explore-title" tabindex="-1">Explore</h1>');
+    expect(html.match(/class="account-link"/g)).toHaveLength(2);
+    expect(html).toContain('aria-label="Account"');
+    expect(html.match(/class="account-avatar" aria-hidden="true">J<\/span>/g)).toHaveLength(1);
+    expect(html).toContain('<span class="account-link-label">Account</span>');
+    expect(html).not.toContain("child-switcher-top");
     expect(html).toContain("<title>Explore · LittleSteps</title>");
     const account = render("/account", caregiver);
     expect(account).toContain('<h1 id="account-title" tabindex="-1">Account</h1>');
@@ -89,6 +94,8 @@ describe("AppShell", () => {
     expect(chip).toMatch(/<button[^>]*aria-haspopup="menu"[^>]*>For Maya · 12–23 months/);
     expect(chip).toContain("ls-badge child-chip");
     expect(chip).toContain('aria-expanded="false"');
+    expect(chip.indexOf("<h1")).toBeLessThan(chip.indexOf("screen-subtitle"));
+    expect(chip.indexOf("screen-subtitle")).toBeLessThan(chip.indexOf("child-chip"));
     expect(renderHeader(maya, false)).not.toContain("child-chip");
   });
 

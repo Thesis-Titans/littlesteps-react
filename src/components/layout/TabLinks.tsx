@@ -16,9 +16,9 @@ export function TabLinks() {
     <ul className="tab-links">
       {TABS.map((tab) => (
         <li key={tab.to}>
-          <NavLink to={tab.to} className="tab-link">
+          <NavLink to={tab.to} className="tab-link" aria-label={tab.label}>
             <Icon name={tab.icon} size={24} />
-            <span>{tab.display ?? tab.label}</span>
+            <span className="tab-link-label">{tab.display ?? tab.label}</span>
           </NavLink>
         </li>
       ))}
