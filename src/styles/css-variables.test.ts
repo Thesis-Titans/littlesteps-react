@@ -25,4 +25,11 @@ describe("CSS custom properties", () => {
     const missing = [...used].filter(([name]) => !defined.has(name)).map(([name, file]) => `${name} (${file})`);
     expect(missing).toEqual([]);
   });
+
+  it("hides only the compact bottom navigation labels, not their icons", () => {
+    const css = readFileSync(join(__dirname, "main.css"), "utf8");
+    expect(css).toContain("@media (max-width: 400px)");
+    expect(css).toContain(".bottom-tab-bar .tab-link-label { display: none; }");
+    expect(css).not.toContain(".bottom-tab-bar .tab-link > span {");
+  });
 });

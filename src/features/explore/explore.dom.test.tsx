@@ -44,7 +44,7 @@ describe("ExploreScreen integration", () => {
     renderExplore();
 
     expect(screen.getByRole("heading", { name: "Explore", level: 1 })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Idea helper", level: 2 })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Idea Helper", level: 2 })).toBeTruthy();
     expect(
       screen.getByRole("heading", { name: "Learning activities", level: 2 })
     ).toBeTruthy();

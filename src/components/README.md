@@ -48,7 +48,7 @@ The wording rules live in one place: [UI/UX specification §2.6](https://github.
 Three rules that show up in component code:
 
 - **Buttons name the action**: "Save note", "Delete note", "Add to today's plan", never "OK".
-- **AI-written output shows `<Badge kind="ai" />`.** Features are named for what they do ("Idea helper").
+- **AI-written output shows `<Badge kind="ai" />`.** Features are named for what they do ("Idea Helper").
 - **The API and data model keep their technical names** (`observed`, `not_yet_observed`, `socioEmotional`); only the words on screen change.
 
 ## Adding or changing a component

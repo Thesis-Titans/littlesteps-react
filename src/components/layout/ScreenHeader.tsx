@@ -13,9 +13,11 @@ export function ScreenHeader({ id, title, subtitle, childScoped = true }: Screen
   return (
     <>
       <title>{`${title} · LittleSteps`}</title>
-      <h1 id={id} tabIndex={-1}>{title}</h1>
-      {childScoped && <ChildSwitcher variant="chip" />}
-      {subtitle && <p className="screen-subtitle">{subtitle}</p>}
+      <div className="screen-header-content">
+        <h1 id={id} tabIndex={-1}>{title}</h1>
+        {subtitle && <p className="screen-subtitle">{subtitle}</p>}
+        {childScoped && <ChildSwitcher variant="chip" />}
+      </div>
     </>
   );
 }

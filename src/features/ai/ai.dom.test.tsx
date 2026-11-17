@@ -60,7 +60,7 @@ describe("IdeaHelper DOM tests", () => {
   it("renders the initial question form in strict sentence case", () => {
     render(<IdeaHelper ageBand="12-23m" childNickname="Maya" />);
 
-    expect(screen.getByRole("heading", { name: "Idea helper" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Idea Helper" })).toBeTruthy();
     expect(screen.getByText("How much time do you have?")).toBeTruthy();
     expect(screen.getByLabelText("Where will you play?")).toBeTruthy();
     expect(screen.getByLabelText("Kind of play")).toBeTruthy();
