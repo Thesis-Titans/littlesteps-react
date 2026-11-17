@@ -444,10 +444,27 @@
 .storybook-actions {
   margin-top: auto;
   padding-top: var(--space-12);
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
 }
 
 .storybook-play-btn {
-  width: 100%;
+  flex: 1;
+}
+
+.storybook-bookmark-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--size-touch-target-min);
+  padding: 0 var(--space-12);
+  font: var(--font-body-small);
+  white-space: nowrap;
+}
+
+.storybook-bookmark-btn.is-saved {
+  color: var(--color-brand-forest);
 }
 
 .storybooks-credit {
@@ -563,6 +580,37 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-8);
+}
+
+.storybook-play-dialog {
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Family Bookshelf (ADR-015) */
+.bookshelf-shelf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.bookshelf-intro {
+  padding: var(--space-12) var(--space-16);
+  background: var(--color-surface-soft-green);
+  border-radius: var(--radius-card);
+}
+
+.bookshelf-intro h3 {
+  margin: 0 0 var(--space-4);
+  font: var(--font-h3);
+  color: var(--color-text-primary);
+}
+
+.bookshelf-intro p {
+  margin: 0;
+  font: var(--font-body-small);
+  color: var(--color-text-primary);
 }
 
 /* Read & Sing Together (Philippine rhymes) */

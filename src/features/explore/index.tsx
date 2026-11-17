@@ -41,8 +41,9 @@ export function ExploreScreen() {
         onPlan={activeChild ? (activity, opener) => setPlanning({ activity, opener }) : undefined}
       />
 
-      {/* Storybooks from Open Library (react #48, ADR-010, ADR-013) */}
+      {/* Storybooks from Open Library & Bookshelf (react #48, ADR-010, ADR-013, ADR-015) */}
       <StorybooksSection
+        childId={activeChild?.id}
         onPlan={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
         ageBand={ageBand}
         childNickname={nickname}
