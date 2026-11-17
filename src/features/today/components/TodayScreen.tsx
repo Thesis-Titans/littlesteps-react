@@ -174,11 +174,12 @@ function TodayPlan({
               </div>
             )}
             {plans.length === 0 ? (
+              // With an empty plan this is the only "Find an idea" entry point (the side card hides).
               <EmptyState
                 title="No activities planned for today."
-                action={<Button variant="secondary" onClick={() => navigate("/explore")}>Find an activity</Button>}
+                action={<Button variant="secondary" onClick={() => navigate("/explore")}>Find an idea</Button>}
               >
-                <p>Most play activities take 10 minutes or less.</p>
+                <p>Want a quick idea? Most take 10 minutes or less.</p>
               </EmptyState>
             ) : shown.length === 0 ? (
               <EmptyState
@@ -238,16 +239,18 @@ function TodayPlan({
 
         {/* Desktop Side Column with Widgets (react #45) */}
         <aside className="today-side-col" aria-label="Quick shortcuts and summaries">
-          {/* Play Ideas Shortcut */}
-          <div className="today-side-widget">
-            <h3 className="today-side-widget-title">Need a quick idea?</h3>
-            <p className="today-side-widget-body">
-              Everyday play ideas for {nickname} using common household items.
-            </p>
-            <Button variant="secondary" onClick={() => navigate("/explore")}>
-              Find an idea
-            </Button>
-          </div>
+          {/* Play Ideas Shortcut: only when the plan has activities, so it never repeats the empty state's button (react #51). */}
+          {plans.length > 0 && (
+            <div className="today-side-widget">
+              <h3 className="today-side-widget-title">Need a quick idea?</h3>
+              <p className="today-side-widget-body">
+                Everyday play ideas for {nickname} using common household items.
+              </p>
+              <Button variant="secondary" onClick={() => navigate("/explore")}>
+                Find an idea
+              </Button>
+            </div>
+          )}
 
           {/* This Week Shortcut */}
           <div className="today-side-widget">
@@ -280,11 +283,7 @@ function TodayPlan({
                 <span>Copies actions like waving goodbye or clapping</span>
               </li>
             </ul>
-            <Button
-              variant="secondary"
-              onClick={() => navigate("/milestones")}
-              style={{ marginTop: "var(--space-4)" }}
-            >
+            <Button variant="secondary" onClick={() => navigate("/milestones")}>
               View milestones
             </Button>
           </div>

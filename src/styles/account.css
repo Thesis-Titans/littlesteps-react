@@ -17,3 +17,4 @@
 .account-faq { display: flex; flex-direction: column; gap: var(--space-8); width: 100%; }
 .account-faq summary { display: flex; align-items: center; min-height: var(--size-touch-target-min); cursor: pointer; font: var(--font-label); }
 @media (min-width: 768px) { .account-page h2 { font: var(--font-h2-desktop); } }
+.settings-weather-city { width: 100%; max-width: 320px; margin-top: var(--space-12); }

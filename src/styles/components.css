@@ -35,7 +35,7 @@
 .ls-button[aria-busy="true"] { cursor: progress; }
 
 /* Fields: TextField and Select */
-.ls-field { display: flex; flex-direction: column; gap: 6px; }
+.ls-field { display: flex; flex-direction: column; gap: var(--space-8); }
 .ls-field-label { font: var(--font-label); color: var(--color-text-primary); }
 .ls-control {
   width: 100%; min-height: var(--size-touch-target-min); padding: var(--space-12) 14px;
@@ -115,7 +115,7 @@ button.password-toggle-btn:focus-visible {
 
 /* Badge */
 .ls-badge {
-  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  display: inline-flex; align-items: center; gap: var(--space-8); width: fit-content;
   padding: var(--space-4) 10px; border-radius: 8px; font: var(--font-meta);
 }
 .ls-badge-source { padding: 0; color: var(--color-text-secondary); }

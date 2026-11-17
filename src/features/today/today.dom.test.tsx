@@ -308,11 +308,26 @@ describe("PlanActivityDialog", () => {
     expect(screen.getByText(/Here's Maya's play plan for today/i)).toBeTruthy();
 
     // Side widgets (react #45)
-    expect(screen.getByRole("heading", { name: "Need a quick idea?" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "This week" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Milestones to notice" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Find an idea" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "View reflection" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "View milestones" })).toBeTruthy();
+  });
+
+  // react #51: one idea entry point at a time, with one label.
+  it("offers Find an idea from the empty plan only, without the duplicate side card", async () => {
+    stubLists([]);
+    renderToday();
+    expect(await screen.findByText("Want a quick idea? Most take 10 minutes or less.")).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "Find an idea" })).toHaveLength(1);
+    expect(screen.queryByRole("heading", { name: "Need a quick idea?" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Find an activity" })).toBeNull();
+  });
+
+  it("moves Find an idea to the side card once the plan has activities", async () => {
+    stubLists([plan()]);
+    renderToday();
+    expect(await screen.findByRole("heading", { name: "Need a quick idea?" })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "Find an idea" })).toHaveLength(1);
   });
 });
