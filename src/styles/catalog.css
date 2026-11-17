@@ -249,7 +249,7 @@
 .catalog-spec-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-4);
 }
 
 .catalog-spec-label {
@@ -624,7 +624,6 @@
   border-radius: var(--radius-control);
   font: var(--font-body-small);
   font-style: italic;
-  line-height: 1.5;
 }
 
 .rhyme-cue {
