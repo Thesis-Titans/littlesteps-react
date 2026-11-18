@@ -18,7 +18,9 @@
 
   /* Text */
   --color-text-primary: #1a2b29;
-  --color-text-secondary: #63756e;
+  /* #5a6a64 (was #63756e, 9% darker): meets WCAG 1.4.3 4.5:1 on every surface and status tint;
+     the old value fell to 3.9-4.4:1 on caution, info, mist, soft green, cream and offline. Mirror in Figma and DESIGN.md. */
+  --color-text-secondary: #5a6a64;
   --color-text-brand: var(--color-brand-forest);
   --color-text-on-brand: #ffffff;
   --color-text-error: #853029;

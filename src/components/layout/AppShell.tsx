@@ -5,6 +5,7 @@ import { BottomTabBar } from "./BottomTabBar";
 import type { ShellContext } from "./ProtectedRoute";
 import { SideNav } from "./SideNav";
 import { TopBar } from "./TopBar";
+import { useFocusHeadingOnNavigate } from "./useFocusHeadingOnNavigate";
 
 /** The single <main> landmark lives here; screens render a <section>. */
 export function AppShell() {
@@ -13,11 +14,14 @@ export function AppShell() {
   const { refresh } = useChild();
   // One Retry for both checks, so a single alert never leaves the children load behind.
   const retryAll = () => { retry(); refresh(); };
+  useFocusHeadingOnNavigate();
   return (
     <div className="app-shell">
+      {/* WCAG 2.4.1: lets keyboard users jump past the top bar and navigation. */}
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       <TopBar />
       <SideNav />
-      <main className="app-main">
+      <main className="app-main" id="main-content" tabIndex={-1}>
         {sessionProblem && (
           <InlineAlert
             kind={sessionProblem}

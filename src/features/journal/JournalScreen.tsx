@@ -26,10 +26,10 @@ export function JournalScreen() {
         <ScreenHeader
           id="journal-title"
           title="Journal"
-          subtitle="Record quiet moments and private milestone observations."
+          subtitle="Private notes about everyday moments."
         />
         <EmptyState title="No child profile selected">
-          <p>Please select or add a child profile to view and write journal observations.</p>
+          <p>Choose or add a child to read and write notes.</p>
         </EmptyState>
       </section>
     );
@@ -111,7 +111,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
       <ScreenHeader
         id="journal-title"
         title="Journal"
-        subtitle={`Private observation notes for ${childNickname}.`}
+        subtitle={`Private notes about ${childNickname}.`}
       />
 
       <SuccessNotice message={notice ?? undefined} onClose={() => setNotice(null)} />
@@ -127,7 +127,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
       {/* New Note Form */}
       <section className="journal-form-card" aria-labelledby="new-note-heading">
         <h2 id="new-note-heading" className="journal-form-title">
-          New observation note
+          New note
         </h2>
 
         {submitError && (
@@ -166,7 +166,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
 
           <div className="journal-textarea-wrapper">
             <label htmlFor="journal-content" className="journal-form-label">
-              Observation notes
+              What did you see?
             </label>
             <textarea
               id="journal-content"
@@ -175,7 +175,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
                 setContent(e.target.value);
                 if (submitError) setSubmitError(null);
               }}
-              placeholder={`Jot down a moment, milestone observation, or favorite memory of ${childNickname}...`}
+              placeholder={`A moment, something new, or a favorite memory of ${childNickname}…`}
               rows={4}
               className="journal-textarea"
               aria-invalid={isOverLimit}
@@ -192,9 +192,16 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
                 className={`journal-char-counter ${
                   isOverLimit ? "is-error" : isNearLimit ? "is-warning" : ""
                 }`}
-                aria-live="polite"
               >
                 {charCount} / {MAX_CHAR_COUNT}
+              </span>
+              {/* Speaks only when the limit state changes, not on every keystroke (calm, WCAG 4.1.3). */}
+              <span className="ls-visually-hidden" role="status">
+                {isOverLimit
+                  ? "Over the 2,000-character limit."
+                  : isNearLimit
+                    ? "Close to the 2,000-character limit."
+                    : ""}
               </span>
             </div>
           </div>
@@ -333,7 +340,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeletingEntry(null)}
       >
-        <p>This observation will be permanently removed. This cannot be undone.</p>
+        <p>This note will be deleted for good. This cannot be undone.</p>
       </ConfirmDialog>
     </section>
   );
