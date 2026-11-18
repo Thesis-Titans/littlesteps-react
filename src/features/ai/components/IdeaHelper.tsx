@@ -311,7 +311,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
                       variant="secondary"
                       onClick={() => onSelectActivity(suggestion.activityId)}
                     >
-                      View in catalog
+                      View activity
                     </Button>
                   )}
                 </div>

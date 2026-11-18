@@ -70,14 +70,14 @@ describe("JournalScreen", () => {
     cleanup();
   });
 
-  it("renders privacy boundary and existing observation notes", async () => {
+  it("renders privacy boundary and existing notes", async () => {
     vi.spyOn(journalApi, "listJournalEntries").mockResolvedValueOnce(mockNotes);
 
     renderJournal();
 
     expect(screen.getByRole("heading", { name: "Journal", level: 1 })).toBeTruthy();
     expect(screen.getByText(/Only you can see these notes/i)).toBeTruthy();
-    expect(screen.getByText("New observation note")).toBeTruthy();
+    expect(screen.getByText("New note")).toBeTruthy();
 
     await waitFor(() => {
       expect(screen.getByText("Stacked four blocks today with giant smiles.")).toBeTruthy();
@@ -88,7 +88,7 @@ describe("JournalScreen", () => {
     expect(privateBadges.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("creates a new observation note with character counter and limits", async () => {
+  it("creates a new note with character counter and limits", async () => {
     vi.spyOn(journalApi, "listJournalEntries").mockResolvedValueOnce([]);
     const createSpy = vi.spyOn(journalApi, "createJournalEntry").mockResolvedValueOnce({
       id: "n3",
@@ -105,11 +105,16 @@ describe("JournalScreen", () => {
       expect(screen.getByText("Your journal is private to you.")).toBeTruthy();
     });
 
-    const textarea = screen.getByLabelText(/Observation notes/i);
+    const textarea = screen.getByLabelText("What did you see?");
     expect(screen.getByText("0 / 2000")).toBeTruthy();
 
     fireEvent.change(textarea, { target: { value: "First time pointing to shoes when asked." } });
     expect(screen.getByText("40 / 2000")).toBeTruthy();
+    // The spoken status stays empty until the limit is close, so it is not read on every keystroke.
+    expect(screen.queryByText("Close to the 2,000-character limit.")).toBeNull();
+    fireEvent.change(textarea, { target: { value: "a".repeat(1850) } });
+    expect(screen.getByText("Close to the 2,000-character limit.")).toBeTruthy();
+    fireEvent.change(textarea, { target: { value: "First time pointing to shoes when asked." } });
 
     const saveBtn = screen.getByRole("button", { name: "Save note" });
     fireEvent.click(saveBtn);
@@ -139,7 +144,7 @@ describe("JournalScreen", () => {
     // Dialog opens
     expect(screen.getByRole("dialog")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Delete this note?", level: 2 })).toBeTruthy();
-    expect(screen.getByText("This observation will be permanently removed. This cannot be undone.")).toBeTruthy();
+    expect(screen.getByText("This note will be deleted for good. This cannot be undone.")).toBeTruthy();
 
     // Confirm delete
     const confirmBtn = screen.getByRole("button", { name: "Delete note" });
@@ -165,7 +170,7 @@ describe("JournalScreen", () => {
       expect(screen.getByText("Your journal is private to you.")).toBeTruthy();
     });
 
-    const textarea = screen.getByLabelText(/Observation notes/i);
+    const textarea = screen.getByLabelText("What did you see?");
     fireEvent.change(textarea, { target: { value: "Offline note draft that should not disappear." } });
 
     const saveBtn = screen.getByRole("button", { name: "Save note" });

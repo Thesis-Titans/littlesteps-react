@@ -712,8 +712,8 @@ export function StorybooksSection({
             </p>
 
             {storyLoading ? (
-              <div className="storybook-companion-loading">
-                <p>Generating personalized play companion with AI…</p>
+              <div className="storybook-companion-loading" role="status">
+                <p>Finding a play idea for this book… This usually takes a few seconds.</p>
               </div>
             ) : (
               <article className="storybook-companion-card">
