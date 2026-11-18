@@ -66,6 +66,8 @@ describe("AppShell", () => {
     expect(html.match(/<a\b(?=[^>]*aria-current="page")(?=[^>]*href="\/explore")[^>]*>/g)).toHaveLength(2);
     expect(html).toContain("Mile\u00ADstones");
     expect(html.match(/<main/g)).toHaveLength(1);
+    expect(html).toContain('<a class="skip-link" href="#main-content">Skip to main content</a>');
+    expect(html).toContain('id="main-content"');
     expect(html).toContain('<h1 id="explore-title" tabindex="-1">Explore</h1>');
     expect(html.match(/class="account-link"/g)).toHaveLength(2);
     expect(html).toContain('aria-label="Account"');
