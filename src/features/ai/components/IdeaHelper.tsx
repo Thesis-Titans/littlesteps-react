@@ -36,6 +36,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
   const [response, setResponse] = useState<RecommendationResponse | null>(null);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const [fallbackReason, setFallbackReason] = useState<string | null>(null);
+  const [fallbackCycle, setFallbackCycle] = useState(0);
 
   const { weather, cityName } = useWeather();
   const defaultSetting: Setting = weather?.suggestedSetting === "indoor" ? "indoor" : "either";
@@ -57,18 +58,25 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
     count: 3,
   });
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent, isAnother = false) => {
     if (e) e.preventDefault();
     setViewState("loading");
     setRateLimitMessage(null);
     setFallbackReason(null);
+
+    const nextCycle = isAnother ? fallbackCycle + 1 : 0;
+    if (isAnother) {
+      setFallbackCycle(nextCycle);
+    } else {
+      setFallbackCycle(0);
+    }
 
     const request = buildRequest();
 
     try {
       let res = await getAiRecommendations(request);
       if (!res.suggestions || res.suggestions.length === 0) {
-        res = buildDeterministicFallback(request);
+        res = buildDeterministicFallback(request, undefined, nextCycle * 3);
       }
       setResponse(res);
       setViewState("results");
@@ -82,7 +90,8 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
         );
         const fallback = buildDeterministicFallback(
           request,
-          "A favorite activity for this age while the idea helper takes a short break."
+          "A favorite activity for this age while the idea helper takes a short break.",
+          nextCycle * 3
         );
         setResponse(fallback);
         setViewState("results");
@@ -92,7 +101,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
         setFallbackReason(
           `The idea helper isn't working right now. Here are a few favorites for ${childNameText} age from our activity list.`
         );
-        const fallback = buildDeterministicFallback(request);
+        const fallback = buildDeterministicFallback(request, undefined, nextCycle * 3);
         setResponse(fallback);
         setViewState("results");
       }
@@ -320,7 +329,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
           </div>
 
           <div className="idea-helper-results-actions">
-            <Button variant="secondary" onClick={() => void handleSubmit()}>
+            <Button variant="secondary" onClick={() => void handleSubmit(undefined, true)}>
               Another idea
             </Button>
             <Button variant="text" onClick={handleReset}>

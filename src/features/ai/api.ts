@@ -38,17 +38,43 @@ export async function getAiRecommendations(
 
 export function buildDeterministicFallback(
   request: RecommendationRequest,
-  reasonMessage?: string
+  reasonMessage?: string,
+  offset = 0
 ): RecommendationResponse {
   const { items } = filterFallbackActivities({
     ageBand: request.ageBand,
     domain: request.domain,
     setting: request.setting,
-    limit: request.count ?? 3,
   });
 
+  // Score candidate items based on matching materials if specified
+  const requestedMaterials = (request.materials ?? [])
+    .map((m) => m.toLowerCase().trim())
+    .filter(Boolean);
+  const sortedItems = [...items];
+  if (requestedMaterials.length > 0) {
+    sortedItems.sort((a, b) => {
+      const aMatches = a.materials.filter((m) =>
+        requestedMaterials.some((rm) => m.toLowerCase().includes(rm))
+      ).length;
+      const bMatches = b.materials.filter((m) =>
+        requestedMaterials.some((rm) => m.toLowerCase().includes(rm))
+      ).length;
+      return bMatches - aMatches;
+    });
+  }
+
+  const count = request.count ?? 3;
+  const selected =
+    sortedItems.length > count
+      ? [
+          ...sortedItems.slice(offset % sortedItems.length),
+          ...sortedItems.slice(0, offset % sortedItems.length),
+        ].slice(0, count)
+      : sortedItems.slice(0, count);
+
   return {
-    suggestions: items.map((activity) => ({
+    suggestions: selected.map((activity) => ({
       activityId: activity.id,
       title: activity.title,
       whyPicked:
