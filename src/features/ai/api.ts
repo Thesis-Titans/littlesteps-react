@@ -65,13 +65,13 @@ export function buildDeterministicFallback(
   }
 
   const count = request.count ?? 3;
-  let selected = sortedItems;
-  if (sortedItems.length > count) {
-    const start = offset % sortedItems.length;
-    selected = [...sortedItems.slice(start), ...sortedItems.slice(0, start)].slice(0, count);
-  } else {
-    selected = sortedItems.slice(0, count);
-  }
+  const selected =
+    sortedItems.length > count
+      ? [
+          ...sortedItems.slice(offset % sortedItems.length),
+          ...sortedItems.slice(0, offset % sortedItems.length),
+        ].slice(0, count)
+      : sortedItems.slice(0, count);
 
   return {
     suggestions: selected.map((activity) => ({
