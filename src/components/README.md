@@ -25,7 +25,7 @@ Build every screen from these components and the tokens in `src/styles/tokens.cs
 | `ConfirmDialog` | Permanent actions only: deleting a note, a child's records or the account | `open`, `title`, `confirmLabel`, `destructive`, `onConfirm`, `onCancel` | Native `<dialog>`: keeps focus inside, Escape cancels, and Cancel gets focus first. The confirm button names the action ("Delete note"), never "OK". |
 | `UndoToast` | Reversible actions (mark complete) | `message`, `onUndo`, `onClose`, `durationMs` | Stays at least 10 seconds and pauses while hovered or focused (`role="status"`). Prefer undo over a confirm dialog when the action can be reversed. |
 | `SuccessNotice` | Confirming a finished action ("Maya added.") | `message` (optional), `onClose`, `durationMs` | Always renders an empty `role="status"` region; keep it mounted and change `message` so the text is announced (the alert, check icon and "Dismiss message" button render inside it). Dismissing moves focus to the page `h1`. The timer restarts for each new message. Stays at least 10 seconds and pauses while hovered or focused. No motion, so nothing to turn off for reduced motion. |
-| `Icon` | The 17 Figma icons in `src/assets/icons` | `name`, `size` (16, 20, 24), `label` | Takes the text color. Decorative by default (`aria-hidden`). Give a `label` only when the icon is the only content of a control. |
+| `Icon` | The 23 UI icons in `src/assets/icons` (15 original Figma masters plus 8 added during implementation, alongside the colored `check-forest-20` variant) | `name`, `size` (16, 20, 24), `label` | Takes the text color. Decorative by default (`aria-hidden`). Give a `label` only when the icon is the only content of a control. |
 
 ## Five states on every screen
 
@@ -48,7 +48,7 @@ The wording rules live in one place: [UI/UX specification §2.6](https://github.
 Three rules that show up in component code:
 
 - **Buttons name the action**: "Save note", "Delete note", "Add to today's plan", never "OK".
-- **AI-written output shows `<Badge kind="ai" />`.** Features are named for what they do ("Idea Helper").
+- **AI-written output shows `<Badge kind="ai" />`.** Features are named for what they do ("Idea helper").
 - **The API and data model keep their technical names** (`observed`, `not_yet_observed`, `socioEmotional`); only the words on screen change.
 
 ## Adding or changing a component
