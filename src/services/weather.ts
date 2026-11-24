@@ -16,7 +16,16 @@ export const PHILIPPINES_CITIES: WeatherLocation[] = [
 ];
 
 export interface WeatherData {
-  condition: "cloudy" | "rainy" | "clear" | "unavailable";
+  condition:
+    | "cloudy"
+    | "rainy"
+    | "rain"
+    | "showers"
+    | "drizzle"
+    | "thunderstorm"
+    | "clear"
+    | "unavailable"
+    | (string & {});
   rainChance: number;
   heatFlag: boolean;
   suggestedSetting: "indoor" | "outdoor" | "either";
@@ -26,6 +35,21 @@ export interface WeatherData {
     attribution: string;
     license: string;
   };
+}
+
+/** Returns whether the current weather indicates rain or calls for indoor play. */
+export function isRainyWeather(data?: WeatherData | null): boolean {
+  if (!data) return false;
+  return (
+    data.condition === "rainy" ||
+    data.condition === "rain" ||
+    data.condition === "showers" ||
+    data.condition === "drizzle" ||
+    data.condition === "thunderstorm" ||
+    data.suggestedSetting === "indoor" ||
+    (data.rainChance !== undefined && data.rainChance >= 50) ||
+    (data.hint?.toLowerCase().includes("rain") ?? false)
+  );
 }
 
 const WEATHER_CITY_KEY = "ls.weatherCity";

@@ -73,7 +73,7 @@ describe("AppShell", () => {
     expect(html).toContain('aria-label="Account"');
     expect(html.match(/class="account-avatar" aria-hidden="true">J<\/span>/g)).toHaveLength(1);
     expect(html).toContain('<span class="account-link-label">Account</span>');
-    expect(html).not.toContain("child-switcher-top");
+    expect(html).toContain("child-switcher-top");
     expect(html).toContain("<title>Explore · LittleSteps</title>");
     const account = render("/account", caregiver);
     expect(account).toContain('<h1 id="account-title" tabindex="-1">Account</h1>');

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Chip, EmptyState, Icon, InlineAlert, Skeleton, UndoToast } from "../../../components/common";
 import { ScreenHeader } from "../../../components/layout";
-import { useWeather } from "../../../services/weather";
+import { isRainyWeather, useWeather } from "../../../services/weather";
 import { NonDiagnosticNotice } from "../../children/components/NonDiagnosticNotice";
 import { useChild } from "../../children/useChild";
 import { HISTORY_LIMIT, useToday } from "../hooks/useToday";
@@ -50,7 +50,7 @@ export function TodayScreen() {
       {showAdvisory ? (
         <NonDiagnosticNotice action={<Button variant="secondary" onClick={hideAdvisory}>Hide this notice</Button>} />
       ) : (
-        <Button variant="text" onClick={() => setShowAdvisory(true)}>Not a diagnostic tool</Button>
+        <Button variant="text" className="today-advisory-btn" onClick={() => setShowAdvisory(true)}>Not a diagnostic tool</Button>
       )}
       {/* Keyed by child so switching children starts a fresh load. */}
       {activeChild && (
@@ -135,15 +135,32 @@ function TodayPlan({
       {weather && (weather.hint || (weather.condition && weather.condition !== "unavailable")) && (
         <aside className="today-weather-banner" role="status" aria-label="Weather play hint">
           <div className="today-weather-info">
-            <Icon name={weather.condition === "rainy" ? "cloud-rain" : "sun"} size={18} />
+            <Icon name={isRainyWeather(weather) ? "cloud-rain" : "sun"} size={18} />
             <span>
-              {weather.hint ??
-                (weather.condition === "rainy"
-                  ? "Rain likely · Indoor ideas recommended"
-                  : "Good weather for outdoor play · Outdoor ideas")}
+              {isRainyWeather(weather)
+                ? "Rain likely this afternoon · Indoor play recommended"
+                : weather.hint ?? "Good weather for outdoor play · Outdoor ideas"}
             </span>
           </div>
-          <span className="today-weather-attr">Weather data by Open-Meteo.com</span>
+          <div className="today-weather-actions">
+            <a
+              href="https://open-meteo.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="today-weather-attr"
+            >
+              Weather data by Open-Meteo.com
+            </a>
+            {isRainyWeather(weather) && (
+              <Button
+                variant="secondary"
+                className="today-weather-btn"
+                onClick={() => navigate("/explore")}
+              >
+                Find indoor ideas
+              </Button>
+            )}
+          </div>
         </aside>
       )}
 
