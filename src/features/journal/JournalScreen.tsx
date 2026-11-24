@@ -26,7 +26,7 @@ export function JournalScreen() {
         <ScreenHeader
           id="journal-title"
           title="Journal"
-          subtitle="Private notes about everyday moments."
+          subtitle="Everyday moments and notes you choose to remember."
         />
         <EmptyState title="No child profile selected">
           <p>Choose or add a child to read and write notes.</p>
@@ -111,7 +111,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
       <ScreenHeader
         id="journal-title"
         title="Journal"
-        subtitle={`Private notes about ${childNickname}.`}
+        subtitle={`Everyday moments and notes about ${childNickname}.`}
       />
 
       <SuccessNotice message={notice ?? undefined} onClose={() => setNotice(null)} />
@@ -119,9 +119,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
       {/* Privacy Callout Banner */}
       <aside className="journal-privacy-callout" role="note" aria-label="Privacy notice">
         <Icon name="lock" size={16} />
-        <span>
-          <strong>Private by design.</strong> Only you can see these notes. They are never sent to external AI or shared.
-        </span>
+        <span>Only you can see your notes. They are never shared or sent to AI.</span>
       </aside>
 
       {/* New Note Form */}
@@ -286,7 +284,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
       {/* Empty State */}
       {status === "ready" && entries.length === 0 && (
         <EmptyState
-          title="Your journal is private to you."
+          title={`No notes for ${childNickname} yet`}
           action={
             <Button
               variant="secondary"
@@ -298,7 +296,7 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
             </Button>
           }
         >
-          <p>Jot down a memory or funny moment.</p>
+          <p>Jot down small wins, funny moments, or things {childNickname} is trying.</p>
         </EmptyState>
       )}
 

@@ -76,7 +76,8 @@ describe("JournalScreen", () => {
     renderJournal();
 
     expect(screen.getByRole("heading", { name: "Journal", level: 1 })).toBeTruthy();
-    expect(screen.getByText(/Only you can see these notes/i)).toBeTruthy();
+    expect(screen.getByText(/Only you can see your notes/i)).toBeTruthy();
+    expect(screen.queryByText(/Private by design/i)).toBeNull();
     expect(screen.getByText("New note")).toBeTruthy();
 
     await waitFor(() => {
@@ -102,7 +103,7 @@ describe("JournalScreen", () => {
     renderJournal();
 
     await waitFor(() => {
-      expect(screen.getByText("Your journal is private to you.")).toBeTruthy();
+      expect(screen.getByText("No notes for Maya yet")).toBeTruthy();
     });
 
     const textarea = screen.getByLabelText("What did you see?");
@@ -167,7 +168,7 @@ describe("JournalScreen", () => {
     renderJournal();
 
     await waitFor(() => {
-      expect(screen.getByText("Your journal is private to you.")).toBeTruthy();
+      expect(screen.getByText("No notes for Maya yet")).toBeTruthy();
     });
 
     const textarea = screen.getByLabelText("What did you see?");
