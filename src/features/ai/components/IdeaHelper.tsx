@@ -12,7 +12,7 @@ import {
 import { ageBandLabel, type AgeBand } from "../../children/types";
 import { DOMAIN_LABELS, DOMAINS, SETTING_LABELS, type CatalogActivity, type Domain, type Setting } from "../../catalog/types";
 import { failureKind } from "../../../services/offline";
-import { useWeather } from "../../../services/weather";
+import { isRainyWeather, useWeather } from "../../../services/weather";
 import { ApiError, buildDeterministicFallback, getAiRecommendations } from "../api";
 import type { RecommendationRequest, RecommendationResponse } from "../types";
 
@@ -152,9 +152,9 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
 
           {weather && cityName && (
             <div className="idea-helper-weather-hint" role="status" aria-label="Weather recommendation">
-              <Icon name={weather.condition === "rainy" ? "cloud-rain" : "sun"} size={16} />
+              <Icon name={isRainyWeather(weather) ? "cloud-rain" : "sun"} size={16} />
               <span>
-                {weather.condition === "rainy"
+                {isRainyWeather(weather)
                   ? `Rainy in ${cityName} · Indoor play suggested`
                   : weather.hint ?? `Good weather in ${cityName} for outdoor play`}
               </span>

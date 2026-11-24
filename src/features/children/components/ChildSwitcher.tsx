@@ -93,9 +93,12 @@ export function ChildSwitcher({ variant }: { variant: "side" | "top" | "chip" })
           <>
             <span className="ls-visually-hidden">Child: </span>
             <span className="child-switcher-label">
-              {activeChild.nickname}<span className="child-switcher-age"> · {ageBandLabel(activeChild.ageBand)}</span>
+              {activeChild.nickname}
+              <span className="child-switcher-age">
+                {variant === "top" ? ` (${activeChild.ageBand})` : ` · ${ageBandLabel(activeChild.ageBand)}`}
+              </span>
             </span>
-            <Icon name="chevron-down" />
+            <Icon name="chevron-down" size={variant === "top" ? 16 : 20} />
           </>
         )}
       </button>

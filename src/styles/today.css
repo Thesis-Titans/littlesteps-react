@@ -1,8 +1,13 @@
 /* Today plan and history (react #8, #45) */
 
 .today-screen {
-  max-width: 1100px;
+  max-width: 1360px;
   width: 100%;
+  margin: 0 auto;
+}
+
+.today-advisory-btn {
+  align-self: flex-start;
 }
 
 .today-grid {
@@ -60,9 +65,28 @@
   color: var(--color-text-primary);
 }
 
+.today-weather-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+}
+
 .today-weather-attr {
   font: var(--font-meta);
   color: var(--color-text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.today-weather-attr:hover {
+  color: var(--color-brand-forest);
+}
+
+.today-weather-btn {
+  font-size: 13px;
+  min-height: 36px;
+  padding: 0 var(--space-12);
 }
 
 .today-side-widget {
