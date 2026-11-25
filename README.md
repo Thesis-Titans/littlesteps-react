@@ -1,6 +1,6 @@
 # LittleSteps Web
 
-React + TypeScript web client for LittleSteps, powered by Vite. Features include caregiver authentication (sign-in and sign-up with in-field password toggle), responsive 5-tab app shell (desktop sidebar and 72px mobile tab bar), child profile management, account and privacy views, learning catalog exploration, and a constrained AI play idea helper with deterministic catalog fallback.
+React + TypeScript web client for LittleSteps, powered by Vite. Features include caregiver authentication (sign-in and sign-up with in-field password toggle), responsive 5-tab app shell (desktop sidebar and 72px mobile tab bar), child profile management, account and privacy views, learning catalog exploration, and a catalog-first AI play idea helper with deterministic catalog fallback.
 
 ---
 
