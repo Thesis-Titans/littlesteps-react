@@ -1,3 +1,4 @@
+import { NON_DIAGNOSTIC_PLAY_DISCLAIMER } from "../../config/externalLinks";
 import { ApiError, apiFetch } from "../../services/api";
 import { filterFallbackActivities } from "../catalog/api";
 import type {
@@ -18,6 +19,7 @@ export async function getAiRecommendations(
     language: request.language,
     setting: request.setting ?? "either",
     count: request.count ?? 3,
+    allowCustom: request.allowCustom ?? true,
   };
 
   if (request.domain) {
@@ -87,7 +89,7 @@ export function buildDeterministicFallback(
     provenance: {
       badge: null,
       label: "Our picks",
-      disclaimer: "Observational play suggestion only. Not developmental assessment.",
+      disclaimer: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
       model: null,
       reviewed: true,
     },

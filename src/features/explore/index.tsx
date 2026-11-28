@@ -1,80 +1,102 @@
 import { useState } from "react";
-import { SuccessNotice } from "../../components/common";
+import { useLocation } from "react-router-dom";
+import { SegmentedTabs, SuccessNotice, type SegmentedTabItem } from "../../components/common";
 import { ScreenHeader } from "../../components/layout";
-import { IdeaHelper } from "../ai";
-import { CatalogBrowser, type CatalogActivity } from "../catalog";
+import { IdeaHelper, IdeaHelperBanner } from "../ai";
+import { CatalogBrowser, type CatalogActivity, type Setting } from "../catalog";
+import { getChildAgeMonths } from "../children/types";
 import { useChild } from "../children/useChild";
-import type { Child } from "../children/types";
-import { formatDate } from "../today/logic";
 import { PlanActivityDialog } from "../today";
-import { StorybooksSection } from "./components/StorybooksSection";
+import { formatDate } from "../today/logic";
+import { StorybooksSection, type StorybooksTabId } from "./components/StorybooksSection";
+
 export { StorybooksSection };
 
-function getChildAgeMonths(child?: Child | null): number | undefined {
-  if (!child) return undefined;
-  if (child.birthMonthYear) {
-    const [yearStr, monthStr] = child.birthMonthYear.split("-");
-    const y = parseInt(yearStr, 10);
-    const m = parseInt(monthStr, 10);
-    if (!isNaN(y) && !isNaN(m)) {
-      const now = new Date();
-      const diff = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
-      return Math.max(0, Math.min(84, diff));
-    }
-  }
-  const bandMidpoints: Record<string, number> = {
-    "0-5m": 3,
-    "6-11m": 8,
-    "12-23m": 18,
-    "24-35m": 30,
-    "36-47m": 42,
-    "48-59m": 54,
-    "60-71m": 66,
-  };
-  return child.ageBand ? bandMidpoints[child.ageBand] : undefined;
-}
+type ExploreLocationState = {
+  presetSetting?: Setting;
+} | null;
 
-/** Explore screen: Learning catalog browsing, AI idea helper, and storybooks */
+type ExploreTabId = "activities" | StorybooksTabId;
+
+/** Explore screen: segmented catalog navigation, Idea Helper, storybooks, and Philippine rhymes. */
 export function ExploreScreen() {
   const { activeChild } = useChild();
+  const location = useLocation();
+  const presetSetting = (location.state as ExploreLocationState)?.presetSetting;
   const ageBand = activeChild?.ageBand ?? "12-23m";
   const nickname = activeChild?.nickname;
   const childAgeMonths = getChildAgeMonths(activeChild);
+
+  const [activeTab, setActiveTab] = useState<ExploreTabId>("activities");
+  const [ideaHelperOpen, setIdeaHelperOpen] = useState(Boolean(presetSetting));
+  const [savedBookCount, setSavedBookCount] = useState(0);
   const [planning, setPlanning] = useState<{ activity: CatalogActivity; opener: HTMLElement | null } | null>(null);
   const [notice, setNotice] = useState<string>();
+
+  const tabs: SegmentedTabItem<ExploreTabId>[] = [
+    { id: "activities", label: "Activities" },
+    { id: "books", label: "Storybooks" },
+    { id: "shelf", label: "Our Bookshelf", count: savedBookCount },
+    { id: "rhymes", label: "Read & Sing Together" },
+  ];
+
+  const isActivitiesTab = activeTab === "activities";
+  const controlledShelfTab: StorybooksTabId = isActivitiesTab ? "books" : activeTab;
 
   return (
     <section className="screen" aria-labelledby="explore-title">
       <ScreenHeader
         id="explore-title"
         title="Explore"
-        subtitle="Play ideas and activities for everyday moments."
+        subtitle="Simple ideas with things you already have."
       />
 
       <SuccessNotice message={notice} onClose={() => setNotice(undefined)} />
 
-      {/* AI idea helper */}
-      <IdeaHelper
-        ageBand={ageBand}
-        childNickname={nickname}
-        onPlanActivity={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
+      <SegmentedTabs
+        ariaLabel="Explore sections"
+        tabs={tabs}
+        activeId={activeTab}
+        onChange={setActiveTab}
       />
 
-      {/* Age-aware catalog browser */}
-      <CatalogBrowser
-        initialAgeBand={ageBand}
-        activeChildNickname={nickname}
-        childAgeMonths={childAgeMonths}
-        onPlan={activeChild ? (activity, opener) => setPlanning({ activity, opener }) : undefined}
-      />
+      {isActivitiesTab && (
+        <>
+          {ideaHelperOpen ? (
+            <IdeaHelper
+              ageBand={ageBand}
+              childNickname={nickname}
+              initialSetting={presetSetting}
+              onClose={() => setIdeaHelperOpen(false)}
+              onPlanActivity={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
+            />
+          ) : (
+            <IdeaHelperBanner
+              childNickname={nickname}
+              onOpen={() => setIdeaHelperOpen(true)}
+            />
+          )}
 
-      {/* Storybooks from Open Library & Bookshelf (react #48, ADR-010, ADR-013, ADR-015) */}
-      <StorybooksSection
-        childId={activeChild?.id}
-        onPlan={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
-        ageBand={ageBand}
-        childNickname={nickname}
-      />
+          <CatalogBrowser
+            initialAgeBand={ageBand}
+            activeChildNickname={nickname}
+            childAgeMonths={childAgeMonths}
+            onPlan={activeChild ? (activity, opener) => setPlanning({ activity, opener }) : undefined}
+          />
+        </>
+      )}
+
+      <div hidden={isActivitiesTab}>
+        <StorybooksSection
+          childId={activeChild?.id}
+          controlledTab={controlledShelfTab}
+          onTabChange={setActiveTab}
+          onSavedCountChange={setSavedBookCount}
+          onPlan={activeChild ? (activity) => setPlanning({ activity, opener: null }) : undefined}
+          ageBand={ageBand}
+          childNickname={nickname}
+        />
+      </div>
 
       {activeChild && (
         <PlanActivityDialog

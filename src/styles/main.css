@@ -2,6 +2,7 @@
 @import "./components.css";
 @import "./account.css";
 @import "./catalog.css";
+@import "./storybooks.css";
 @import "./today.css";
 @import "./ai.css";
 @import "./milestones.css";
@@ -31,7 +32,7 @@ button:disabled { cursor: wait; opacity: .65; }
 .secondary-button { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 18px; border-radius: var(--radius-control); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-input); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
 .primary-button { width: 100%; }
 
-/* Sign in · Figma WEB 00 (93:876) / MOBILE WEB 00 (93:1785) */
+/* Sign-in and account creation */
 .sign-in-page { display: flex; flex-direction: column; align-items: center; gap: 16px; min-height: 100vh; padding: 32px 16px 96px; background: var(--color-surface-canvas); }
 .sign-in-page p { margin: 0; }
 .brand-panel { position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 400px; padding: 24px 0 20px; overflow: clip; border-radius: 20px; background: var(--color-brand-warm-cream); }
@@ -69,9 +70,10 @@ button:disabled { cursor: wait; opacity: .65; }
 .auth-card input[aria-invalid="true"] { border-color: var(--color-border-error); }
 .password-help { display: flex; align-items: center; justify-content: space-between; }
 .forgot-password-row { display: flex; justify-content: flex-end; margin-top: -6px; }
-.forgot-password-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-brand-forest); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
+.forgot-password-link { display: inline-flex; align-items: center; min-height: 44px; min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; color: var(--color-brand-forest); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; cursor: pointer; }
 .forgot-password-link:hover { text-decoration: underline; }
 .forgot-password-link:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.auth-reset-form { display: flex; flex-direction: column; gap: var(--space-16); }
 .text-button { display: inline-flex; align-items: center; min-height: 44px; min-width: 0; padding: 0; border-radius: 0; background: none; color: var(--color-brand-forest); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
 .auth-new { font-size: 14px; line-height: 20px; text-align: center; color: var(--color-text-secondary); }
 .privacy-note { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: var(--color-text-secondary); }
@@ -127,7 +129,8 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: calc(var(
 .skip-link:focus { transform: none; outline: var(--focus-ring-width) solid var(--color-focus); outline-offset: var(--focus-ring-offset); }
 
 .tab-links { display: flex; margin: 0; padding: 0; list-style: none; }
-.tab-link { display: flex; align-items: center; gap: var(--space-12); min-height: var(--size-touch-target-min); border-radius: var(--radius-control); color: var(--color-text-secondary); font: var(--font-label); text-decoration: none; }
+.tab-link { display: flex; align-items: center; gap: var(--space-12); min-height: var(--size-touch-target-min); border-radius: var(--radius-control); color: var(--color-text-secondary); font: var(--font-label); text-decoration: none; transition: background-color 140ms ease, color 140ms ease; }
+.tab-link:hover { background: var(--color-surface-canvas); color: var(--color-text-primary); }
 .tab-link[aria-current="page"] { color: var(--color-text-brand); }
 
 .bottom-tab-bar { position: fixed; inset: auto 0 0; z-index: 1; padding-bottom: env(safe-area-inset-bottom); background: var(--color-surface-card); border-top: 1px solid var(--color-border-subtle); }
@@ -142,13 +145,13 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: calc(var(
   .bottom-tab-bar .tab-link-label { display: none; }
 }
 
-.screen { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-24); width: 100%; max-width: 1120px; margin: 0 auto; }
-@media (min-width: 1280px) {
-  .screen { max-width: 1360px; }
-}
-.screen-header-content { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-8); }
+.screen { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-24); width: 100%; max-width: 1160px; margin: 0 auto; }
+.screen-narrow { max-width: 720px; }
+.screen-header-row { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: var(--space-12); width: 100%; }
+.screen-header-content { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-8); flex: 1 1 280px; min-width: 0; }
+.screen-header-action { display: flex; align-items: center; gap: var(--space-8); flex-shrink: 0; }
 .screen h1 { font: var(--font-display-mobile); letter-spacing: 0; }
-.screen h1:focus:not(:focus-visible) { outline: none; }
+.screen h1:focus { outline: none; }
 .screen-subtitle { margin: 0; font: var(--font-body); color: var(--color-text-secondary); overflow-wrap: anywhere; }
 /* "For [child]" (§2.1, §5.2): a badge-styled button that opens the child switcher */
 .child-chip { max-width: 100%; background: var(--color-surface-soft-green); color: var(--color-brand-forest); overflow-wrap: anywhere; }
@@ -171,7 +174,7 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: calc(var(
 @media (max-width: 1023px) { .desktop-only { display: none; } }
 @media (min-width: 1024px) { .mobile-only { display: none; } }
 
-/* Child profiles · switcher, list and form (react #6) */
+/* Child profiles, switcher, list, and form */
 .child-switcher { position: relative; min-width: 0; }
 .child-switcher-button, .child-menu > * { display: flex; align-items: center; gap: var(--space-8); width: 100%; min-height: var(--size-touch-target-min); padding: 0 var(--space-12); border: 1px solid var(--color-border-input); border-radius: var(--radius-control); background: var(--color-surface-card); color: var(--color-text-primary); font: var(--font-label); text-align: left; text-decoration: none; white-space: normal; cursor: pointer; }
 .child-switcher-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

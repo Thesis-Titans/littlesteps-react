@@ -9,6 +9,7 @@ export interface RecommendationRequest {
   materials?: string[];
   language: "en" | "fil" | "hil";
   count?: number;
+  allowCustom?: boolean;
 }
 
 export interface Suggestion {
@@ -16,23 +17,25 @@ export interface Suggestion {
   title: string;
   whyPicked: string;
   activity: CatalogActivity;
+  isCustom?: boolean;
 }
 
 export interface Provenance {
   badge: "Suggested by AI" | null;
-  label: "Our picks" | null;
+  label: "Our picks" | "Material adaptation" | null;
   disclaimer: string;
   guidance?: string;
   model: string | null;
-  reviewed: true;
+  reviewed: boolean;
 }
 
 export interface RecommendationResponse {
   suggestions: Suggestion[];
-  source: "ai" | "catalog_fallback";
+  source: "ai" | "ai_custom" | "catalog_fallback";
   tier: 1 | 2 | 3;
   provenance: Provenance;
   reason?: "NO_REVIEWED_CONTENT";
+  materialNote?: string;
 }
 
 export interface StoryActivityRequest {
@@ -72,11 +75,17 @@ export interface AdaptedActivitySuggestion {
   activityId: string;
   originalTitle: string;
   adaptedTitle: string;
+  /** Optional fallback title field returned by alternate payload versions. */
+  title?: string;
   adjustment: ActivityAdjustment;
+  /** Optional adjusted duration in minutes. */
+  durationMinutes?: number;
   instructions: string[];
   materials: string[];
   safetyNotice: string;
   explanation: string;
+  /** Optional fallback rationale field returned by alternate payload versions. */
+  whyItWorks?: string;
 }
 
 export interface AdaptActivityResponse {

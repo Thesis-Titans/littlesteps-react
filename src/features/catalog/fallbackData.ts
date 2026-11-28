@@ -1,6 +1,7 @@
+import { DEFAULT_SOURCE_ATTRIBUTION, NON_DIAGNOSTIC_PLAY_DISCLAIMER } from "../../config/externalLinks";
 import type { BookItem, CatalogActivity } from "./types";
 
-export const SOURCE_ATTRIBUTION_FALLBACK = "Source: early learning guide · still being checked";
+export const SOURCE_ATTRIBUTION_FALLBACK = DEFAULT_SOURCE_ATTRIBUTION;
 
 export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
   {
@@ -21,7 +22,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-gentle-tracking",
@@ -41,7 +42,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-peekaboo-cloth",
@@ -61,7 +62,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-rhythm-clap",
@@ -81,7 +82,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-stack-cups",
@@ -101,7 +102,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-cushion-crawl",
@@ -121,7 +122,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-naming-objects",
@@ -141,7 +142,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-nature-color-hunt",
@@ -161,7 +162,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-freeze-dance",
@@ -181,7 +182,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-emotion-mirror",
@@ -201,7 +202,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-story-retell",
@@ -221,7 +222,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-kitchen-pretend",
@@ -241,7 +242,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-shadow-shapes",
@@ -261,7 +262,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-tape-balance",
@@ -281,7 +282,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-rhyme-match",
@@ -301,7 +302,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-calm-faces",
@@ -321,7 +322,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-box-tunnel",
@@ -341,7 +342,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-water-sponge",
@@ -361,7 +362,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-sock-toss",
@@ -381,7 +382,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-pot-drum",
@@ -401,7 +402,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-texture-box",
@@ -421,7 +422,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-towel-stepping",
@@ -441,7 +442,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-leaf-crunch",
@@ -461,7 +462,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
   {
     id: "act-lullaby-sway",
@@ -481,7 +482,7 @@ export const FALLBACK_CATALOG_ACTIVITIES: CatalogActivity[] = [
     ],
     provenanceSource: SOURCE_ATTRIBUTION_FALLBACK,
     status: "reviewed_approved",
-    limitations: "Observational play prompt only. Not developmental assessment.",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   },
 ];
 

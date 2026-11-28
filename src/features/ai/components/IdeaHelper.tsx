@@ -1,42 +1,64 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   Badge,
   Button,
   Card,
-  Chip,
   Icon,
   InlineAlert,
-  Select,
-  TextField,
+  SessionExpiredAlert,
 } from "../../../components/common";
-import { ageBandLabel, type AgeBand } from "../../children/types";
-import { DOMAIN_LABELS, DOMAINS, SETTING_LABELS, type CatalogActivity, type Domain, type Setting } from "../../catalog/types";
+import { NON_DIAGNOSTIC_PLAY_DISCLAIMER } from "../../../config/externalLinks";
 import { failureKind } from "../../../services/offline";
-import { isRainyWeather, useWeather } from "../../../services/weather";
+import { useWeather } from "../../../services/weather";
+import type { CatalogActivity, Domain, Setting } from "../../catalog/types";
+import type { AgeBand } from "../../children/types";
 import { ApiError, buildDeterministicFallback, getAiRecommendations } from "../api";
 import type { RecommendationRequest, RecommendationResponse } from "../types";
+import { IdeaHelperForm, type PlayLanguage } from "./IdeaHelperForm";
+import { IdeaSuggestionCard } from "./IdeaSuggestionCard";
 
-type IdeaHelperProps = {
+export interface IdeaHelperProps {
   ageBand: AgeBand;
   childNickname?: string;
+  /** Optional preset setting passed from Today's weather play hint. */
+  initialSetting?: Setting;
   onSelectActivity?: (activityId: string) => void;
   onPlanActivity?: (activity: CatalogActivity) => void;
-};
+  onClose?: () => void;
+}
 
 type ViewState = "form" | "loading" | "results" | "unauthorized";
 
-const TIME_CHOICES = [10, 15, 30, 45] as const;
-
-export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanActivity }: IdeaHelperProps) {
+/**
+ * Constrained AI Idea Helper supporting reviewed catalog matches, custom material adaptations,
+ * multi-activity Play Blocks (30–45 min), and deterministic fallback picks.
+ */
+export function IdeaHelper({
+  ageBand,
+  childNickname,
+  initialSetting,
+  onSelectActivity,
+  onPlanActivity,
+  onClose,
+}: IdeaHelperProps) {
   const [viewState, setViewState] = useState<ViewState>("form");
   const [timeMinutes, setTimeMinutes] = useState<number>(15);
-  const [userSetting, setUserSetting] = useState<Setting | null>(null);
+  const [userSetting, setUserSetting] = useState<Setting | null>(initialSetting ?? null);
+  const [prevInitialSetting, setPrevInitialSetting] = useState<Setting | undefined>(initialSetting);
+  const [language, setLanguage] = useState<PlayLanguage>("en");
   const [materialsText, setMaterialsText] = useState("");
   const [selectedDomain, setSelectedDomain] = useState<Domain | "all">("all");
   const [response, setResponse] = useState<RecommendationResponse | null>(null);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const [fallbackReason, setFallbackReason] = useState<string | null>(null);
   const [fallbackCycle, setFallbackCycle] = useState(0);
+
+  if (initialSetting !== prevInitialSetting) {
+    setPrevInitialSetting(initialSetting);
+    if (initialSetting) {
+      setUserSetting(initialSetting);
+    }
+  }
 
   const { weather, cityName } = useWeather();
   const defaultSetting: Setting = weather?.suggestedSetting === "indoor" ? "indoor" : "either";
@@ -54,22 +76,19 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
     setting,
     domain: selectedDomain !== "all" ? selectedDomain : undefined,
     materials: parsedMaterials,
-    language: "en",
+    language,
     count: 3,
+    allowCustom: true,
   });
 
-  const handleSubmit = async (e?: React.FormEvent, isAnother = false) => {
+  const handleSubmit = async (e?: FormEvent, isAnother = false) => {
     if (e) e.preventDefault();
     setViewState("loading");
     setRateLimitMessage(null);
     setFallbackReason(null);
 
     const nextCycle = isAnother ? fallbackCycle + 1 : 0;
-    if (isAnother) {
-      setFallbackCycle(nextCycle);
-    } else {
-      setFallbackCycle(0);
-    }
+    setFallbackCycle(nextCycle);
 
     const request = buildRequest();
 
@@ -84,7 +103,6 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
       if (failureKind(err, true) === "unauthorized") {
         setViewState("unauthorized");
       } else if (err instanceof ApiError && err.status === 429) {
-        // Rate limited fallback
         setRateLimitMessage(
           "Let's take a short break. You've asked for many ideas in a row. Please wait a minute, then try again."
         );
@@ -96,7 +114,6 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
         setResponse(fallback);
         setViewState("results");
       } else {
-        // Provider failure / offline / 5xx fallback
         const childNameText = childNickname ? `${childNickname}'s` : "this";
         setFallbackReason(
           `The idea helper isn't working right now. Here are a few favorites for ${childNameText} age from our activity list.`
@@ -115,7 +132,11 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
   };
 
   const childName = childNickname ?? "your child";
-  const isAiSuggestion = response?.source === "ai" && response?.tier === 1;
+  const isCustomAdaptation = response?.source === "ai_custom";
+  const isAiSuggestion =
+    response?.tier === 1 && (response?.source === "ai" || response?.source === "ai_custom");
+  const isPlayBlock =
+    Boolean(response) && timeMinutes >= 30 && (response?.suggestions.length ?? 0) >= 2;
 
   return (
     <Card as="section" elevated className="idea-helper-card" aria-labelledby="idea-helper-heading">
@@ -124,7 +145,16 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
           <h2 id="idea-helper-heading" className="idea-helper-title">
             Idea Helper
           </h2>
-          {isAiSuggestion && <Badge kind="ai" />}
+          <div className="idea-helper-header-actions">
+            {isAiSuggestion && (
+              <Badge kind="ai">{isCustomAdaptation ? "Material adaptation" : undefined}</Badge>
+            )}
+            {onClose && (
+              <Button variant="text" onClick={onClose} aria-label="Hide Idea Helper">
+                Hide
+              </Button>
+            )}
+          </div>
         </div>
         <p className="idea-helper-subtitle">
           Find a play idea for {childName} with the time and materials you have.
@@ -132,84 +162,21 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
       </div>
 
       {viewState === "form" && (
-        <form className="idea-helper-form" onSubmit={handleSubmit}>
-          {/* Time question */}
-          <fieldset className="idea-helper-fieldset">
-            <legend className="idea-helper-legend">How much time do you have?</legend>
-            <div className="idea-helper-chips" role="radiogroup" aria-label="How much time do you have?">
-              {TIME_CHOICES.map((mins) => (
-                <Chip
-                  key={mins}
-                  selected={timeMinutes === mins}
-                  onClick={() => setTimeMinutes(mins)}
-                  aria-label={`${mins} minutes`}
-                >
-                  {mins} min
-                </Chip>
-              ))}
-            </div>
-          </fieldset>
-
-          {weather && cityName && (
-            <div className="idea-helper-weather-hint" role="status" aria-label="Weather recommendation">
-              <Icon name={isRainyWeather(weather) ? "cloud-rain" : "sun"} size={16} />
-              <span>
-                {isRainyWeather(weather)
-                  ? `Rainy in ${cityName} · Indoor play suggested`
-                  : weather.hint ?? `Good weather in ${cityName} for outdoor play`}
-              </span>
-            </div>
-          )}
-
-          <div className="idea-helper-row">
-            {/* Setting question */}
-            <div className="idea-helper-field">
-              <Select
-                label="Where will you play?"
-                value={setting}
-                onChange={(e) => setUserSetting(e.target.value as Setting)}
-                options={[
-                  { value: "either", label: "Indoor or outdoor" },
-                  { value: "indoor", label: "Indoor" },
-                  { value: "outdoor", label: "Outdoor" },
-                ]}
-              />
-            </div>
-
-            {/* Domain question */}
-            <div className="idea-helper-field">
-              <Select
-                label="Kind of play"
-                value={selectedDomain}
-                onChange={(e) => setSelectedDomain(e.target.value as Domain | "all")}
-                options={[
-                  { value: "all", label: "Any kind of play" },
-                  ...DOMAINS.map((domain) => ({
-                    value: domain,
-                    label: DOMAIN_LABELS[domain],
-                  })),
-                ]}
-              />
-            </div>
-          </div>
-
-          {/* Materials question */}
-          <div className="idea-helper-field idea-helper-materials-field">
-            <TextField
-              label="What do you have at home?"
-              placeholder="For example: cups, spoon, towel, paper"
-              hint="Optional. Separate items with a comma."
-              value={materialsText}
-              onChange={(e) => setMaterialsText(e.target.value)}
-            />
-          </div>
-
-          <div className="idea-helper-actions">
-            <Button variant="primary" type="submit" className="idea-helper-submit-btn">
-              Find ideas
-            </Button>
-          </div>
-        </form>
+        <IdeaHelperForm
+          timeMinutes={timeMinutes}
+          setting={setting}
+          selectedDomain={selectedDomain}
+          language={language}
+          materialsText={materialsText}
+          weather={weather}
+          cityName={cityName}
+          onTimeChange={setTimeMinutes}
+          onSettingChange={setUserSetting}
+          onDomainChange={setSelectedDomain}
+          onLanguageChange={setLanguage}
+          onMaterialsChange={setMaterialsText}
+          onSubmit={(e) => void handleSubmit(e)}
+        />
       )}
 
       {viewState === "loading" && (
@@ -223,11 +190,7 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
         </div>
       )}
 
-      {viewState === "unauthorized" && (
-        <InlineAlert kind="error" title="Please sign in again to continue">
-          Your session has ended. Your saved notes are safe.
-        </InlineAlert>
-      )}
+      {viewState === "unauthorized" && <SessionExpiredAlert />}
 
       {viewState === "results" && response && (
         <div className="idea-helper-results" aria-live="polite">
@@ -247,84 +210,44 @@ export function IdeaHelper({ ageBand, childNickname, onSelectActivity, onPlanAct
             <div className="idea-helper-fallback-heading">
               <h3 className="idea-helper-fallback-title">Our picks</h3>
               <p className="idea-helper-fallback-subtitle">
-                The idea helper isn't working right now. Here are a few favorites for {childName}'s age from our activity list.
+                The idea helper isn&apos;t working right now. Here are a few favorites for {childName}&apos;s age from our activity list.
               </p>
             </div>
           )}
 
-          {/* Non-diagnostic disclaimer on every idea response */}
-          <p className="idea-helper-disclaimer">
-            Observational play suggestion only. Not developmental assessment.
-          </p>
-
-          {/* Tier 1 guidance note */}
-          {isAiSuggestion && response.provenance.guidance && (
-            <p className="idea-helper-guidance">
-              {response.provenance.guidance}
-            </p>
+          {response.materialNote && (
+            <InlineAlert kind="info" title="About your household items">
+              <p>{response.materialNote}</p>
+            </InlineAlert>
           )}
 
-          {/* Suggestions List */}
+          {isPlayBlock && (
+            <div className="idea-play-block-banner" role="note">
+              <Icon name="clock" size={18} />
+              <div>
+                <strong>{timeMinutes}-minute Play Block</strong>
+                <p>
+                  Young children enjoy short bursts of play. Rotate through these {response.suggestions.length} activities at {childName}&apos;s pace.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <p className="idea-helper-disclaimer">{NON_DIAGNOSTIC_PLAY_DISCLAIMER}</p>
+
+          {isAiSuggestion && response.provenance.guidance && (
+            <p className="idea-helper-guidance">{response.provenance.guidance}</p>
+          )}
+
           <div className="idea-helper-suggestions">
             {response.suggestions.map((suggestion) => (
-              <article key={suggestion.activityId} className="idea-suggestion-card">
-                <div className="idea-suggestion-header">
-                  <span className={`catalog-domain-tag catalog-domain-${suggestion.activity.domain}`}>
-                    {DOMAIN_LABELS[suggestion.activity.domain]}
-                  </span>
-                  <span className="catalog-meta-item">
-                    <Icon name="clock" size={16} />
-                    {suggestion.activity.durationEstimate || `${suggestion.activity.durationMinutes} min`}
-                  </span>
-                </div>
-
-                <h3 className="idea-suggestion-title">{suggestion.title}</h3>
-
-                <p className="idea-suggestion-why">
-                  <strong>Why we picked it:</strong> {suggestion.whyPicked}
-                </p>
-
-                <div className="idea-suggestion-meta">
-                  <span>{ageBandLabel(suggestion.activity.ageBand)}</span>
-                  <span aria-hidden="true">·</span>
-                  <span>{SETTING_LABELS[suggestion.activity.setting]}</span>
-                </div>
-
-                {suggestion.activity.materials.length > 0 && (
-                  <div className="idea-suggestion-materials">
-                    <span className="idea-materials-label">Materials:</span>{" "}
-                    {suggestion.activity.materials.join(", ")}
-                  </div>
-                )}
-
-                <div className="idea-suggestion-steps">
-                  <h4 className="idea-steps-title">Steps to play:</h4>
-                  <ol className="catalog-instructions-list">
-                    {suggestion.activity.instructions.map((step, idx) => (
-                      <li key={idx}>{step}</li>
-                    ))}
-                  </ol>
-                </div>
-
-                <div className="idea-suggestion-actions">
-                  {onPlanActivity && (
-                    <Button
-                      variant="primary"
-                      onClick={() => onPlanActivity(suggestion.activity)}
-                    >
-                      Add to plan
-                    </Button>
-                  )}
-                  {onSelectActivity && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => onSelectActivity(suggestion.activityId)}
-                    >
-                      View activity
-                    </Button>
-                  )}
-                </div>
-              </article>
+              <IdeaSuggestionCard
+                key={suggestion.activityId}
+                suggestion={suggestion}
+                isCustom={isCustomAdaptation}
+                onPlanActivity={onPlanActivity}
+                onSelectActivity={onSelectActivity}
+              />
             ))}
           </div>
 

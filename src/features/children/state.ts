@@ -22,7 +22,8 @@ export type Action =
   | { type: "failed"; userId: string; status: "error" | "offline" | "unauthorized"; error: Error }
   | { type: "select"; id: string | null }
   | { type: "added"; child: Child }
-  | { type: "edited"; child: Child };
+  | { type: "edited"; child: Child }
+  | { type: "deleted"; id: string };
 
 export const initialState = (userId: string, activeId: string | null): LoadState => ({
   userId, children: [], activeId, status: "loading", error: null, mutations: 0, loadStartedAt: 0, touched: {}
@@ -73,6 +74,18 @@ export function reducer(state: LoadState, action: Action): LoadState {
         mutations: state.mutations + 1,
         touched: { ...state.touched, [action.child.id]: action.child }
       };
+    case "deleted": {
+      const remaining = state.children.filter((c) => c.id !== action.id);
+      const nextTouched = { ...state.touched };
+      delete nextTouched[action.id];
+      return {
+        ...state,
+        children: remaining,
+        activeId: state.activeId === action.id ? (remaining[0]?.id ?? null) : state.activeId,
+        mutations: state.mutations + 1,
+        touched: nextTouched,
+      };
+    }
   }
 }
 

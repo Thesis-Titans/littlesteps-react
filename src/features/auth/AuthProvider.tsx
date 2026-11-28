@@ -1,5 +1,12 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { onIdTokenChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onIdTokenChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  type User,
+} from "firebase/auth";
 import { auth } from "../../services/firebase";
 import { AuthContext } from "./context";
 import type { AuthState } from "./types";
@@ -10,6 +17,9 @@ async function signIn(email: string, password: string) {
 }
 async function createAccount(email: string, password: string) {
   await createUserWithEmailAndPassword(auth, email, password);
+}
+async function resetPassword(email: string) {
+  await sendPasswordResetEmail(auth, email);
 }
 const signOutCaregiver = () => signOut(auth);
 
@@ -26,7 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const value: AuthState = { user, loading, signIn, createAccount, signOut: signOutCaregiver };
+  const value: AuthState = {
+    user,
+    loading,
+    signIn,
+    createAccount,
+    signOut: signOutCaregiver,
+    resetPassword,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

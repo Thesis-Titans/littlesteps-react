@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from "react";
-import { createChild, listChildren, updateChild } from "./api";
+import { createChild, deleteChild, listChildren, updateChild } from "./api";
 import { ChildContext } from "./context";
 import { activeChildOf, failureStatus, initialState, onOnline, readActiveId, reducer, writeActiveId } from "./state";
 import type { ChildState, CreateChildInput, UpdateChildInput } from "./types";
@@ -59,7 +59,11 @@ export function ChildProvider({ children, userId = "" }: { children: ReactNode; 
         const child = await updateChild(childId, input);
         dispatch({ type: "edited", child });
         return child;
-      }
+      },
+      removeChild: async (childId: string) => {
+        await deleteChild(childId);
+        dispatch({ type: "deleted", id: childId });
+      },
     }),
     [state.children, activeChild, state.status, state.error, refresh]
   );

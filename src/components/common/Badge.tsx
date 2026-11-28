@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
+import { DEFAULT_SOURCE_ATTRIBUTION } from "../../config/externalLinks";
 import { Icon, type IconName } from "./Icon";
 
 type BadgeKind = "source" | "completed" | "ai" | "private" | "offline";
 
 const KINDS: Record<BadgeKind, { icon: IconName; text: string }> = {
-  source: { icon: "info", text: "Source: early learning guide · still being checked" },
+  source: { icon: "info", text: DEFAULT_SOURCE_ATTRIBUTION },
   completed: { icon: "check", text: "Completed today" },
   ai: { icon: "sparkle", text: "Suggested by AI" },
   private: { icon: "lock", text: "Private" },

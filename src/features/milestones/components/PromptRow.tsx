@@ -39,7 +39,6 @@ export function PromptRow({ childId, childName, prompt, observation, editing, on
       {observation?.notes && <p className="milestone-note">Your note: {noteExcerpt(observation.notes)}</p>}
       <p className="milestone-meta">
         <Badge kind="source">{prompt.provenanceSource}</Badge>
-        {prompt.reviewStatus === "synthetic_fixture" && <Badge kind="source">Sample wording, not reviewed</Badge>}
       </p>
       {editing ? (
         <div

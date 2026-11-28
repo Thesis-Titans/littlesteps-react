@@ -1,4 +1,4 @@
-/* Catalog and Learning Library (react #7) */
+/* Catalog and learning library */
 
 .catalog-browser {
   display: flex;
@@ -26,13 +26,20 @@
 }
 
 .catalog-controls {
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+}
+
+.catalog-top-filters {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--space-16);
-  padding: var(--space-16);
-  background: var(--color-surface-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
+  align-items: end;
+}
+
+@media (min-width: 768px) {
+  .catalog-top-filters {
+    grid-template-columns: minmax(0, 1fr) 240px;
+  }
 }
 
 .catalog-search-row {
@@ -93,12 +100,6 @@
   }
 }
 
-@media (min-width: 1440px) {
-  .catalog-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 /* Activity Card */
 .catalog-activity-card {
   display: flex;
@@ -106,6 +107,11 @@
   justify-content: space-between;
   gap: var(--space-12);
   min-height: 220px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.catalog-activity-card:hover {
+  border-color: var(--color-brand-soft-sage);
 }
 
 .catalog-activity-header {
@@ -202,8 +208,15 @@
 }
 
 .catalog-activity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
   margin-top: auto;
   padding-top: var(--space-8);
+}
+
+.catalog-activity-view-btn {
+  flex: 1 1 140px;
 }
 
 /* Detail Modal */
@@ -344,7 +357,7 @@
   }
 }
 
-/* Adaptation Section (Issue #61, ADR-012) */
+/* Activity adaptation section */
 .catalog-adapt-section {
   display: flex;
   flex-direction: column;
@@ -460,373 +473,3 @@
     font: var(--font-h2-desktop);
   }
 }
-
-/* Storybooks Section (react #48) */
-.storybooks-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-16);
-  margin-top: var(--space-32);
-  width: 100%;
-}
-
-.storybooks-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.storybooks-subjects {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-8);
-}
-
-.storybooks-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-16);
-  width: 100%;
-}
-
-@media (min-width: 640px) {
-  .storybooks-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .storybooks-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1440px) {
-  .storybooks-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.storybook-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  box-shadow: var(--elevation-card);
-}
-
-.storybook-cover-wrapper {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  background: var(--color-brand-mist);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.storybook-cover-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.storybook-cover-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  color: var(--color-brand-slate);
-}
-
-.storybook-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding: var(--space-16);
-  gap: var(--space-8);
-}
-
-.storybook-title {
-  margin: 0;
-  font: var(--font-h3);
-  color: var(--color-text-primary);
-}
-
-.storybook-author {
-  margin: 0;
-  font: var(--font-body-small);
-  color: var(--color-text-secondary);
-}
-
-.storybook-subjects-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-}
-
-.storybook-subject-tag {
-  display: inline-block;
-  padding: 2px var(--space-8);
-  font: var(--font-meta);
-  color: var(--color-text-brand);
-  background: var(--color-surface-soft-green);
-  border-radius: 9999px;
-}
-
-.storybook-actions {
-  margin-top: auto;
-  padding-top: var(--space-12);
-  display: flex;
-  gap: var(--space-8);
-  align-items: center;
-}
-
-.storybook-play-btn {
-  flex: 1;
-}
-
-.storybook-bookmark-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: var(--size-touch-target-min);
-  padding: 0 var(--space-12);
-  font: var(--font-body-small);
-  white-space: nowrap;
-}
-
-.storybook-bookmark-btn.is-saved {
-  color: var(--color-brand-forest);
-}
-
-.storybooks-credit {
-  margin-top: var(--space-12);
-  text-align: center;
-}
-
-.storybooks-credit p {
-  margin: 0;
-  font: var(--font-meta);
-  color: var(--color-text-secondary);
-}
-
-.storybooks-credit-link {
-  color: var(--color-text-brand);
-  text-decoration: underline;
-}
-
-.storybooks-credit-link:hover,
-.storybooks-credit-link:focus-visible {
-  color: var(--color-brand-forest);
-}
-
-/* Storybook Play Idea Dialog */
-.storybook-dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-12);
-  padding: var(--space-16) var(--space-24);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.storybook-play-dialog {
-  flex-direction: column;
-  width: min(560px, calc(100vw - 2 * var(--space-16)));
-  max-height: min(80dvh, 640px);
-  overflow: hidden;
-  padding: 0;
-}
-
-.storybook-play-dialog[open] { display: flex; }
-.storybook-play-dialog .storybook-dialog-header { flex: 0 0 auto; }
-.storybook-play-dialog .ls-dialog-title { margin: 0; }
-.storybook-play-dialog .storybook-dialog-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-.storybook-play-dialog .ls-dialog-actions { flex: 0 0 auto; margin: 0; padding: var(--space-16) var(--space-24); border-top: 1px solid var(--color-border-subtle); }
-
-.storybook-dialog-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-16);
-  padding: var(--space-24) var(--space-24);
-}
-
-.storybook-companion-card {
-  padding: var(--space-16);
-  background: var(--color-surface-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
-
-.storybook-companion-title {
-  margin: 0;
-  font: var(--font-h3);
-  color: var(--color-text-primary);
-}
-
-.storybook-companion-desc {
-  margin: 0;
-  font: var(--font-body);
-  color: var(--color-text-primary);
-  line-height: 1.5;
-}
-
-.storybook-companion-safety {
-  padding: var(--space-8) var(--space-12);
-  background: var(--color-status-caution);
-  border-radius: var(--radius-control);
-  font: var(--font-body-small);
-  color: var(--color-text-primary);
-}
-
-.storybook-companion-loading {
-  padding: var(--space-24);
-  text-align: center;
-}
-
-/* Storybooks: moved from inline styles to tokens-only classes (react #51) */
-.storybooks-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-8);
-  margin-top: var(--space-12);
-}
-
-.storybooks-search {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-12);
-}
-
-.storybooks-search-form {
-  display: flex;
-  gap: var(--space-8);
-  max-width: 480px;
-}
-
-.storybooks-search-input {
-  flex: 1;
-  min-height: var(--size-touch-target-min);
-}
-
-.ls-dialog-actions.storybook-dialog-actions {
-  gap: var(--space-8);
-  justify-content: space-between;
-  align-items: center;
-}
-
-.storybook-borrow-link {
-  text-decoration: none;
-}
-
-.storybook-dialog-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-8);
-}
-
-/* Family Bookshelf (ADR-015) */
-.bookshelf-shelf {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-16);
-}
-
-.bookshelf-intro {
-  padding: var(--space-12) var(--space-16);
-  background: var(--color-surface-soft-green);
-  border-radius: var(--radius-card);
-}
-
-.bookshelf-intro h3 {
-  margin: 0 0 var(--space-4);
-  font: var(--font-h3);
-  color: var(--color-text-primary);
-}
-
-.bookshelf-intro p {
-  margin: 0;
-  font: var(--font-body-small);
-  color: var(--color-text-primary);
-}
-
-/* Read & Sing Together (Philippine rhymes) */
-.philippine-rhymes-shelf {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-16);
-}
-
-.rhymes-intro {
-  padding: var(--space-12) var(--space-16);
-  background: var(--color-surface-soft-green);
-  border-radius: var(--radius-card);
-}
-
-.rhymes-intro p {
-  margin: 0;
-  font: var(--font-body-small);
-  color: var(--color-text-primary);
-}
-
-.rhyme-card {
-  justify-content: space-between;
-}
-
-.rhyme-body {
-  padding: var(--space-16);
-}
-
-.rhyme-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--space-8);
-}
-
-.rhyme-duration {
-  font: var(--font-meta);
-  color: var(--color-text-secondary);
-}
-
-.rhyme-badge {
-  margin-bottom: var(--space-8);
-}
-
-/* Two classes so these beat the base .storybook-title / .storybook-author margin: 0. */
-.rhyme-card .storybook-title {
-  margin-bottom: var(--space-4);
-}
-
-.rhyme-card .storybook-author {
-  margin-bottom: var(--space-12);
-}
-
-.rhyme-lyrics {
-  margin-bottom: var(--space-12);
-  padding: var(--space-12);
-  background: var(--color-brand-mist);
-  border-radius: var(--radius-control);
-  font: var(--font-body-small);
-  font-style: italic;
-}
-
-.rhyme-cue {
-  margin: 0;
-  font: var(--font-body-small);
-  color: var(--color-text-primary);
-}
-
-.rhyme-actions {
-  margin-top: auto;
-  padding: 0 var(--space-16) var(--space-16);
-}
-

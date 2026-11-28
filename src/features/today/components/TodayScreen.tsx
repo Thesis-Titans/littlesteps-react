@@ -1,16 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Chip, EmptyState, Icon, InlineAlert, Skeleton, UndoToast } from "../../../components/common";
-import { ScreenHeader } from "../../../components/layout";
-import { isRainyWeather, useWeather } from "../../../services/weather";
+import {
+  Button,
+  EmptyState,
+  FilterChips,
+  InlineAlert,
+  SessionExpiredAlert,
+  Skeleton,
+  UndoToast,
+} from "../../../components/common";
+import { ScreenHeader, TwoColumnLayout } from "../../../components/layout";
+import { useWeather } from "../../../services/weather";
 import { NonDiagnosticNotice } from "../../children/components/NonDiagnosticNotice";
+import type { AgeBand } from "../../children/types";
 import { useChild } from "../../children/useChild";
 import { HISTORY_LIMIT, useToday } from "../hooks/useToday";
 import { localDate, matchesFilters, QUICK_FILTERS } from "../logic";
 import type { QuickFilter } from "../types";
 import { PlanCard } from "./PlanCard";
+import { TodaySideWidgets } from "./TodaySideWidgets";
+import { TodayWeatherBanner } from "./TodayWeatherBanner";
 
-const SEEN_KEY = "ls.advisorySeen"; // a yes/no flag only, no child data
+const SEEN_KEY = "ls.advisorySeen"; // boolean preference flag only, no child data
 
 const readSeen = () => {
   try {
@@ -27,15 +38,16 @@ function getTimeGreeting(): string {
   return "Good evening";
 }
 
-/** Today screen: the selected child's plan, quick filters, mark complete, widgets and history. */
+/** Today screen: the selected child's plan, quick filters, mark complete, weather hint, and history. */
 export function TodayScreen() {
   const { activeChild } = useChild();
   const [showAdvisory, setShowAdvisory] = useState(() => !readSeen());
+
   const hideAdvisory = () => {
     try {
       localStorage.setItem(SEEN_KEY, "1");
     } catch {
-      /* private mode: it shows again next visit */
+      /* private browsing: notice shows again on next visit */
     }
     setShowAdvisory(false);
   };
@@ -45,19 +57,38 @@ export function TodayScreen() {
       <ScreenHeader
         id="today-title"
         title="Today"
-        subtitle={activeChild ? `${getTimeGreeting()}! Here's ${activeChild.nickname}'s play plan for today.` : "Your plan for today."}
+        subtitle={
+          activeChild
+            ? `${getTimeGreeting()}! Here's ${activeChild.nickname}'s play plan for today.`
+            : "Your plan for today."
+        }
+        action={
+          !showAdvisory ? (
+            <Button
+              variant="text"
+              className="today-advisory-btn"
+              onClick={() => setShowAdvisory(true)}
+            >
+              Not a diagnostic tool
+            </Button>
+          ) : undefined
+        }
       />
-      {showAdvisory ? (
-        <NonDiagnosticNotice action={<Button variant="secondary" onClick={hideAdvisory}>Hide this notice</Button>} />
-      ) : (
-        <Button variant="text" className="today-advisory-btn" onClick={() => setShowAdvisory(true)}>Not a diagnostic tool</Button>
+      {showAdvisory && (
+        <NonDiagnosticNotice
+          action={
+            <Button variant="secondary" onClick={hideAdvisory}>
+              Hide this notice
+            </Button>
+          }
+        />
       )}
-      {/* Keyed by child so switching children starts a fresh load. */}
       {activeChild && (
         <TodayPlan
           key={activeChild.id}
           childId={activeChild.id}
           nickname={activeChild.nickname}
+          ageBand={activeChild.ageBand}
         />
       )}
     </section>
@@ -67,19 +98,22 @@ export function TodayScreen() {
 function TodayPlan({
   childId,
   nickname,
+  ageBand,
 }: {
   childId: string;
   nickname: string;
+  ageBand: AgeBand;
 }) {
   const [today, setToday] = useState(localDate);
-  const { load, reload, busyIds, settled, problem, toast, markComplete, undo, closeToast } = useToday(childId, today);
+  const { load, reload, busyIds, settled, problem, toast, markComplete, undo, closeToast } =
+    useToday(childId, today);
   const { weather } = useWeather();
   const root = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const [filters, setFilters] = useState<QuickFilter[]>([]);
   const navigate = useNavigate();
 
-  // A tab left open overnight picks up the new day when the caregiver comes back to it.
+  // Refresh the local date if the caregiver leaves the tab open overnight.
   useEffect(() => {
     const check = () => setToday(localDate());
     window.addEventListener("focus", check);
@@ -90,17 +124,20 @@ function TodayPlan({
     };
   }, []);
 
-  // The pressed button may be gone now: focus goes to the toast's Undo, the alert's Retry, or the plan heading.
+  // Move focus cleanly when completing a plan removes the pressed card's button.
   useEffect(() => {
     if (settled.n === 0) return;
     const active = document.activeElement;
     const card = root.current?.querySelector(`[data-plan-id="${settled.planId}"]`);
     if (active && active !== document.body && !card?.contains(active)) return;
-    const target = root.current?.querySelector<HTMLElement>(".plan-toast button, .plan-problem button") ?? heading.current;
+    const target =
+      root.current?.querySelector<HTMLElement>(".plan-toast button, .plan-problem button") ??
+      heading.current;
     target?.focus();
   }, [settled]);
 
-  const toggle = (id: QuickFilter) => setFilters((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+  const toggle = (id: QuickFilter) =>
+    setFilters((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
 
   if (load.status === "loading") {
     return (
@@ -111,7 +148,7 @@ function TodayPlan({
     );
   }
   if (load.status === "unauthorized") {
-    return <InlineAlert kind="error" title="Please sign in again to continue">Your session has ended. Your saved notes are safe.</InlineAlert>;
+    return <SessionExpiredAlert />;
   }
   if (load.status !== "ready") {
     const offline = load.status === "offline";
@@ -119,193 +156,152 @@ function TodayPlan({
       <InlineAlert
         kind={offline ? "offline" : "error"}
         title={offline ? "You're offline." : "We couldn't reach LittleSteps."}
-        action={<Button variant="secondary" onClick={reload}>Retry</Button>}
+        action={
+          <Button variant="secondary" onClick={reload}>
+            Retry
+          </Button>
+        }
       >
-        {offline ? `We can't load ${nickname}'s plan right now. Reconnect and try again.` : "Try again. Your saved notes are safe."}
+        {offline
+          ? `We can't load ${nickname}'s plan right now. Reconnect and try again.`
+          : "Try again. Your saved notes are safe."}
       </InlineAlert>
     );
   }
 
   const { plans, history, activities } = load;
   const shown = plans.filter((p) => matchesFilters(activities[p.activityId], filters));
+  const showWeatherBanner = Boolean(
+    weather && (weather.hint || (weather.condition && weather.condition !== "unavailable"))
+  );
 
   return (
     <div className="plan-root" ref={root}>
-      {/* Optional Weather Hint (react #19) */}
-      {weather && (weather.hint || (weather.condition && weather.condition !== "unavailable")) && (
-        <aside className="today-weather-banner" role="status" aria-label="Weather play hint">
-          <div className="today-weather-info">
-            <Icon name={isRainyWeather(weather) ? "cloud-rain" : "sun"} size={18} />
-            <span>
-              {isRainyWeather(weather)
-                ? "Rain likely this afternoon · Indoor play recommended"
-                : weather.hint ?? "Good weather for outdoor play · Outdoor ideas"}
-            </span>
-          </div>
-          <div className="today-weather-actions">
-            <a
-              href="https://open-meteo.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="today-weather-attr"
-            >
-              Weather data by Open-Meteo.com
-            </a>
-            {isRainyWeather(weather) && (
-              <Button
-                variant="secondary"
-                className="today-weather-btn"
-                onClick={() => navigate("/explore")}
-              >
-                Find indoor ideas
-              </Button>
-            )}
-          </div>
-        </aside>
+      {showWeatherBanner && weather && (
+        <TodayWeatherBanner
+          weather={weather}
+          onFindIdeas={(presetSetting) => navigate("/explore", { state: { presetSetting } })}
+        />
       )}
 
-      <div className="today-grid">
-        {/* Main Column */}
-        <div className="today-main-col">
-          {problem && (
-            <div className="plan-problem">
-              <InlineAlert
-                kind={problem.kind === "offline" ? "offline" : "error"}
-                title={problem.message}
-                action={problem.retry && <Button variant="secondary" onClick={problem.retry}>Retry</Button>}
-              />
-            </div>
-          )}
-
-          <section className="plan-section" aria-labelledby="plan-heading">
-            <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
-              {nickname}'s plan for today
-            </h2>
-            {plans.length > 0 && (
-              <div className="plan-filters" role="group" aria-label="Quick filters">
-                {QUICK_FILTERS.map((f) => (
-                  <Chip key={f.id} selected={filters.includes(f.id)} onClick={() => toggle(f.id)}>
-                    {f.label}
-                  </Chip>
-                ))}
+      <TwoColumnLayout
+        asideLabel="Play summary and milestones"
+        main={
+          <>
+            {problem && (
+              <div className="plan-problem">
+                <InlineAlert
+                  kind={problem.kind === "offline" ? "offline" : "error"}
+                  title={problem.message}
+                  action={
+                    problem.retry && (
+                      <Button variant="secondary" onClick={problem.retry}>
+                        Retry
+                      </Button>
+                    )
+                  }
+                />
               </div>
             )}
-            {plans.length === 0 ? (
-              // With an empty plan this is the only "Find an idea" entry point (the side card hides).
-              <EmptyState
-                title="No activities planned for today."
-                action={<Button variant="secondary" onClick={() => navigate("/explore")}>Find an idea</Button>}
-              >
-                <p>Want a quick idea? Most take 10 minutes or less.</p>
-              </EmptyState>
-            ) : shown.length === 0 ? (
-              <EmptyState
-                title="No planned activities match these filters."
-                action={<Button variant="secondary" onClick={() => setFilters([])}>Clear filters</Button>}
-              />
-            ) : (
-              <ul className="plan-list">
-                {shown.map((plan) => (
-                  <PlanCard
-                    key={plan.id}
-                    plan={plan}
-                    activity={activities[plan.activityId]}
-                    busy={busyIds.includes(plan.id)}
-                    onComplete={markComplete}
-                  />
-                ))}
-              </ul>
-            )}
-          </section>
 
-          {toast && (
-            <div className="plan-toast">
-              <UndoToast
-                message={`${activities[toast.activityId]?.title ?? "Activity"} marked complete.`}
-                onUndo={undo}
-                onClose={closeToast}
-              />
-            </div>
-          )}
-
-          <section className="plan-section" aria-labelledby="history-heading">
-            <h2 id="history-heading" className="plan-heading">History</h2>
-            {history.length === 0 ? (
-              <p className="plan-card-meta">Completed activities for {nickname} will show here.</p>
-            ) : (
-              <>
-                {load.historyCut && (
-                  <p className="plan-card-meta">
-                    This list shows the first {HISTORY_LIMIT} completed activities. Newer ones may be missing.
-                  </p>
-                )}
+            <section className="plan-section" aria-labelledby="plan-heading">
+              <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
+                {nickname}&apos;s plan for today
+              </h2>
+              {plans.length > 0 && (
+                <FilterChips
+                  ariaLabel="Quick filters"
+                  options={QUICK_FILTERS}
+                  selected={filters}
+                  multiple
+                  onToggle={toggle}
+                  className="plan-filters"
+                />
+              )}
+              {plans.length === 0 ? (
+                <EmptyState
+                  title="No activities planned for today."
+                  action={
+                    <Button variant="secondary" onClick={() => navigate("/explore")}>
+                      Find an idea
+                    </Button>
+                  }
+                >
+                  <p>Want a quick idea? Most take 10 minutes or less.</p>
+                </EmptyState>
+              ) : shown.length === 0 ? (
+                <EmptyState
+                  title="No planned activities match these filters."
+                  action={
+                    <Button variant="secondary" onClick={() => setFilters([])}>
+                      Clear filters
+                    </Button>
+                  }
+                />
+              ) : (
                 <ul className="plan-list">
-                  {history.map((plan) => (
+                  {shown.map((plan) => (
                     <PlanCard
                       key={plan.id}
                       plan={plan}
                       activity={activities[plan.activityId]}
-                      showDate
+                      busy={busyIds.includes(plan.id)}
+                      onComplete={markComplete}
                     />
                   ))}
                 </ul>
-              </>
+              )}
+            </section>
+
+            {toast && (
+              <div className="plan-toast">
+                <UndoToast
+                  message={`${activities[toast.activityId]?.title ?? "Activity"} marked complete.`}
+                  onUndo={undo}
+                  onClose={closeToast}
+                />
+              </div>
             )}
-          </section>
-        </div>
 
-        {/* Desktop Side Column with Widgets (react #45) */}
-        <aside className="today-side-col" aria-label="Quick shortcuts and summaries">
-          {/* Play Ideas Shortcut: only when the plan has activities, so it never repeats the empty state's button (react #51). */}
-          {plans.length > 0 && (
-            <div className="today-side-widget">
-              <h3 className="today-side-widget-title">Need a quick idea?</h3>
-              <p className="today-side-widget-body">
-                Everyday play ideas for {nickname} using common household items.
-              </p>
-              <Button variant="secondary" onClick={() => navigate("/explore")}>
-                Find an idea
-              </Button>
-            </div>
-          )}
-
-          {/* This Week Shortcut */}
-          <div className="today-side-widget">
-            <h3 className="today-side-widget-title">This week</h3>
-            <p className="today-side-widget-body">
-              Reflect on everyday moments and shared play from this week.
-            </p>
-            <Button variant="secondary" onClick={() => navigate("/this-week")}>
-              View reflection
-            </Button>
-          </div>
-
-          {/* Milestones to Notice Widget */}
-          <div className="today-side-widget">
-            <h3 className="today-side-widget-title">Milestones to notice</h3>
-            <p className="today-side-widget-body">
-              Everyday cues to notice for {nickname}:
-            </p>
-            <ul className="today-milestones-list">
-              <li className="today-milestone-cue">
-                <Icon name="eye" size={16} className="today-cue-icon" />
-                <span>Explores toys by banging, shaking, or dropping</span>
-              </li>
-              <li className="today-milestone-cue">
-                <Icon name="eye" size={16} className="today-cue-icon" />
-                <span>Points to show you something interesting</span>
-              </li>
-              <li className="today-milestone-cue">
-                <Icon name="eye" size={16} className="today-cue-icon" />
-                <span>Copies actions like waving goodbye or clapping</span>
-              </li>
-            </ul>
-            <Button variant="secondary" onClick={() => navigate("/milestones")}>
-              View milestones
-            </Button>
-          </div>
-        </aside>
-      </div>
+            <section className="plan-section" aria-labelledby="history-heading">
+              <h2 id="history-heading" className="plan-heading">
+                History
+              </h2>
+              {history.length === 0 ? (
+                <p className="plan-card-meta">Completed activities for {nickname} will show here.</p>
+              ) : (
+                <>
+                  {load.historyCut && (
+                    <p className="plan-card-meta">
+                      This list shows the first {HISTORY_LIMIT} completed activities. Newer ones may be missing.
+                    </p>
+                  )}
+                  <ul className="plan-list">
+                    {history.map((plan) => (
+                      <PlanCard
+                        key={plan.id}
+                        plan={plan}
+                        activity={activities[plan.activityId]}
+                        showDate
+                      />
+                    ))}
+                  </ul>
+                </>
+              )}
+            </section>
+          </>
+        }
+        aside={
+          <TodaySideWidgets
+            nickname={nickname}
+            ageBand={ageBand}
+            hasPlans={plans.length > 0}
+            onExplore={() => navigate("/explore")}
+            onThisWeek={() => navigate("/this-week")}
+            onMilestones={() => navigate("/milestones")}
+          />
+        }
+      />
     </div>
   );
 }

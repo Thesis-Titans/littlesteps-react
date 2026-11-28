@@ -1,7 +1,8 @@
 import { ApiError } from "../../services/api";
 import { failureKind } from "../../services/offline";
 import type { CatalogActivity } from "../catalog";
-import type { Plan, QuickFilter } from "./types";
+import { normalizeMaterials } from "../catalog/materials";
+import type { CustomPlanActivity, Plan, QuickFilter } from "./types";
 
 /** Today in the caregiver's own time zone, as YYYY-MM-DD (the format the API expects). */
 export function localDate(now = new Date()): string {
@@ -22,18 +23,49 @@ export function validatePlanDate(value: string): string | undefined {
 export const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
   { id: "under10", label: "Under 10 mins" },
   { id: "noMaterials", label: "No materials needed" },
-  { id: "indoor", label: "Indoor" }
+  { id: "indoor", label: "Indoor" },
+  { id: "outdoor", label: "Outdoor" },
 ];
 
 /** Filters combine (all selected must match). Activities we can't find stay hidden while a filter is on. */
 export function matchesFilters(activity: CatalogActivity | undefined, filters: QuickFilter[]): boolean {
   if (filters.length === 0) return true;
   if (!activity) return false;
-  return filters.every((f) =>
-    f === "under10" ? activity.durationMinutes <= 10 // spec J2: "most take 10 minutes or less"; label wording tracked in docs #92
-      : f === "noMaterials" ? activity.materials.length === 0
-      : activity.setting !== "outdoor"
-  );
+  return filters.every((f) => {
+    if (f === "under10") return activity.durationMinutes <= 10;
+    if (f === "noMaterials") return normalizeMaterials(activity.materials).length === 0;
+    if (f === "indoor") return activity.setting !== "outdoor";
+    return activity.setting !== "indoor";
+  });
+}
+
+/** Builds an inline `CustomPlanActivity` snapshot for custom, storybook, rhyme, or adapted activities. */
+export function toCustomPlanActivity(activity: CatalogActivity): CustomPlanActivity | undefined {
+  const isCustomOrSynthetic =
+    activity.type === "story" ||
+    activity.type === "rhyme" ||
+    activity.id.startsWith("custom-") ||
+    activity.id.startsWith("story-") ||
+    activity.id.startsWith("rhyme-");
+  if (!isCustomOrSynthetic) return undefined;
+
+  const sourceLabel =
+    activity.type === "story"
+      ? "Storybook companion"
+      : activity.type === "rhyme"
+        ? "Read & Sing Together"
+        : "Material adaptation";
+
+  return {
+    title: activity.title,
+    domain: activity.domain,
+    durationMinutes: activity.durationMinutes,
+    setting: activity.setting,
+    materials: activity.materials,
+    instructions: activity.instructions,
+    safetyNotice: activity.limitations,
+    sourceLabel,
+  };
 }
 
 /** Most recently completed first. */
