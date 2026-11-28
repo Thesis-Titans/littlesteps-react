@@ -2,6 +2,7 @@
 @import "./components.css";
 @import "./account.css";
 @import "./catalog.css";
+@import "./storybooks.css";
 @import "./today.css";
 @import "./ai.css";
 @import "./milestones.css";
@@ -31,7 +32,7 @@ button:disabled { cursor: wait; opacity: .65; }
 .secondary-button { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 18px; border-radius: var(--radius-control); background: var(--color-surface-card); color: var(--color-text-primary); border: 1px solid var(--color-border-input); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
 .primary-button { width: 100%; }
 
-/* Sign in · Figma WEB 00 (93:876) / MOBILE WEB 00 (93:1785) */
+/* Sign-in and account creation */
 .sign-in-page { display: flex; flex-direction: column; align-items: center; gap: 16px; min-height: 100vh; padding: 32px 16px 96px; background: var(--color-surface-canvas); }
 .sign-in-page p { margin: 0; }
 .brand-panel { position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 400px; padding: 24px 0 20px; overflow: clip; border-radius: 20px; background: var(--color-brand-warm-cream); }
@@ -69,9 +70,10 @@ button:disabled { cursor: wait; opacity: .65; }
 .auth-card input[aria-invalid="true"] { border-color: var(--color-border-error); }
 .password-help { display: flex; align-items: center; justify-content: space-between; }
 .forgot-password-row { display: flex; justify-content: flex-end; margin-top: -6px; }
-.forgot-password-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-brand-forest); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
+.forgot-password-link { display: inline-flex; align-items: center; min-height: 44px; min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; color: var(--color-brand-forest); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; cursor: pointer; }
 .forgot-password-link:hover { text-decoration: underline; }
 .forgot-password-link:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.auth-reset-form { display: flex; flex-direction: column; gap: var(--space-16); }
 .text-button { display: inline-flex; align-items: center; min-height: 44px; min-width: 0; padding: 0; border-radius: 0; background: none; color: var(--color-brand-forest); font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
 .auth-new { font-size: 14px; line-height: 20px; text-align: center; color: var(--color-text-secondary); }
 .privacy-note { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: var(--color-text-secondary); }
@@ -171,7 +173,7 @@ html { scroll-padding-top: var(--size-top-bar); scroll-padding-bottom: calc(var(
 @media (max-width: 1023px) { .desktop-only { display: none; } }
 @media (min-width: 1024px) { .mobile-only { display: none; } }
 
-/* Child profiles · switcher, list and form (react #6) */
+/* Child profiles, switcher, list, and form */
 .child-switcher { position: relative; min-width: 0; }
 .child-switcher-button, .child-menu > * { display: flex; align-items: center; gap: var(--space-8); width: 100%; min-height: var(--size-touch-target-min); padding: 0 var(--space-12); border: 1px solid var(--color-border-input); border-radius: var(--radius-control); background: var(--color-surface-card); color: var(--color-text-primary); font: var(--font-label); text-align: left; text-decoration: none; white-space: normal; cursor: pointer; }
 .child-switcher-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -1,3 +1,4 @@
+import { NON_DIAGNOSTIC_PLAY_DISCLAIMER } from "../../../config/externalLinks";
 import type { CatalogActivity } from "../../catalog/types";
 
 export interface PhilippineRhyme {
@@ -127,9 +128,9 @@ export function rhymeToCatalogActivity(rhyme: PhilippineRhyme, childNickname?: s
       rhyme.actionPrompt,
       ...rhyme.lyrics.slice(0, 4),
     ],
-    provenanceSource: "Traditional Philippine Nursery Rhyme & ECCD Play",
-    status: "synthetic_fixture",
-    limitations: "Provisional Academic Reference — Pending Review. Educational prompt only; not a clinical milestone.",
+    provenanceSource: "Traditional Philippine Nursery Rhyme · ECCD Early Learning Play",
+    status: "source_checked",
+    limitations: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
   };
 }
 

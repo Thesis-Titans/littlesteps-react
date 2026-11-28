@@ -28,7 +28,7 @@ function formatDate(iso: string): string {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** The API rejects dates after today in UTC (api #43), so the latest date offered is the earlier of the local and UTC dates. */
+/** The API rejects dates after today in UTC, so the latest date offered is the earlier of the local and UTC dates. */
 export function todayIso(now = new Date()): string {
   const local = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const utc = now.toISOString().slice(0, 10);

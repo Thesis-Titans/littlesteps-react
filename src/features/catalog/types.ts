@@ -64,7 +64,12 @@ export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 export const SETTINGS = ["indoor", "outdoor", "either"] as const;
 export type Setting = (typeof SETTINGS)[number];
 
-export const REVIEW_STATUSES = ["reviewed_approved", "synthetic_fixture", "draft"] as const;
+export const REVIEW_STATUSES = [
+  "reviewed_approved",
+  "source_checked",
+  "synthetic_fixture",
+  "draft",
+] as const;
 export type ReviewStatus = (typeof REVIEW_STATUSES)[number];
 
 export interface CatalogActivity {
@@ -98,12 +103,55 @@ export interface CatalogActivitiesResponse {
   items: CatalogActivity[];
 }
 
-/** Parent-friendly labels (UI/UX Spec §2.6) */
+export interface CatalogMilestoneItem {
+  id: string;
+  domain: Domain;
+  title: string;
+  lookFor: string[];
+  ageBand: string;
+  provenance: string;
+  status: ReviewStatus;
+}
+
+export interface CatalogMilestonesResponse {
+  total: number;
+  items: CatalogMilestoneItem[];
+}
+
+export interface CatalogRhymeItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  domain: Domain;
+  domainLabel: string;
+  language: "en" | "fil" | "hil";
+  lyrics: string[];
+  actionPrompt: string;
+  materials: string[];
+  durationMinutes: number;
+  provenanceSource: string;
+  status: ReviewStatus;
+}
+
+export interface CatalogRhymesResponse {
+  total: number;
+  items: CatalogRhymeItem[];
+}
+
+/** Caregiver-friendly labels for each kind of play. */
 export const DOMAIN_LABELS: Record<Domain, string> = {
   cognitive: "Thinking",
   motor: "Moving",
   language: "Talking",
   socioEmotional: "Feelings",
+};
+
+/** Short plain-language descriptions for each kind of play. */
+export const DOMAIN_DESCRIPTIONS: Record<Domain, string> = {
+  cognitive: "Exploring, problem solving, and curiosity",
+  motor: "Physical movement, coordination, and gestures",
+  language: "Sounds, words, and everyday communication",
+  socioEmotional: "Social connection, emotions, and bonding",
 };
 
 export const SETTING_LABELS: Record<Setting, string> = {

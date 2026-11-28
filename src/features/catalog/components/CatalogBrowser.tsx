@@ -5,6 +5,7 @@ import {
   EmptyState,
   InlineAlert,
   Select,
+  SessionExpiredAlert,
   Skeleton,
   TextField,
 } from "../../../components/common";
@@ -230,11 +231,7 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, childAgeMo
         </div>
       )}
 
-      {status === "unauthorized" && (
-        <InlineAlert kind="error" title="Please sign in again to continue">
-          <p>Your session has ended. Your saved notes are safe.</p>
-        </InlineAlert>
-      )}
+      {status === "unauthorized" && <SessionExpiredAlert />}
 
       {status === "error" && (
         <InlineAlert

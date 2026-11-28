@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Button, Chip, ConfirmDialog, InlineAlert, Select, TextField } from "../../../components/common";
+import {
+  Button,
+  Chip,
+  ConfirmDialog,
+  InlineAlert,
+  Select,
+  SessionExpiredAlert,
+  TextField,
+} from "../../../components/common";
 import { ApiError } from "../../../services/api";
 import { failureKind } from "../../../services/offline";
 import { recordObservation, updateObservation } from "../api";
@@ -119,7 +127,7 @@ export function ObservationForm({ childId, childName, prompt, existing, onSaved,
         onChange={(e) => setNotes(e.target.value)}
       />
       {failure?.kind === "unauthorized" && (
-        <InlineAlert kind="error" title="Please sign in again to continue">Your session has ended. What you typed is still here.</InlineAlert>
+        <SessionExpiredAlert message="Your session has ended. What you typed is still here." />
       )}
       {failure?.kind === "rejected" && <InlineAlert kind="error" title="We couldn't save this note">{failure.message}</InlineAlert>}
       {failure?.kind === "offline" && (

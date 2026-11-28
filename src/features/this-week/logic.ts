@@ -1,20 +1,7 @@
 /**
  * ISO 8601 week calculations and formatting for This Week reflection view.
  */
-
-export const DOMAIN_LABELS: Record<string, string> = {
-  cognitive: "Thinking",
-  motor: "Moving",
-  language: "Talking",
-  socioEmotional: "Feelings",
-};
-
-export const DOMAIN_DESCRIPTIONS: Record<string, string> = {
-  cognitive: "Exploring, problem solving, and curiosity",
-  motor: "Physical movement, coordination, and gestures",
-  language: "Sounds, words, and everyday communication",
-  socioEmotional: "Social connection, emotions, and bonding",
-};
+export { DOMAIN_DESCRIPTIONS, DOMAIN_LABELS } from "../catalog/types";
 
 /**
  * Returns the ISO week boundaries (Monday–Sunday inclusive, UTC) for a given ISO week string.

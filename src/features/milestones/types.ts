@@ -12,7 +12,7 @@ export const STATUS_LABELS: Record<MilestoneStatus, string> = {
 
 export const NOTE_MAX_LENGTH = 500;
 
-/** Shape of data-model §2.8 `catalog_milestones`; there is no API route for prompts yet. */
+/** Observational milestone prompt loaded from the catalog or local reference list. */
 export type MilestonePrompt = {
   id: string;
   domain: Domain;
@@ -20,8 +20,7 @@ export type MilestonePrompt = {
   title: string;
   indicators: string[];
   provenanceSource: string;
-  /** `synthetic_fixture` until docs #3 supplies reviewed content. */
-  reviewStatus: "reviewed_approved" | "synthetic_fixture";
+  reviewStatus: "reviewed_approved" | "source_checked" | "synthetic_fixture";
 };
 
 export type MilestoneObservation = {

@@ -1,4 +1,5 @@
 import { Button, Card, Icon } from "../../../components/common";
+import { DEFAULT_SOURCE_ATTRIBUTION } from "../../../config/externalLinks";
 import { ageBandLabel } from "../../children/types";
 import { DOMAIN_LABELS, SETTING_LABELS, type CatalogActivity } from "../types";
 
@@ -45,7 +46,7 @@ export function ActivityCard({ activity, onSelect }: ActivityCardProps) {
 
       <p className="catalog-activity-source">
         <Icon name="info" size={16} />
-        {activity.provenanceSource || "Source: early learning guide · still being checked"}
+        {activity.provenanceSource || DEFAULT_SOURCE_ATTRIBUTION}
       </p>
 
       <div className="catalog-activity-actions">

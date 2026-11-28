@@ -1,6 +1,6 @@
 const sources = import.meta.glob<string>("../../assets/icons/*.svg", { query: "?raw", import: "default", eager: true });
 
-// Figma exports a fixed stroke color; swap it so icons follow the text color around them.
+// Replace hardcoded SVG stroke colors so icons inherit the surrounding text color.
 const icons = Object.fromEntries(
   Object.entries(sources).map(([path, svg]) => [
     path.slice(path.lastIndexOf("/") + 1, -4),

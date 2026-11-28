@@ -1,4 +1,4 @@
-/* Account pages (react #16) */
+/* Account pages */
 .account-page { width: 100%; }
 .account-page .ls-card { width: 100%; overflow-wrap: anywhere; }
 .account-page h2 { margin: 0; font: var(--font-h2-mobile); }
@@ -18,3 +18,8 @@
 .account-faq summary { display: flex; align-items: center; min-height: var(--size-touch-target-min); cursor: pointer; font: var(--font-label); }
 @media (min-width: 768px) { .account-page h2 { font: var(--font-h2-desktop); } }
 .settings-weather-city { width: 100%; max-width: 320px; margin-top: var(--space-12); }
+.account-links-list { margin: var(--space-8) 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-8); }
+.account-external-link { display: flex; align-items: center; justify-content: space-between; gap: var(--space-12); min-height: var(--size-touch-target-secondary); padding: var(--space-8) var(--space-12); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-control); background: var(--color-surface-canvas); color: var(--color-text-brand); font: var(--font-label); text-decoration: none; }
+.account-external-link:hover { background: var(--color-surface-soft-green); }
+.account-external-link:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus); outline-offset: var(--focus-ring-offset); }
+.account-link-domain { font: var(--font-meta); color: var(--color-text-secondary); flex-shrink: 0; }

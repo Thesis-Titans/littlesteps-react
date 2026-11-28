@@ -6,6 +6,8 @@ import type {
   CatalogActivitiesQuery,
   CatalogActivitiesResponse,
   CatalogActivity,
+  CatalogMilestonesResponse,
+  CatalogRhymesResponse,
   SavedBook,
   SavedBooksResponse,
 } from "./types";
@@ -97,6 +99,22 @@ export async function fetchCatalogActivityById(id: string): Promise<CatalogActiv
   const response = await apiFetch(`/api/v1/catalog/activities/${encodeURIComponent(id)}`);
   const data = (await response.json()) as CatalogActivity;
   return data;
+}
+
+/** Fetches source-checked milestone prompts from the catalog API. */
+export async function fetchCatalogMilestones(ageBand?: string): Promise<CatalogMilestonesResponse> {
+  const params = new URLSearchParams();
+  if (ageBand) params.set("ageBand", ageBand);
+  params.set("limit", "100");
+  const qs = params.toString();
+  const response = await apiFetch(`/api/v1/catalog/milestones${qs ? `?${qs}` : ""}`);
+  return (await response.json()) as CatalogMilestonesResponse;
+}
+
+/** Fetches traditional Philippine rhymes from the catalog API. */
+export async function fetchCatalogRhymes(): Promise<CatalogRhymesResponse> {
+  const response = await apiFetch("/api/v1/catalog/rhymes?limit=50");
+  return (await response.json()) as CatalogRhymesResponse;
 }
 
 /** Local deterministic filter for offline use or local fallback */

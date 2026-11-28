@@ -72,11 +72,17 @@ export interface AdaptedActivitySuggestion {
   activityId: string;
   originalTitle: string;
   adaptedTitle: string;
+  /** Optional fallback title field returned by alternate payload versions. */
+  title?: string;
   adjustment: ActivityAdjustment;
+  /** Optional adjusted duration in minutes. */
+  durationMinutes?: number;
   instructions: string[];
   materials: string[];
   safetyNotice: string;
   explanation: string;
+  /** Optional fallback rationale field returned by alternate payload versions. */
+  whyItWorks?: string;
 }
 
 export interface AdaptActivityResponse {

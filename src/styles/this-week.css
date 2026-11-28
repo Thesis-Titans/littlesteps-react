@@ -1,4 +1,11 @@
-/* This Week / Reflection styles (react #10) */
+/* This Week reflection styles */
+
+.this-week-loading-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
 
 .this-week-screen {
   display: flex;
