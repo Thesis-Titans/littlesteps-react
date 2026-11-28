@@ -37,7 +37,7 @@ function setup(
 afterEach(cleanup);
 
 describe("SignInForm", () => {
-  it("renders the cleaned-up Figma sign-in design without promotional subtitles or fillers", () => {
+  it("renders the concise sign-in form without promotional subtitles or filler copy", () => {
     setup();
 
     // Cleaned-up heading

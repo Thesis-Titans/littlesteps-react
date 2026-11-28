@@ -1,14 +1,15 @@
 import { useState } from "react";
 import {
   Button,
-  Chip,
   EmptyState,
+  FilterChips,
   Icon,
   InlineAlert,
   Select,
   SessionExpiredAlert,
   Skeleton,
 } from "../../../components/common";
+import { TwoColumnLayout } from "../../../components/layout";
 import { DOMAINS, DOMAIN_LABELS, type Domain } from "../../catalog/types";
 import { AGE_BANDS, ageBandLabel, type AgeBand, type Child } from "../../children";
 import { groupByDomain, latestByPrompt } from "../logic";
@@ -60,32 +61,27 @@ export function MilestonesList({ child }: { child: Child }) {
 
   return (
     <div className="milestones-screen">
-      <div className="milestone-controls">
-        <Select
-          label="Child's age"
-          value={ageBand}
-          onChange={(e) => {
-            setAgeBand(e.target.value as AgeBand);
-            setEditingId(undefined);
-          }}
-          options={AGE_BANDS.map((band) => ({ value: band, label: ageBandLabel(band) }))}
-        />
-
-        <div className="milestone-domain-chips" role="group" aria-label="Kind of play filters">
-          {DOMAIN_CHIPS.map((chip) => {
-            const isSelected = selectedDomain === chip.id;
-            return (
-              <Chip
-                key={chip.id}
-                selected={isSelected}
-                onClick={() => setSelectedDomain(chip.id)}
-                aria-pressed={isSelected}
-              >
-                {chip.label}
-              </Chip>
-            );
-          })}
+      <div className="ls-filter-bar milestone-controls">
+        <div className="milestone-age-select">
+          <Select
+            label="Child's age"
+            value={ageBand}
+            onChange={(e) => {
+              setAgeBand(e.target.value as AgeBand);
+              setEditingId(undefined);
+            }}
+            options={AGE_BANDS.map((band) => ({ value: band, label: ageBandLabel(band) }))}
+          />
         </div>
+
+        <FilterChips
+          label="Kind of play"
+          ariaLabel="Kind of play filters"
+          options={DOMAIN_CHIPS}
+          selected={selectedDomain}
+          onToggle={setSelectedDomain}
+          className="milestone-domain-chips"
+        />
       </div>
 
       {/* The observations endpoint caps responses at 100 items; tell the caregiver instead of dropping silently. */}
@@ -101,34 +97,37 @@ export function MilestonesList({ child }: { child: Child }) {
         </EmptyState>
       )}
 
-      <div className="milestones-desktop-layout">
-        <div className="milestones-main-col">
-          {filteredGroups.map(({ domain, prompts }) => (
-            <section key={domain} className="milestone-group" aria-labelledby={`group-${domain}`}>
-              <h2 id={`group-${domain}`}>{DOMAIN_LABELS[domain]}</h2>
-              <ul className="milestone-list">
-                {prompts.map((prompt) => (
-                  <PromptRow
-                    key={prompt.id}
-                    childId={child.id}
-                    childName={child.nickname}
-                    prompt={prompt}
-                    observation={seen.get(prompt.id)}
-                    editing={editingId === prompt.id}
-                    onEdit={() => setEditingId(prompt.id)}
-                    onClose={() => setEditingId(undefined)}
-                    onSaved={(o) => {
-                      put(o);
-                      setEditingId(undefined);
-                    }}
-                  />
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
-
-        <aside className="milestones-side-col" aria-label="Milestones guidance">
+      <TwoColumnLayout
+        hideAsideOnMobile
+        asideLabel="Milestones guidance"
+        main={
+          <>
+            {filteredGroups.map(({ domain, prompts }) => (
+              <section key={domain} className="milestone-group" aria-labelledby={`group-${domain}`}>
+                <h2 id={`group-${domain}`}>{DOMAIN_LABELS[domain]}</h2>
+                <ul className="milestone-list">
+                  {prompts.map((prompt) => (
+                    <PromptRow
+                      key={prompt.id}
+                      childId={child.id}
+                      childName={child.nickname}
+                      prompt={prompt}
+                      observation={seen.get(prompt.id)}
+                      editing={editingId === prompt.id}
+                      onEdit={() => setEditingId(prompt.id)}
+                      onClose={() => setEditingId(undefined)}
+                      onSaved={(o) => {
+                        put(o);
+                        setEditingId(undefined);
+                      }}
+                    />
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </>
+        }
+        aside={
           <div className="milestone-side-panel">
             <h3 className="milestone-side-title">Notice, don&apos;t score</h3>
             <p className="milestone-side-body">
@@ -146,8 +145,8 @@ export function MilestonesList({ child }: { child: Child }) {
               </p>
             </div>
           </div>
-        </aside>
-      </div>
+        }
+      />
     </div>
   );
 }

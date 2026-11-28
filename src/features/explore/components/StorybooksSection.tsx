@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Button } from "../../../components/common";
+import { SegmentedTabs, type SegmentedTabItem } from "../../../components/common";
 import { failureKind } from "../../../services/offline";
 import { fetchStoryActivity } from "../../ai/api";
 import {
@@ -25,12 +25,20 @@ import { OpenLibraryTab } from "./OpenLibraryTab";
 import { RhymesTab } from "./RhymesTab";
 import { StoryPlayIdeaDialog, type StoryCompanionIdea } from "./StoryPlayIdeaDialog";
 
+export type StorybooksTabId = "books" | "shelf" | "rhymes";
+
 export interface StorybooksSectionProps {
   childId?: string;
   onPlan?: (activity: CatalogActivity) => void;
   onPlanActivity?: (activity: CatalogActivity) => void;
   ageBand?: AgeBand;
   childNickname?: string;
+  /** Controlled active shelf when hosted inside ExploreScreen top-level tabs. */
+  controlledTab?: StorybooksTabId;
+  /** Invoked when switching shelf (for example, from an empty-shelf "Search storybooks" button). */
+  onTabChange?: (tab: StorybooksTabId) => void;
+  /** Reports saved bookshelf count to parent navigation tabs. */
+  onSavedCountChange?: (count: number) => void;
 }
 
 /**
@@ -42,9 +50,18 @@ export function StorybooksSection({
   onPlanActivity,
   ageBand = "12-23m",
   childNickname,
+  controlledTab,
+  onTabChange,
+  onSavedCountChange,
 }: StorybooksSectionProps) {
   const planCallback = onPlanActivity ?? onPlan;
-  const [activeTab, setActiveTab] = useState<"books" | "shelf" | "rhymes">("books");
+  const [internalTab, setInternalTab] = useState<StorybooksTabId>("books");
+  const isControlled = controlledTab !== undefined;
+  const activeTab = controlledTab ?? internalTab;
+  const setActiveTab = (nextTab: StorybooksTabId) => {
+    if (!isControlled) setInternalTab(nextTab);
+    onTabChange?.(nextTab);
+  };
   const [selectedSubject, setSelectedSubject] = useState<BookSubject>("picture_books");
   const [books, setBooks] = useState<BookItem[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error" | "offline">("loading");
@@ -121,6 +138,10 @@ export function StorybooksSection({
       current = false;
     };
   }, [childId]);
+
+  useEffect(() => {
+    onSavedCountChange?.(savedBooks.length);
+  }, [savedBooks.length, onSavedCountChange]);
 
   const isBookSaved = (bookId: string) => savedBooks.some((b) => b.id === bookId);
 
@@ -257,43 +278,36 @@ export function StorybooksSection({
     planCallback(activity);
   };
 
-  return (
-    <section className="storybooks-section" aria-labelledby="storybooks-heading">
-      <div className="storybooks-header">
-        <h2 id="storybooks-heading" className="catalog-title">
-          Storybooks
-        </h2>
-        <p className="catalog-subtitle">
-          Recommended picture books and stories from Open Library.
-        </p>
+  const shelfTabs: SegmentedTabItem<StorybooksTabId>[] = [
+    { id: "books", label: "Books from Open Library" },
+    { id: "shelf", label: "Our Bookshelf", count: savedBooks.length },
+    { id: "rhymes", label: "Read & Sing Together (Filipino Rhymes)" },
+  ];
 
-        <div className="storybooks-tabs" role="tablist" aria-label="Stories and Rhymes">
-          <Button
-            variant={activeTab === "books" ? "primary" : "secondary"}
-            onClick={() => setActiveTab("books")}
-            role="tab"
-            aria-selected={activeTab === "books"}
-          >
-            Books from Open Library
-          </Button>
-          <Button
-            variant={activeTab === "shelf" ? "primary" : "secondary"}
-            onClick={() => setActiveTab("shelf")}
-            role="tab"
-            aria-selected={activeTab === "shelf"}
-          >
-            {savedBooks.length > 0 ? `Our Bookshelf (${savedBooks.length})` : "Our Bookshelf"}
-          </Button>
-          <Button
-            variant={activeTab === "rhymes" ? "primary" : "secondary"}
-            onClick={() => setActiveTab("rhymes")}
-            role="tab"
-            aria-selected={activeTab === "rhymes"}
-          >
-            Read &amp; Sing Together (Filipino Rhymes)
-          </Button>
+  return (
+    <section
+      className={`storybooks-section ${isControlled ? "storybooks-section-controlled" : ""}`.trim()}
+      aria-label={isControlled ? "Storybooks and rhymes" : undefined}
+      aria-labelledby={isControlled ? undefined : "storybooks-heading"}
+    >
+      {!isControlled && (
+        <div className="storybooks-header">
+          <h2 id="storybooks-heading" className="catalog-title">
+            Storybooks
+          </h2>
+          <p className="catalog-subtitle">
+            Recommended picture books and stories from Open Library.
+          </p>
+
+          <SegmentedTabs
+            ariaLabel="Stories and Rhymes"
+            tabs={shelfTabs}
+            activeId={activeTab}
+            onChange={setActiveTab}
+            className="storybooks-tabs"
+          />
         </div>
-      </div>
+      )}
 
       {activeTab === "shelf" && (
         <BookshelfTab

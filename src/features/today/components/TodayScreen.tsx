@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
-  Chip,
   EmptyState,
+  FilterChips,
   InlineAlert,
   SessionExpiredAlert,
   Skeleton,
   UndoToast,
 } from "../../../components/common";
-import { ScreenHeader } from "../../../components/layout";
+import { ScreenHeader, TwoColumnLayout } from "../../../components/layout";
 import { useWeather } from "../../../services/weather";
 import { NonDiagnosticNotice } from "../../children/components/NonDiagnosticNotice";
 import type { AgeBand } from "../../children/types";
@@ -62,8 +62,19 @@ export function TodayScreen() {
             ? `${getTimeGreeting()}! Here's ${activeChild.nickname}'s play plan for today.`
             : "Your plan for today."
         }
+        action={
+          !showAdvisory ? (
+            <Button
+              variant="text"
+              className="today-advisory-btn"
+              onClick={() => setShowAdvisory(true)}
+            >
+              Not a diagnostic tool
+            </Button>
+          ) : undefined
+        }
       />
-      {showAdvisory ? (
+      {showAdvisory && (
         <NonDiagnosticNotice
           action={
             <Button variant="secondary" onClick={hideAdvisory}>
@@ -71,14 +82,6 @@ export function TodayScreen() {
             </Button>
           }
         />
-      ) : (
-        <Button
-          variant="text"
-          className="today-advisory-btn"
-          onClick={() => setShowAdvisory(true)}
-        >
-          Not a diagnostic tool
-        </Button>
       )}
       {activeChild && (
         <TodayPlan
@@ -181,119 +184,124 @@ function TodayPlan({
         />
       )}
 
-      <div className="today-grid">
-        <div className="today-main-col">
-          {problem && (
-            <div className="plan-problem">
-              <InlineAlert
-                kind={problem.kind === "offline" ? "offline" : "error"}
-                title={problem.message}
-                action={
-                  problem.retry && (
-                    <Button variant="secondary" onClick={problem.retry}>
-                      Retry
-                    </Button>
-                  )
-                }
-              />
-            </div>
-          )}
-
-          <section className="plan-section" aria-labelledby="plan-heading">
-            <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
-              {nickname}&apos;s plan for today
-            </h2>
-            {plans.length > 0 && (
-              <div className="plan-filters" role="group" aria-label="Quick filters">
-                {QUICK_FILTERS.map((f) => (
-                  <Chip key={f.id} selected={filters.includes(f.id)} onClick={() => toggle(f.id)}>
-                    {f.label}
-                  </Chip>
-                ))}
+      <TwoColumnLayout
+        asideLabel="Play summary and milestones"
+        main={
+          <>
+            {problem && (
+              <div className="plan-problem">
+                <InlineAlert
+                  kind={problem.kind === "offline" ? "offline" : "error"}
+                  title={problem.message}
+                  action={
+                    problem.retry && (
+                      <Button variant="secondary" onClick={problem.retry}>
+                        Retry
+                      </Button>
+                    )
+                  }
+                />
               </div>
             )}
-            {plans.length === 0 ? (
-              <EmptyState
-                title="No activities planned for today."
-                action={
-                  <Button variant="secondary" onClick={() => navigate("/explore")}>
-                    Find an idea
-                  </Button>
-                }
-              >
-                <p>Want a quick idea? Most take 10 minutes or less.</p>
-              </EmptyState>
-            ) : shown.length === 0 ? (
-              <EmptyState
-                title="No planned activities match these filters."
-                action={
-                  <Button variant="secondary" onClick={() => setFilters([])}>
-                    Clear filters
-                  </Button>
-                }
-              />
-            ) : (
-              <ul className="plan-list">
-                {shown.map((plan) => (
-                  <PlanCard
-                    key={plan.id}
-                    plan={plan}
-                    activity={activities[plan.activityId]}
-                    busy={busyIds.includes(plan.id)}
-                    onComplete={markComplete}
-                  />
-                ))}
-              </ul>
-            )}
-          </section>
 
-          {toast && (
-            <div className="plan-toast">
-              <UndoToast
-                message={`${activities[toast.activityId]?.title ?? "Activity"} marked complete.`}
-                onUndo={undo}
-                onClose={closeToast}
-              />
-            </div>
-          )}
-
-          <section className="plan-section" aria-labelledby="history-heading">
-            <h2 id="history-heading" className="plan-heading">
-              History
-            </h2>
-            {history.length === 0 ? (
-              <p className="plan-card-meta">Completed activities for {nickname} will show here.</p>
-            ) : (
-              <>
-                {load.historyCut && (
-                  <p className="plan-card-meta">
-                    This list shows the first {HISTORY_LIMIT} completed activities. Newer ones may be missing.
-                  </p>
-                )}
+            <section className="plan-section" aria-labelledby="plan-heading">
+              <h2 id="plan-heading" className="plan-heading" tabIndex={-1} ref={heading}>
+                {nickname}&apos;s plan for today
+              </h2>
+              {plans.length > 0 && (
+                <FilterChips
+                  ariaLabel="Quick filters"
+                  options={QUICK_FILTERS}
+                  selected={filters}
+                  multiple
+                  onToggle={toggle}
+                  className="plan-filters"
+                />
+              )}
+              {plans.length === 0 ? (
+                <EmptyState
+                  title="No activities planned for today."
+                  action={
+                    <Button variant="secondary" onClick={() => navigate("/explore")}>
+                      Find an idea
+                    </Button>
+                  }
+                >
+                  <p>Want a quick idea? Most take 10 minutes or less.</p>
+                </EmptyState>
+              ) : shown.length === 0 ? (
+                <EmptyState
+                  title="No planned activities match these filters."
+                  action={
+                    <Button variant="secondary" onClick={() => setFilters([])}>
+                      Clear filters
+                    </Button>
+                  }
+                />
+              ) : (
                 <ul className="plan-list">
-                  {history.map((plan) => (
+                  {shown.map((plan) => (
                     <PlanCard
                       key={plan.id}
                       plan={plan}
                       activity={activities[plan.activityId]}
-                      showDate
+                      busy={busyIds.includes(plan.id)}
+                      onComplete={markComplete}
                     />
                   ))}
                 </ul>
-              </>
-            )}
-          </section>
-        </div>
+              )}
+            </section>
 
-        <TodaySideWidgets
-          nickname={nickname}
-          ageBand={ageBand}
-          hasPlans={plans.length > 0}
-          onExplore={() => navigate("/explore")}
-          onThisWeek={() => navigate("/this-week")}
-          onMilestones={() => navigate("/milestones")}
-        />
-      </div>
+            {toast && (
+              <div className="plan-toast">
+                <UndoToast
+                  message={`${activities[toast.activityId]?.title ?? "Activity"} marked complete.`}
+                  onUndo={undo}
+                  onClose={closeToast}
+                />
+              </div>
+            )}
+
+            <section className="plan-section" aria-labelledby="history-heading">
+              <h2 id="history-heading" className="plan-heading">
+                History
+              </h2>
+              {history.length === 0 ? (
+                <p className="plan-card-meta">Completed activities for {nickname} will show here.</p>
+              ) : (
+                <>
+                  {load.historyCut && (
+                    <p className="plan-card-meta">
+                      This list shows the first {HISTORY_LIMIT} completed activities. Newer ones may be missing.
+                    </p>
+                  )}
+                  <ul className="plan-list">
+                    {history.map((plan) => (
+                      <PlanCard
+                        key={plan.id}
+                        plan={plan}
+                        activity={activities[plan.activityId]}
+                        showDate
+                      />
+                    ))}
+                  </ul>
+                </>
+              )}
+            </section>
+          </>
+        }
+        aside={
+          <TodaySideWidgets
+            nickname={nickname}
+            ageBand={ageBand}
+            hasPlans={plans.length > 0}
+            onExplore={() => navigate("/explore")}
+            onThisWeek={() => navigate("/this-week")}
+            onMilestones={() => navigate("/milestones")}
+          />
+        }
+      />
     </div>
   );
 }

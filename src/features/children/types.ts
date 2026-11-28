@@ -67,6 +67,8 @@ export type ChildState = {
   /** Creates the child, adds it to the list and makes it the active child. */
   addChild: (input: CreateChildInput) => Promise<Child>;
   editChild: (childId: string, input: UpdateChildInput) => Promise<Child>;
+  /** Permanently deletes a child profile and its associated records. */
+  removeChild?: (childId: string) => Promise<void>;
 };
 
 /** Most children one caregiver can have; the API enforces the same limit. */

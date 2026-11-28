@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Button, InlineAlert, PasswordField, TextField } from "../../../components/common";
-import { Logo } from "../../../components/common/Logo";
 import { PRIVACY_CONTACT } from "../../account/content";
 import {
   describeCreateAccountError,
@@ -9,6 +8,7 @@ import {
   type CreateAccountErrors,
 } from "../createAccount";
 import { useAuth } from "../useAuth";
+import { AuthBrandPanel } from "./AuthBrandPanel";
 
 const PRIVACY_POINTS = [
   ["What we collect", "A child nickname, birth month and year (or age range), activity records, saved storybooks, and your notes."],
@@ -62,7 +62,10 @@ export function CreateAccountForm() {
 
   return (
     <main className="sign-in-page">
-      <Logo variant="stacked" />
+      <AuthBrandPanel
+        headline="Start small, play often"
+        description="Set up your caregiver space in under a minute to plan everyday screen-free play and keep private notes."
+      />
       <div className="form-area">
         <section className="auth-card" aria-labelledby="create-account-title">
           <div className="auth-heading">

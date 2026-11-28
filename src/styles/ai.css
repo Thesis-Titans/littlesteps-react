@@ -1,5 +1,53 @@
 /* Idea Helper (AI and deterministic fallback) */
 
+.idea-helper-banner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-16);
+  background: var(--color-surface-soft-green);
+  border-color: var(--color-brand-soft-sage);
+}
+
+.idea-helper-banner-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.idea-helper-banner-icon {
+  color: var(--color-brand-forest);
+  flex-shrink: 0;
+}
+
+.idea-helper-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.idea-helper-banner-title {
+  margin: 0;
+  font: var(--font-h3);
+  color: var(--color-text-primary);
+}
+
+.idea-helper-banner-subtitle {
+  margin: 0;
+  font: var(--font-body-small);
+  color: var(--color-text-secondary);
+}
+
+.idea-helper-banner-btn {
+  flex-shrink: 0;
+}
+
 .idea-helper-card {
   display: flex;
   flex-direction: column;
@@ -17,7 +65,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: var(--space-8);
+}
+
+.idea-helper-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
 }
 
 .idea-helper-title {
@@ -259,7 +314,39 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: var(--space-8);
+}
+
+.idea-suggestion-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.idea-play-block-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-16);
+  background: var(--color-surface-soft-green);
+  border: 1px solid var(--color-brand-soft-sage);
+  border-radius: var(--radius-control);
+  color: var(--color-brand-forest);
+  font: var(--font-body-small);
+}
+
+.idea-play-block-banner p {
+  margin: var(--space-4) 0 0;
+  color: var(--color-text-primary);
+}
+
+@media (min-width: 768px) {
+  .idea-helper-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .idea-suggestion-title {

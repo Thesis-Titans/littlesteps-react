@@ -7,6 +7,10 @@
   width: 100%;
 }
 
+.storybooks-section-controlled {
+  margin-top: 0;
+}
+
 .storybooks-header {
   display: flex;
   flex-direction: column;
@@ -35,12 +39,6 @@
 @media (min-width: 1024px) {
   .storybooks-grid {
     grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1440px) {
-  .storybooks-grid {
-    grid-template-columns: repeat(4, 1fr);
   }
 }
 

@@ -2,12 +2,15 @@ import { useId } from "react";
 import { Button, Icon, ModalDialog } from "../../../components/common";
 import { DEFAULT_SOURCE_ATTRIBUTION } from "../../../config/externalLinks";
 import { ageBandLabel } from "../../children/types";
+import { normalizeMaterials } from "../materials";
 import { DOMAIN_LABELS, SETTING_LABELS, type CatalogActivity } from "../types";
 import { ActivityAdaptSection } from "./ActivityAdaptSection";
 
 export interface ActivityDetailModalProps {
   activity: CatalogActivity | null;
   childAgeMonths?: number;
+  /** Opens the modal with activity adaptation choices already expanded. */
+  initialAdaptOpen?: boolean;
   onClose: () => void;
   /** When set, shows an "Add to plan" button. */
   onPlan?: (activity: CatalogActivity) => void;
@@ -18,6 +21,7 @@ export interface ActivityDetailModalProps {
  */
 export function ActivityDetailModal({
   activity,
+  initialAdaptOpen = false,
   onClose,
   onPlan,
 }: ActivityDetailModalProps) {
@@ -28,6 +32,7 @@ export function ActivityDetailModal({
   const domainLabel = DOMAIN_LABELS[activity.domain] ?? activity.domain;
   const settingLabel = SETTING_LABELS[activity.setting] ?? activity.setting;
   const ageLabel = ageBandLabel(activity.ageBand);
+  const materials = normalizeMaterials(activity.materials);
 
   return (
     <ModalDialog
@@ -73,16 +78,18 @@ export function ActivityDetailModal({
           </div>
         </div>
 
-        {activity.materials.length > 0 && (
-          <div className="catalog-detail-section">
-            <h3 className="catalog-section-title">Materials needed</h3>
+        <div className="catalog-detail-section">
+          <h3 className="catalog-section-title">Materials needed</h3>
+          {materials.length > 0 ? (
             <ul className="catalog-materials-list">
-              {activity.materials.map((mat) => (
+              {materials.map((mat) => (
                 <li key={mat}>{mat}</li>
               ))}
             </ul>
-          </div>
-        )}
+          ) : (
+            <p className="catalog-limitations-text">No materials needed.</p>
+          )}
+        </div>
 
         <div className="catalog-detail-section">
           <h3 className="catalog-section-title">Steps to play</h3>
@@ -100,7 +107,12 @@ export function ActivityDetailModal({
           </div>
         )}
 
-        <ActivityAdaptSection key={activity.id} activity={activity} onPlan={onPlan} />
+        <ActivityAdaptSection
+          key={`${activity.id}-${initialAdaptOpen ? "adapt" : "view"}`}
+          activity={activity}
+          initialOpen={initialAdaptOpen}
+          onPlan={onPlan}
+        />
 
         <p className="catalog-detail-source">
           <Icon name="info" size={16} />

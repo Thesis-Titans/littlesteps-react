@@ -22,3 +22,6 @@ export const createChild = (input: CreateChildInput) => send<Child>("/api/v1/chi
 export const getChild = (childId: string) => send<Child>(childPath(childId), "GET");
 export const updateChild = (childId: string, input: UpdateChildInput) =>
   send<Child>(childPath(childId), "PATCH", input);
+export async function deleteChild(childId: string): Promise<void> {
+  await apiFetch(childPath(childId), { method: "DELETE" });
+}

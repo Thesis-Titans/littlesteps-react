@@ -259,4 +259,57 @@ describe("IdeaHelper DOM tests", () => {
     const settingSelect = screen.getByLabelText("Where will you play?") as HTMLSelectElement;
     expect(settingSelect.value).toBe("indoor");
   });
+
+  it("renders Material adaptation badge, material note, and Play Block banner for 30+ min custom AI ideas", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(api, "getAiRecommendations").mockResolvedValue({
+      suggestions: [
+        {
+          activityId: "custom-box-tunnel",
+          title: "Cardboard box crawl",
+          whyPicked: "Uses the delivery box you listed at home.",
+          isCustom: true,
+          activity: {
+            ...aiSuccessResponse.suggestions[0].activity,
+            id: "custom-box-tunnel",
+            title: "Cardboard box crawl",
+            materials: ["cardboard box"],
+          },
+        },
+        {
+          activityId: "custom-sock-toss",
+          title: "Clean sock basket toss",
+          whyPicked: "Pairs clean socks with soft indoor tossing.",
+          isCustom: true,
+          activity: {
+            ...aiSuccessResponse.suggestions[0].activity,
+            id: "custom-sock-toss",
+            title: "Clean sock basket toss",
+            materials: ["clean sock"],
+          },
+        },
+      ],
+      source: "ai_custom",
+      tier: 1,
+      materialNote: "Adapted safely for your cardboard box and clean sock.",
+      provenance: {
+        badge: "Suggested by AI",
+        label: "Material adaptation",
+        disclaimer: NON_DIAGNOSTIC_PLAY_DISCLAIMER,
+        model: "gemini-3.5-flash-lite",
+        reviewed: false,
+      },
+    });
+
+    render(<IdeaHelper ageBand="12-23m" childNickname="Maya" />);
+    await user.click(screen.getByRole("button", { name: "30 minutes" }));
+    await user.selectOptions(screen.getByLabelText("Language"), "fil");
+    await user.type(screen.getByLabelText("What do you have at home?"), "cardboard box, clean sock");
+    await user.click(screen.getByRole("button", { name: "Find ideas" }));
+
+    expect(await screen.findByText("Cardboard box crawl")).toBeTruthy();
+    expect(screen.getAllByText("Material adaptation").length).toBeGreaterThan(0);
+    expect(screen.getByText("Adapted safely for your cardboard box and clean sock.")).toBeTruthy();
+    expect(screen.getByText("30-minute Play Block")).toBeTruthy();
+  });
 });

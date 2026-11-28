@@ -26,13 +26,20 @@
 }
 
 .catalog-controls {
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+}
+
+.catalog-top-filters {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--space-16);
-  padding: var(--space-16);
-  background: var(--color-surface-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
+  align-items: end;
+}
+
+@media (min-width: 768px) {
+  .catalog-top-filters {
+    grid-template-columns: minmax(0, 1fr) 240px;
+  }
 }
 
 .catalog-search-row {
@@ -93,12 +100,6 @@
   }
 }
 
-@media (min-width: 1440px) {
-  .catalog-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 /* Activity Card */
 .catalog-activity-card {
   display: flex;
@@ -106,6 +107,11 @@
   justify-content: space-between;
   gap: var(--space-12);
   min-height: 220px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.catalog-activity-card:hover {
+  border-color: var(--color-brand-soft-sage);
 }
 
 .catalog-activity-header {
@@ -202,8 +208,15 @@
 }
 
 .catalog-activity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
   margin-top: auto;
   padding-top: var(--space-8);
+}
+
+.catalog-activity-view-btn {
+  flex: 1 1 140px;
 }
 
 /* Detail Modal */

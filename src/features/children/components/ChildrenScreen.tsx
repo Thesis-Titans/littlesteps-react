@@ -30,7 +30,7 @@ export function ChildrenScreen() {
   const setAdding = (on: boolean) => setParams(on ? { add: "1" } : {}, { replace: true });
 
   return (
-    <section className="screen" aria-labelledby="children-title">
+    <section className="screen screen-narrow" aria-labelledby="children-title">
       <ScreenHeader id="children-title" title="Your children" childScoped={false} />
       <ChildStatusNotice status={status} onRetry={refresh} hasChildren={children.length > 0} />
       <SuccessNotice message={notice} onClose={closeNotice} />

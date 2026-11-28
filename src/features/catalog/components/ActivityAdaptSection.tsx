@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Badge, Button, Chip, Icon, InlineAlert, TextField } from "../../../components/common";
+import { Badge, Button, FilterChips, Icon, InlineAlert, TextField } from "../../../components/common";
 import { NON_DIAGNOSTIC_PLAY_DISCLAIMER } from "../../../config/externalLinks";
 import { adaptActivity } from "../../ai/api";
 import type { ActivityAdjustment, AdaptActivityResponse } from "../../ai/types";
+import { normalizeMaterials } from "../materials";
 import type { CatalogActivity } from "../types";
 
 const ADJUSTMENT_CHOICES: { id: ActivityAdjustment; label: string }[] = [
@@ -14,14 +15,20 @@ const ADJUSTMENT_CHOICES: { id: ActivityAdjustment; label: string }[] = [
 
 export interface ActivityAdaptSectionProps {
   activity: CatalogActivity;
+  /** Whether the adaptation selector starts expanded without requiring an extra click. */
+  initialOpen?: boolean;
   onPlan?: (activity: CatalogActivity) => void;
 }
 
 /**
  * Interactive activity adaptation form and result panel rendered inside `ActivityDetailModal`.
  */
-export function ActivityAdaptSection({ activity, onPlan }: ActivityAdaptSectionProps) {
-  const [isAdapting, setIsAdapting] = useState(false);
+export function ActivityAdaptSection({
+  activity,
+  initialOpen = false,
+  onPlan,
+}: ActivityAdaptSectionProps) {
+  const [isAdapting, setIsAdapting] = useState(initialOpen);
   const [adjustment, setAdjustment] = useState<ActivityAdjustment>("shorter");
   const [missingMaterial, setMissingMaterial] = useState("");
   const [isAdaptLoading, setIsAdaptLoading] = useState(false);
@@ -86,18 +93,13 @@ export function ActivityAdaptSection({ activity, onPlan }: ActivityAdaptSectionP
           <p className="catalog-limitations-text">
             Choose how you&apos;d like to adjust this for your child, time, or supplies:
           </p>
-          <div className="catalog-adapt-chips" role="group" aria-label="Adjustment type">
-            {ADJUSTMENT_CHOICES.map((choice) => (
-              <Chip
-                key={choice.id}
-                selected={adjustment === choice.id}
-                onClick={() => setAdjustment(choice.id)}
-                aria-label={choice.label}
-              >
-                {choice.label}
-              </Chip>
-            ))}
-          </div>
+          <FilterChips
+            ariaLabel="Adjustment type"
+            options={ADJUSTMENT_CHOICES}
+            selected={adjustment}
+            onToggle={setAdjustment}
+            className="catalog-adapt-chips"
+          />
 
           {adjustment === "missing_material" && (
             <div className="catalog-adapt-missing-field">
@@ -163,16 +165,19 @@ export function ActivityAdaptSection({ activity, onPlan }: ActivityAdaptSectionP
             </div>
           )}
 
-          {adaptedResponse.adapted.materials.length > 0 && (
-            <div className="catalog-detail-section">
-              <span className="catalog-spec-label">Materials:</span>
-              <ul className="catalog-materials-list">
-                {adaptedResponse.adapted.materials.map((mat) => (
-                  <li key={mat}>{mat}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {(() => {
+            const adaptedMaterials = normalizeMaterials(adaptedResponse.adapted.materials);
+            return adaptedMaterials.length > 0 ? (
+              <div className="catalog-detail-section">
+                <span className="catalog-spec-label">Materials:</span>
+                <ul className="catalog-materials-list">
+                  {adaptedMaterials.map((mat) => (
+                    <li key={mat}>{mat}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null;
+          })()}
 
           <div className="catalog-detail-section">
             <span className="catalog-spec-label">Adjusted steps:</span>

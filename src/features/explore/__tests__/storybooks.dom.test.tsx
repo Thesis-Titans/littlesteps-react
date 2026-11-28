@@ -308,7 +308,7 @@ describe("StorybooksSection", () => {
     );
   });
 
-  describe("Family Bookshelf (ADR-015)", () => {
+  describe("Family Bookshelf", () => {
     it("renders 3 shelf tabs and displays bookshelf empty state", async () => {
       vi.spyOn(catalogApi, "fetchBooks").mockResolvedValueOnce({
         subject: "picture_books",

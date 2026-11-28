@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
-  Chip,
   EmptyState,
+  FilterChips,
   InlineAlert,
   Select,
   SessionExpiredAlert,
@@ -15,6 +15,11 @@ import { fetchCatalogActivities, filterFallbackActivities } from "../api";
 import { DOMAIN_LABELS, DOMAINS, type CatalogActivity, type Domain } from "../types";
 import { ActivityCard } from "./ActivityCard";
 import { ActivityDetailModal } from "./ActivityDetailModal";
+
+const DOMAIN_OPTIONS: { id: Domain | "all"; label: string }[] = [
+  { id: "all", label: "All" },
+  ...DOMAINS.map((domain) => ({ id: domain, label: DOMAIN_LABELS[domain] })),
+];
 
 type CatalogBrowserProps = {
   initialAgeBand?: AgeBand;
@@ -35,7 +40,10 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, childAgeMo
   const [activities, setActivities] = useState<CatalogActivity[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error" | "unauthorized">("loading");
   const [usingFallback, setUsingFallback] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<CatalogActivity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<{
+    activity: CatalogActivity;
+    adaptOpen: boolean;
+  } | null>(null);
   const cardButton = useRef<HTMLElement | null>(null);
   const [reloads, setReloads] = useState(0);
 
@@ -168,25 +176,26 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, childAgeMo
         </InlineAlert>
       )}
 
-      {/* Filters */}
-      <div className="catalog-controls">
-        <div className="catalog-search-row">
-          <TextField
-            label="Search activities"
-            type="search"
-            placeholder="Search by title or materials (e.g. cups, mirror)..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+      <div className="ls-filter-bar catalog-controls">
+        <div className="catalog-top-filters">
+          <div className="catalog-search-row">
+            <TextField
+              label="Search activities"
+              type="search"
+              placeholder="Search by title or materials (e.g. cups, mirror)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-        <div className="catalog-filter-group">
-          <Select
-            label="Child's age"
-            value={selectedAgeBand}
-            onChange={(e) => handleAgeChange(e.target.value as AgeBand | "all")}
-            options={ageOptions}
-          />
+          <div className="catalog-filter-group">
+            <Select
+              label="Child's age"
+              value={selectedAgeBand}
+              onChange={(e) => handleAgeChange(e.target.value as AgeBand | "all")}
+              options={ageOptions}
+            />
+          </div>
         </div>
 
         {initialAgeBand && activeChildNickname && selectedAgeBand !== initialAgeBand && (
@@ -195,31 +204,18 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, childAgeMo
               variant="text"
               onClick={() => handleAgeChange(initialAgeBand)}
             >
-              Show ideas for {activeChildNickname}'s age ({ageBandLabel(initialAgeBand)})
+              Show ideas for {activeChildNickname}&apos;s age ({ageBandLabel(initialAgeBand)})
             </Button>
           </div>
         )}
 
-        <div className="catalog-domains-row" role="group" aria-label="Kind of play">
-          <span className="catalog-filter-label" id="domain-filter-label">Kind of play:</span>
-          <div className="catalog-domain-chips" aria-labelledby="domain-filter-label">
-            <Chip
-              selected={selectedDomain === "all"}
-              onClick={() => handleDomainChange("all")}
-            >
-              All
-            </Chip>
-            {DOMAINS.map((domain) => (
-              <Chip
-                key={domain}
-                selected={selectedDomain === domain}
-                onClick={() => handleDomainChange(domain)}
-              >
-                {DOMAIN_LABELS[domain]}
-              </Chip>
-            ))}
-          </div>
-        </div>
+        <FilterChips
+          label="Kind of play"
+          ariaLabel="Kind of play"
+          options={DOMAIN_OPTIONS}
+          selected={selectedDomain}
+          onToggle={handleDomainChange}
+        />
       </div>
 
       {/* States */}
@@ -266,7 +262,14 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, childAgeMo
             <ActivityCard
               key={activity.id}
               activity={activity}
-              onSelect={(a, opener) => { cardButton.current = opener; setSelectedActivity(a); }}
+              onSelect={(a, opener) => {
+                cardButton.current = opener;
+                setSelectedActivity({ activity: a, adaptOpen: false });
+              }}
+              onAdapt={(a, opener) => {
+                cardButton.current = opener;
+                setSelectedActivity({ activity: a, adaptOpen: true });
+              }}
             />
           ))}
         </div>
@@ -274,7 +277,8 @@ export function CatalogBrowser({ initialAgeBand, activeChildNickname, childAgeMo
 
       {/* Detail Modal */}
       <ActivityDetailModal
-        activity={selectedActivity}
+        activity={selectedActivity?.activity ?? null}
+        initialAdaptOpen={selectedActivity?.adaptOpen ?? false}
         childAgeMonths={childAgeMonths}
         onClose={() => setSelectedActivity(null)}
         onPlan={onPlan && ((activity) => { setSelectedActivity(null); onPlan(activity, cardButton.current); })}

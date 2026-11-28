@@ -46,8 +46,30 @@ export function useToday(childId: string, today: string) {
     let live = true;
     Promise.all([listPlans(childId, { date: today }), listPlans(childId, { status: "completed" }), loadActivities()]).then(
       ([plans, history, activities]) => {
+        const mergedActivities: Record<string, CatalogActivity> = { ...activities };
+        for (const plan of [...plans, ...history]) {
+          if (plan.customActivity && !mergedActivities[plan.activityId]) {
+            const snap = plan.customActivity;
+            mergedActivities[plan.activityId] = {
+              id: plan.activityId,
+              title: snap.title,
+              type: "activity",
+              language: "en",
+              setting: snap.setting,
+              ageBand: "12-23m",
+              domain: snap.domain,
+              durationMinutes: snap.durationMinutes,
+              durationEstimate: `${snap.durationMinutes} min`,
+              materials: snap.materials,
+              instructions: snap.instructions,
+              provenanceSource: snap.sourceLabel ?? "Custom play idea",
+              status: "source_checked",
+              limitations: snap.safetyNotice ?? "Everyday play idea only — not a medical or developmental test.",
+            };
+          }
+        }
         // The API returns the oldest completed plans first, so a full page means newer ones may be missing (the screen says so).
-        if (live) setLoad({ status: "ready", plans: plans.filter((p) => p.status !== "skipped"), history: history.sort(byCompletedDesc), historyCut: history.length >= HISTORY_LIMIT, activities });
+        if (live) setLoad({ status: "ready", plans: plans.filter((p) => p.status !== "skipped"), history: history.sort(byCompletedDesc), historyCut: history.length >= HISTORY_LIMIT, activities: mergedActivities });
       },
       (error) => live && setLoad({ status: failureKind(error, online()) })
     );

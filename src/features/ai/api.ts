@@ -19,6 +19,7 @@ export async function getAiRecommendations(
     language: request.language,
     setting: request.setting ?? "either",
     count: request.count ?? 3,
+    allowCustom: request.allowCustom ?? true,
   };
 
   if (request.domain) {

@@ -300,21 +300,20 @@ describe("PlanActivityDialog", () => {
     expect(onPlanned).not.toHaveBeenCalled();
   });
 
-  it("renders hero greeting and Figma sidebar widgets", async () => {
+  it("renders hero greeting and sidebar widgets", async () => {
     stubLists([]);
     renderToday();
 
     expect(await screen.findByText(/Good (morning|afternoon|evening)!/i)).toBeTruthy();
     expect(screen.getByText(/Here's Maya's play plan for today/i)).toBeTruthy();
 
-    // Side widgets (react #45)
     expect(screen.getByRole("heading", { name: "This week" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Milestones to notice" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "View reflection" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "View milestones" })).toBeTruthy();
   });
 
-  // react #51: one idea entry point at a time, with one label.
+  // One idea entry point at a time, with a single consistent label.
   it("offers Find an idea from the empty plan only, without the duplicate side card", async () => {
     stubLists([]);
     renderToday();

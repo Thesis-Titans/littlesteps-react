@@ -237,4 +237,33 @@ describe("JournalScreen", () => {
     });
     expect((screen.getByLabelText("What did you see?") as HTMLTextAreaElement).value).toBe("");
   });
+
+  it("edits an existing journal note inline", async () => {
+    vi.spyOn(journalApi, "listJournalEntries").mockResolvedValueOnce(mockNotes);
+    const updateSpy = vi.spyOn(journalApi, "updateJournalEntry").mockResolvedValueOnce({
+      ...mockNotes[0],
+      content: "Stacked five blocks today and clapped!",
+    });
+
+    renderJournal();
+
+    await waitFor(() => {
+      expect(screen.getByText("Stacked four blocks today with giant smiles.")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Edit note from/i })[0]);
+    const editBox = screen.getByLabelText("Edit note");
+    fireEvent.change(editBox, { target: { value: "Stacked five blocks today and clapped!" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith(
+        "child-1",
+        "n1",
+        expect.objectContaining({ content: "Stacked five blocks today and clapped!" })
+      );
+      expect(screen.getByText("Stacked five blocks today and clapped!")).toBeTruthy();
+      expect(screen.getByText("Note updated.")).toBeTruthy();
+    });
+  });
 });

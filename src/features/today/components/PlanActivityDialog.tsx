@@ -3,7 +3,14 @@ import { Button, InlineAlert, ModalDialog, TextField } from "../../../components
 import { ApiError } from "../../../services/api";
 import type { CatalogActivity } from "../../catalog";
 import { createPlan } from "../api";
-import { localDate, problemFor, savePlannedActivity, validatePlanDate, type Problem } from "../logic";
+import {
+  localDate,
+  problemFor,
+  savePlannedActivity,
+  toCustomPlanActivity,
+  validatePlanDate,
+  type Problem,
+} from "../logic";
 import type { Plan } from "../types";
 
 type Props = {
@@ -46,7 +53,12 @@ function PlanActivityForm({
     if (invalid) return;
     setBusy(true);
     try {
-      const plan = await createPlan(childId, { activityId: activity.id, scheduledDate: date });
+      const customActivity = toCustomPlanActivity(activity);
+      const plan = await createPlan(childId, {
+        activityId: activity.id,
+        scheduledDate: date,
+        ...(customActivity ? { durationMinutes: activity.durationMinutes, customActivity } : {}),
+      });
       savePlannedActivity(activity);
       onPlanned(plan, activity);
     } catch (error) {

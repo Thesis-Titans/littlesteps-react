@@ -8,7 +8,7 @@ import {
   Skeleton,
   SuccessNotice,
 } from "../../components/common";
-import { ScreenHeader } from "../../components/layout";
+import { ScreenHeader, TwoColumnLayout } from "../../components/layout";
 import { useChild } from "../children/useChild";
 import { JournalComposer } from "./components/JournalComposer";
 import { JournalEntryCard } from "./components/JournalEntryCard";
@@ -45,7 +45,7 @@ export function JournalScreen() {
 
 function ActiveChildJournal({ childId, childNickname }: { childId: string; childNickname: string }) {
   const [filterDate, setFilterDate] = useState("");
-  const { status, entries, reload, addEntry, removeEntry } = useJournal(
+  const { status, entries, reload, addEntry, editEntry, removeEntry } = useJournal(
     childId,
     filterDate ? { date: filterDate } : undefined
   );
@@ -59,6 +59,15 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
     setDeleteError(null);
     await addEntry(input);
     setNotice("Note saved to journal.");
+  }
+
+  async function handleUpdateEntry(
+    entryId: string,
+    input: { content: string; entryDate: string }
+  ) {
+    setDeleteError(null);
+    await editEntry(entryId, input);
+    setNotice("Note updated.");
   }
 
   async function handleDeleteConfirm() {
@@ -86,101 +95,117 @@ function ActiveChildJournal({ childId, childNickname }: { childId: string; child
 
       <SuccessNotice message={notice ?? undefined} onClose={() => setNotice(null)} />
 
-      <aside className="journal-privacy-callout" role="note" aria-label="Privacy notice">
-        <Icon name="lock" size={16} />
-        <span>Only you can see your notes. They are never shared or sent to AI.</span>
-      </aside>
+      <TwoColumnLayout
+        asidePosition="left"
+        asideLabel="Write a private journal note"
+        aside={
+          <>
+            <aside className="journal-privacy-callout" role="note" aria-label="Privacy notice">
+              <Icon name="lock" size={16} />
+              <span>Only you can see your notes. They are never shared or sent to AI.</span>
+            </aside>
 
-      <JournalComposer childNickname={childNickname} onSave={handleSaveEntry} />
+            <JournalComposer childNickname={childNickname} onSave={handleSaveEntry} />
+          </>
+        }
+        main={
+          <>
+            {deleteError && (
+              <InlineAlert kind="caution" title="Note not deleted">
+                <p>{deleteError}</p>
+              </InlineAlert>
+            )}
 
-      {deleteError && (
-        <InlineAlert kind="caution" title="Note not deleted">
-          <p>{deleteError}</p>
-        </InlineAlert>
-      )}
-
-      <div className="journal-filter-bar" role="search" aria-label="Filter journal notes">
-        <div className="journal-filter-left">
-          <label htmlFor="filter-journal-date" className="journal-form-label">
-            Filter by date:
-          </label>
-          <input
-            id="filter-journal-date"
-            type="date"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            className="journal-input"
-            aria-label="Filter notes by date"
-          />
-        </div>
-        {filterDate && (
-          <Button variant="secondary" onClick={() => setFilterDate("")}>
-            Clear date filter
-          </Button>
-        )}
-      </div>
-
-      {status === "unauthorized" && (
-        <InlineAlert kind="caution" title="Access denied">
-          <p>We can&apos;t open this note. It may have been deleted. Your own notes are safe.</p>
-        </InlineAlert>
-      )}
-
-      {status === "error" && (
-        <InlineAlert
-          kind="caution"
-          title="Connection error"
-          action={
-            <Button variant="secondary" onClick={reload}>
-              Retry
-            </Button>
-          }
-        >
-          <p>We couldn&apos;t reach LittleSteps. Please check your connection and try again.</p>
-        </InlineAlert>
-      )}
-
-      {status === "offline" && (
-        <InlineAlert kind="offline" title="Offline mode">
-          <p>You&apos;re offline. Previously loaded notes are shown.</p>
-        </InlineAlert>
-      )}
-
-      {status === "loading" && (
-        <div className="journal-feed" aria-busy="true" aria-label="Loading journal notes">
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="journal-card">
-              <Skeleton kind="card" label="Loading journal note…" />
+            <div className="journal-filter-bar" role="search" aria-label="Filter journal notes">
+              <div className="journal-filter-left">
+                <label htmlFor="filter-journal-date" className="journal-form-label">
+                  Filter by date:
+                </label>
+                <input
+                  id="filter-journal-date"
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className="journal-input"
+                  aria-label="Filter notes by date"
+                />
+              </div>
+              {filterDate && (
+                <Button variant="secondary" onClick={() => setFilterDate("")}>
+                  Clear date filter
+                </Button>
+              )}
             </div>
-          ))}
-        </div>
-      )}
 
-      {status === "ready" && entries.length === 0 && (
-        <EmptyState
-          title={`No notes for ${childNickname} yet`}
-          action={
-            <Button
-              variant="secondary"
-              onClick={() => {
-                document.getElementById("journal-content")?.focus();
-              }}
-            >
-              Write a note
-            </Button>
-          }
-        >
-          <p>Jot down small wins, funny moments, or things {childNickname} is trying.</p>
-        </EmptyState>
-      )}
+            {status === "unauthorized" && (
+              <InlineAlert kind="caution" title="Access denied">
+                <p>We can&apos;t open this note. It may have been deleted. Your own notes are safe.</p>
+              </InlineAlert>
+            )}
 
-      {(status === "ready" || status === "offline") && entries.length > 0 && (
-        <div className="journal-feed" role="feed" aria-label="Journal notes">
-          {entries.map((entry) => (
-            <JournalEntryCard key={entry.id} entry={entry} onDelete={setDeletingEntry} />
-          ))}
-        </div>
-      )}
+            {status === "error" && (
+              <InlineAlert
+                kind="caution"
+                title="Connection error"
+                action={
+                  <Button variant="secondary" onClick={reload}>
+                    Retry
+                  </Button>
+                }
+              >
+                <p>We couldn&apos;t reach LittleSteps. Please check your connection and try again.</p>
+              </InlineAlert>
+            )}
+
+            {status === "offline" && (
+              <InlineAlert kind="offline" title="Offline mode">
+                <p>You&apos;re offline. Previously loaded notes are shown.</p>
+              </InlineAlert>
+            )}
+
+            {status === "loading" && (
+              <div className="journal-feed" aria-busy="true" aria-label="Loading journal notes">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={idx} className="journal-card">
+                    <Skeleton kind="card" label="Loading journal note…" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {status === "ready" && entries.length === 0 && (
+              <EmptyState
+                title={`No notes for ${childNickname} yet`}
+                action={
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      document.getElementById("journal-content")?.focus();
+                    }}
+                  >
+                    Write a note
+                  </Button>
+                }
+              >
+                <p>Jot down small wins, funny moments, or things {childNickname} is trying.</p>
+              </EmptyState>
+            )}
+
+            {(status === "ready" || status === "offline") && entries.length > 0 && (
+              <div className="journal-feed" role="feed" aria-label="Journal notes">
+                {entries.map((entry) => (
+                  <JournalEntryCard
+                    key={entry.id}
+                    entry={entry}
+                    onUpdate={handleUpdateEntry}
+                    onDelete={setDeletingEntry}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        }
+      />
 
       <ConfirmDialog
         open={deletingEntry !== null}

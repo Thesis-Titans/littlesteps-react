@@ -1,7 +1,7 @@
 import { auth } from "./firebase";
 
 function getApiBaseUrl(): string | undefined {
-  return (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "");
+  return import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
 }
 
 export type ApiHealth = { status: "ok" };

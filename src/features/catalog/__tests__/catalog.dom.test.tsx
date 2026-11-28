@@ -227,18 +227,16 @@ describe("CatalogBrowser DOM tests", () => {
       expect(screen.getByText("Stack the cups")).toBeTruthy();
     });
 
-    // Open activity details
-    const viewButton = screen.getByRole("button", {
-      name: "View activity for Stack the cups",
+    // Open activity details directly via the Adapt shortcut on the card
+    const adaptButton = screen.getByRole("button", {
+      name: "Adapt Stack the cups",
     });
-    await user.click(viewButton);
+    await user.click(adaptButton);
 
+    // Adaptation choices are immediately ready with zero intermediate click
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Adapt this activity" })).toBeTruthy();
+      expect(screen.getByLabelText("Shorter (5–10 min)")).toBeTruthy();
     });
-
-    // Click Adapt activity to expand the form
-    await user.click(screen.getByRole("button", { name: "Adapt this activity" }));
 
     // Select Shorter
     await user.click(screen.getByLabelText("Shorter (5–10 min)"));

@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { Button, Card, Chip, EmptyState, InlineAlert, Skeleton } from "../../../components/common";
+import { Button, Card, EmptyState, FilterChips, InlineAlert, Skeleton } from "../../../components/common";
 import { EXTERNAL_LINKS } from "../../../config/externalLinks";
 import {
   BOOK_SUBJECTS,
@@ -8,6 +8,11 @@ import {
   type BookSubject,
 } from "../../catalog/types";
 import { StorybookCard } from "./StorybookCard";
+
+const SUBJECT_OPTIONS: { id: BookSubject; label: string }[] = BOOK_SUBJECTS.map((subject) => ({
+  id: subject,
+  label: BOOK_SUBJECT_LABELS[subject],
+}));
 
 export interface OpenLibraryTabProps {
   books: BookItem[];
@@ -72,21 +77,13 @@ export function OpenLibraryTab({
         </form>
 
         {!activeSearch && (
-          <div className="storybooks-subjects" role="group" aria-label="Book subjects">
-            {BOOK_SUBJECTS.map((subject) => {
-              const isSelected = selectedSubject === subject;
-              return (
-                <Chip
-                  key={subject}
-                  selected={isSelected}
-                  onClick={() => onSelectSubject(subject)}
-                  aria-pressed={isSelected}
-                >
-                  {BOOK_SUBJECT_LABELS[subject]}
-                </Chip>
-              );
-            })}
-          </div>
+          <FilterChips
+            ariaLabel="Book subjects"
+            options={SUBJECT_OPTIONS}
+            selected={selectedSubject}
+            onToggle={onSelectSubject}
+            className="storybooks-subjects"
+          />
         )}
       </div>
 

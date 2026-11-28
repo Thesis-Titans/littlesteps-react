@@ -3,6 +3,7 @@ import {
   Badge,
   Button,
   Card,
+  Icon,
   InlineAlert,
   SessionExpiredAlert,
 } from "../../../components/common";
@@ -13,7 +14,7 @@ import type { CatalogActivity, Domain, Setting } from "../../catalog/types";
 import type { AgeBand } from "../../children/types";
 import { ApiError, buildDeterministicFallback, getAiRecommendations } from "../api";
 import type { RecommendationRequest, RecommendationResponse } from "../types";
-import { IdeaHelperForm } from "./IdeaHelperForm";
+import { IdeaHelperForm, type PlayLanguage } from "./IdeaHelperForm";
 import { IdeaSuggestionCard } from "./IdeaSuggestionCard";
 
 export interface IdeaHelperProps {
@@ -23,12 +24,14 @@ export interface IdeaHelperProps {
   initialSetting?: Setting;
   onSelectActivity?: (activityId: string) => void;
   onPlanActivity?: (activity: CatalogActivity) => void;
+  onClose?: () => void;
 }
 
 type ViewState = "form" | "loading" | "results" | "unauthorized";
 
 /**
- * Constrained AI Idea Helper that gathers play preferences and falls back gracefully to reviewed picks.
+ * Constrained AI Idea Helper supporting reviewed catalog matches, custom material adaptations,
+ * multi-activity Play Blocks (30–45 min), and deterministic fallback picks.
  */
 export function IdeaHelper({
   ageBand,
@@ -36,11 +39,13 @@ export function IdeaHelper({
   initialSetting,
   onSelectActivity,
   onPlanActivity,
+  onClose,
 }: IdeaHelperProps) {
   const [viewState, setViewState] = useState<ViewState>("form");
   const [timeMinutes, setTimeMinutes] = useState<number>(15);
   const [userSetting, setUserSetting] = useState<Setting | null>(initialSetting ?? null);
   const [prevInitialSetting, setPrevInitialSetting] = useState<Setting | undefined>(initialSetting);
+  const [language, setLanguage] = useState<PlayLanguage>("en");
   const [materialsText, setMaterialsText] = useState("");
   const [selectedDomain, setSelectedDomain] = useState<Domain | "all">("all");
   const [response, setResponse] = useState<RecommendationResponse | null>(null);
@@ -71,8 +76,9 @@ export function IdeaHelper({
     setting,
     domain: selectedDomain !== "all" ? selectedDomain : undefined,
     materials: parsedMaterials,
-    language: "en",
+    language,
     count: 3,
+    allowCustom: true,
   });
 
   const handleSubmit = async (e?: FormEvent, isAnother = false) => {
@@ -126,7 +132,11 @@ export function IdeaHelper({
   };
 
   const childName = childNickname ?? "your child";
-  const isAiSuggestion = response?.source === "ai" && response?.tier === 1;
+  const isCustomAdaptation = response?.source === "ai_custom";
+  const isAiSuggestion =
+    response?.tier === 1 && (response?.source === "ai" || response?.source === "ai_custom");
+  const isPlayBlock =
+    Boolean(response) && timeMinutes >= 30 && (response?.suggestions.length ?? 0) >= 2;
 
   return (
     <Card as="section" elevated className="idea-helper-card" aria-labelledby="idea-helper-heading">
@@ -135,7 +145,16 @@ export function IdeaHelper({
           <h2 id="idea-helper-heading" className="idea-helper-title">
             Idea Helper
           </h2>
-          {isAiSuggestion && <Badge kind="ai" />}
+          <div className="idea-helper-header-actions">
+            {isAiSuggestion && (
+              <Badge kind="ai">{isCustomAdaptation ? "Material adaptation" : undefined}</Badge>
+            )}
+            {onClose && (
+              <Button variant="text" onClick={onClose} aria-label="Hide Idea Helper">
+                Hide
+              </Button>
+            )}
+          </div>
         </div>
         <p className="idea-helper-subtitle">
           Find a play idea for {childName} with the time and materials you have.
@@ -147,12 +166,14 @@ export function IdeaHelper({
           timeMinutes={timeMinutes}
           setting={setting}
           selectedDomain={selectedDomain}
+          language={language}
           materialsText={materialsText}
           weather={weather}
           cityName={cityName}
           onTimeChange={setTimeMinutes}
           onSettingChange={setUserSetting}
           onDomainChange={setSelectedDomain}
+          onLanguageChange={setLanguage}
           onMaterialsChange={setMaterialsText}
           onSubmit={(e) => void handleSubmit(e)}
         />
@@ -194,6 +215,24 @@ export function IdeaHelper({
             </div>
           )}
 
+          {response.materialNote && (
+            <InlineAlert kind="info" title="About your household items">
+              <p>{response.materialNote}</p>
+            </InlineAlert>
+          )}
+
+          {isPlayBlock && (
+            <div className="idea-play-block-banner" role="note">
+              <Icon name="clock" size={18} />
+              <div>
+                <strong>{timeMinutes}-minute Play Block</strong>
+                <p>
+                  Young children enjoy short bursts of play. Rotate through these {response.suggestions.length} activities at {childName}&apos;s pace.
+                </p>
+              </div>
+            </div>
+          )}
+
           <p className="idea-helper-disclaimer">{NON_DIAGNOSTIC_PLAY_DISCLAIMER}</p>
 
           {isAiSuggestion && response.provenance.guidance && (
@@ -205,6 +244,7 @@ export function IdeaHelper({
               <IdeaSuggestionCard
                 key={suggestion.activityId}
                 suggestion={suggestion}
+                isCustom={isCustomAdaptation}
                 onPlanActivity={onPlanActivity}
                 onSelectActivity={onSelectActivity}
               />

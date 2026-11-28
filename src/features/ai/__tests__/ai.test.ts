@@ -109,6 +109,7 @@ describe("getAiRecommendations API client", () => {
         language: "en",
         setting: "indoor",
         count: 3,
+        allowCustom: true,
         materials: ["cups", "spoon"],
       }),
     });
